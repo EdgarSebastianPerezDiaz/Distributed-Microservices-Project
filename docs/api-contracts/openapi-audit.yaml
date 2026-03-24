@@ -1,0 +1,406 @@
+openapi: 3.0.0
+info:
+  title: Audit Microservice API
+  description: Records and retrieves audit events for compliance and traceability
+  version: 1.0.0
+  contact:
+    name: Systems Engineering Team
+
+servers:
+  - url: http://localhost:8083/api/audit
+    description: Local development server (Python/FastAPI)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /events:
+    get:
+      summary: List audit events
+      description: Retrieve audit events with filtering and pagination (AUDITOR role)
+      operationId: listAuditEvents
+      parameters:
+        - name: eventType
+          in: query
+          description: Filter by event type (LOGIN, LOGOUT, CREATE, UPDATE, DELETE, TRANSITION_STATE, ERROR)
+          required: false
+          schema:
+            type: string
+            enum: [LOGIN, LOGOUT, CREATE, UPDATE, DELETE, TRANSITION_STATE, ERROR]
+        - name: entityType
+          in: query
+          description: Filter by entity type (USER, SUPPLIER, CONTRACT, SYSTEM)
+          required: false
+          schema:
+            type: string
+            enum: [USER, SUPPLIER, CONTRACT, SYSTEM]
+        - name: userId
+          in: query
+          description: Filter by user UUID who performed the action
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          description: Filter events from this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Filter events until this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          description: Maximum number of events to return
+          required: false
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 500
+        - name: offset
+          in: query
+          description: Number of events to skip for pagination
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of audit events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditEventResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - only AUDITOR role can access audit events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /events/{eventId}:
+    get:
+      summary: Get audit event by ID
+      description: Retrieve a specific audit event (AUDITOR role only)
+      operationId: getAuditEvent
+      parameters:
+        - name: eventId
+          in: path
+          description: MongoDB ObjectId of the audit event
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audit event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEventResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /events/entity/{entityId}:
+    get:
+      summary: Get audit trail for an entity
+      description: Retrieve all events related to a specific entity (AUDITOR role)
+      operationId: getEntityAuditTrail
+      parameters:
+        - name: entityId
+          in: path
+          description: UUID of the entity (user, supplier, or contract)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Audit trail for the entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entityId:
+                    type: string
+                    format: uuid
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditEventResponse'
+        '400':
+          description: Invalid entity ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /report:
+    post:
+      summary: Generate audit report
+      description: Generate a compliance report for a date range (AUDITOR role only)
+      operationId: generateAuditReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditReportRequest'
+      responses:
+        '200':
+          description: Audit report generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditReportResponse'
+        '400':
+          description: Invalid date range or request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - only AUDITOR can generate reports
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check if audit service is operational (no authentication required)
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [UP]
+                  service:
+                    type: string
+                    example: "audit-service"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    AuditEventResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId (immutable)
+        eventId:
+          type: string
+          format: uuid
+          description: Unique event identifier (in UUID format)
+        eventType:
+          type: string
+          enum: [LOGIN, LOGOUT, CREATE, UPDATE, DELETE, TRANSITION_STATE, ERROR]
+          description: Type of event that occurred
+        entityType:
+          type: string
+          enum: [USER, SUPPLIER, CONTRACT, SYSTEM]
+          description: Type of entity affected
+        entityId:
+          type: string
+          format: uuid
+          description: UUID of the affected entity
+        performedBy:
+          type: string
+          format: uuid
+          description: UUID of the user who performed the action
+        previousData:
+          type: object
+          nullable: true
+          description: Entity data before the action (for UPDATE/DELETE events)
+        newData:
+          type: object
+          nullable: true
+          description: Entity data after the action (for CREATE/UPDATE events)
+        ipAddress:
+          type: string
+          description: IP address of the request source
+        userAgent:
+          type: string
+          nullable: true
+          description: HTTP User-Agent header (if available)
+        statusCode:
+          type: integer
+          description: HTTP response status code
+        errorMessage:
+          type: string
+          nullable: true
+          description: Error message (if status is error)
+        timestamp:
+          type: string
+          format: date-time
+          description: Event occurrence timestamp (UTC, ISO 8601)
+
+    AuditReportRequest:
+      type: object
+      required:
+        - startDate
+        - endDate
+      properties:
+        startDate:
+          type: string
+          format: date
+          description: Report start date (YYYY-MM-DD)
+        endDate:
+          type: string
+          format: date
+          description: Report end date (YYYY-MM-DD)
+        eventTypes:
+          type: array
+          items:
+            type: string
+            enum: [LOGIN, LOGOUT, CREATE, UPDATE, DELETE, TRANSITION_STATE, ERROR]
+          nullable: true
+          description: Filter by event types (optional)
+        entityTypes:
+          type: array
+          items:
+            type: string
+            enum: [USER, SUPPLIER, CONTRACT, SYSTEM]
+          nullable: true
+          description: Filter by entity types (optional)
+
+    AuditReportResponse:
+      type: object
+      properties:
+        reportId:
+          type: string
+          format: uuid
+          description: Unique report identifier
+        generatedAt:
+          type: string
+          format: date-time
+          description: Report generation timestamp
+        generatedBy:
+          type: string
+          format: uuid
+          description: User who requested the report
+        period:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+        summary:
+          type: object
+          properties:
+            totalEvents:
+              type: integer
+            eventsByType:
+              type: object
+              additionalProperties:
+                type: integer
+            eventsByEntity:
+              type: object
+              additionalProperties:
+                type: integer
+            topErrors:
+              type: array
+              items:
+                type: object
+                properties:
+                  errorMessage:
+                    type: string
+                  count:
+                    type: integer
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEventResponse'
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Error message
+        timestamp:
+          type: string
+          format: date-time
+          description: Error occurrence timestamp (UTC)
