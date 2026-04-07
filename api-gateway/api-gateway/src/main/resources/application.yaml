@@ -1,0 +1,87 @@
+# ============================================================
+# API GATEWAY - PUERTA DE ENTRADA ÚNICA
+# ============================================================
+# Responsabilidades:
+# 1. Enrutar peticiones al microservicio correcto
+# 2. Validar tokens JWT (desde filtro en código)
+# 3. Balanceo de carga automático con Eureka
+# ============================================================
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+
+        # ==============================
+        # SERVICIO DE USUARIOS (AUTH)
+        # ==============================
+        - id: usuario-service
+          uri: lb://usuario-service
+          predicates:
+            - Path=/usuarios/**,/api/users/**,/api/auth/**
+
+        # ==============================
+        # SERVICIO DE CONTRATOS
+        # ==============================
+        - id: contrato-service
+          uri: lb://contrato-service
+          predicates:
+            - Path=/api/contracts/**,/contratos/**
+
+        # ==============================
+        # SERVICIO DE PROVEEDORES
+        # ==============================
+        - id: proveedor-service
+          uri: lb://proveedor-service
+          predicates:
+            - Path=/api/suppliers/**,/proveedores/**
+
+      # ==============================
+      # CONFIGURACIÓN CORS GLOBAL
+      # ==============================
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+# ==============================
+# EUREKA CLIENT
+# ==============================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# ==============================
+# LOGS (para debug)
+# ==============================
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+
+# ==============================
+# ACTUATOR 
+# ==============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health, info
