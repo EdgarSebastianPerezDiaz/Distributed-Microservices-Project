@@ -17,7 +17,7 @@ def decode_token(authorization: str = Header(default="")): ##funcij que recibe e
 
 def require_read_access(payload=Header(default=None), authorization: str = Header(default="")): ##Valid a qe el usuario tenga permiso de lectura del historial
     user = decode_token(authorization)
-    roles = user.get("roles")
+    roles = user.get("role")
 
     if isinstance(roles, str):
         roles = [roles]

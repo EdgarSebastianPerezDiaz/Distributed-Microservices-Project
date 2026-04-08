@@ -22,16 +22,16 @@ TipoEvento = Literal[
 ]
 #rOLES VALIDOS
 
-RolUsuario=Literal["ADMINISTRADOS","FUNCIONARIO","AUDITOR"]
+RolUsuario=Literal["ADMINISTRADOR","FUNCIONARIO","AUDITOR"]
 
 
 ##Define que campos debe tener el JSON al realizar un nuevo registro
 class EventoCreate(BaseModel):
-    entidad_tipo:EntidadTipo
-    entidad_id: str
+    entidad_tipo:EntidadTipo=Field(...,description="Contratp, Proveedor o Usuario")
+    entidad_id: str=Field(...,min_length=100, description="ID Unico")
 
     #Tipo de operacion
-    tipo_evento:TipoEvento
+    tipo_evento:TipoEvento =Field(...,description="Tipo de evento")
 
     descripcion: str = Field(
         min_length=5,
@@ -39,27 +39,27 @@ class EventoCreate(BaseModel):
         description="Descripcion del cambio realizado a las emas tablas"
     )
 
-    estado_anterior: Optional[str]=None
-    estado_nuevo: Optional[str]=None
+    estado_anterior: Optional[str]=Field(default=None,description="Estado anterior")
+    estado_nuevo: Optional[str]=Field(default=None,description="Estado Nuevo")
 
-    motivo:Optional[str]=Field(default=None,max_length=300)
+    motivo:Optional[str]=Field(default=None,max_length=300,description="Motivo")
 
     #Usuario que hizo el cambio
-    usuario_id: UUID
-    usuario_nombre: str = Field(min_length=2, max_length=120)
-    usuario_rol:RolUsuario
+    usuario_id: UUID =Field(...,description="ID del usuario que ejecuto la accion")
+    usuario_nombre: str = Field(min_length=2, max_length=120,description="Nombre usuario")
+    usuario_rol:RolUsuario=Field(...,description="Rol del ejecutor")
 
     #Fecha del evento
-    fecha: Optional[datetime]=None
+    fecha: Optional[datetime]=Field(default=None,description="Fecha")
 
     version:int=Field(
         ge=1,
         description="version"
     )
 
-    metadata: Optional[Dict[str,Any]]=None
+    metadata: Optional[Dict[str,Any]]=Field(default=None,description="Datos adicionales")
 
-    contrato_id: Optional[UUID]=None
+    contrato_id: Optional[UUID]=Field(default=None,description="ID contrato")
 
 
 class EventoResponse(BaseModel):
