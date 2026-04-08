@@ -66,3 +66,8 @@ feign:
       default:
         connectTimeout: 2000
         readTimeout: 5000
+
+# Configuración del servicio de auditoría
+audit:
+  service:
+    url: http://localhost:8084
