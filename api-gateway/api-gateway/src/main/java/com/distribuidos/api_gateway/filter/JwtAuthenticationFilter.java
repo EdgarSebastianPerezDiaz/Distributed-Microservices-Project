@@ -12,6 +12,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import java.util.Date;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +25,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
     private final List<String> publicPaths = List.of(
-        "/auth",
-        "/api/auth",
+        "/api/auth/login",
         "/actuator",
         "/eureka",
         "/swagger",
@@ -67,13 +67,19 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+           
+            Date expiration = claims.getExpiration();
+            if (expiration.before(new Date())) {
+                return unauthorized(exchange, "Token expirado");
+            }
 
-            String userId = claims.getSubject();
+            String userId = claims.get("user_id", String.class);
             String role = claims.get("role", String.class);
 
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                     .header("X-User-Id", userId)
                     .header("X-User-Role", role)
+                    .header("X-Role", role)
                     .build();
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());

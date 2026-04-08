@@ -28,7 +28,7 @@ import java.util.UUID;
  * PATCH /api/users/{id}/status - Activar/Desactivar (solo ADMIN)
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     

@@ -51,12 +51,13 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
         
         return Jwts.builder()
-                .setSubject(userId.toString())  // sub = ID usuario
+                .setSubject(userId.toString())
+                .claim("user_id", userId.toString()) 
                 .claim("username", username)
-                .claim("role", role)  // Rol como claim
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)  // Firma con SHA-512
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
     
