@@ -4,7 +4,6 @@ import com.distribuidos.usuario_service.dto.*;
 import com.distribuidos.usuario_service.security.JwtService;
 import com.distribuidos.usuario_service.service.UserService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,26 +13,18 @@ import java.util.UUID;
 
 /**
  * Controlador de Autenticación y Usuarios
- * 
- * Endpoints:
- * 
- * PÚBLICOS:
- * POST /api/auth/login       - Login (devuelve JWT)
- * 
- * PROTEGIDOS (requieren JWT):
- * GET  /api/auth/me          - Datos del usuario actual
- * POST /api/auth/register    - Crear usuario (solo ADMIN)
- * GET  /api/users            - Listar usuarios (solo ADMIN)
- * GET  /api/users/{id}       - Ver usuario específico
- * PATCH /api/users/{id}/status - Activar/Desactivar (solo ADMIN)
  */
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
     
     private final UserService userService;
     private final JwtService jwtService;
+    
+    public AuthController(UserService userService, JwtService jwtService) {
+        this.userService = userService;
+        this.jwtService = jwtService;
+    }
     
     /**
      * LOGIN - PÚBLICO

@@ -1,27 +1,36 @@
 package com.distribuidos.contrato_service.config;
 
-
+import com.distribuidos.contrato_service.security.JwtAuthenticationFilter;
+import com.distribuidos.contrato_service.security.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Collection;
-import java.util.List;
-
+/**
+ * Configuración de Seguridad para contrato-service
+ * FIX HC-2: Reemplazar OAuth2 con JWT HS512 simétrico
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    
+    private final JwtUtils jwtUtils;
+    
+    public SecurityConfig(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
+    
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtils);
+    }
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,33 +39,11 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/health").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-            );
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
-    }
-    
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new JwtGrantedAuthoritiesConverter());
-        return converter;
-    }
-    
-    private static class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-        
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            String role = jwt.getClaimAsString("role");
-            
-            if (role == null || role.isEmpty()) {
-                return List.of();
-            }
-            
-            return List.of(new SimpleGrantedAuthority("ROLE_" + role));
-        }
     }
 }

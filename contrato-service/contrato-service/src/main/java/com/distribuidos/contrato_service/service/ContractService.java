@@ -1,6 +1,7 @@
 package com.distribuidos.contrato_service.service;
 
 
+import com.distribuidos.contrato_service.client.AuditClient;
 import com.distribuidos.contrato_service.client.SupplierClient;
 import com.distribuidos.contrato_service.dto.*;
 import com.distribuidos.contrato_service.exception.*;
@@ -36,6 +37,7 @@ public class ContractService {
     private final ContractMapper contractMapper;
     private final ContractStateMachine stateMachine;
     private final SupplierClient supplierClient;
+    private final AuditClient auditClient;
     
     // Códigos de error según documento
     private static final String ERROR_NOT_FOUND = "CTR_001";
@@ -132,7 +134,27 @@ public class ContractService {
         // Registrar en historial local
         registerStatusHistory(contract, oldStatus, newStatus, request.getReason(), userId);
         
-        // TODO: En Sprint 3, enviar evento a Auditoría externa
+        // Enviar evento a Auditoría externa
+        try {
+            EventoAuditoriaDTO evento = EventoAuditoriaDTO.builder()
+                .contrato_id(id)
+                .tipo_evento("CAMBIAR_ESTADO")
+                .estado_anterior(oldStatus.toString())
+                .estado_nuevo(newStatus.toString())
+                .motivo(request.getReason() != null ? request.getReason() : "")
+                .usuario_id(userId.toString())
+                .usuario_nombre(userEmail)
+                .rol_usuario(userRole)
+                .fecha(LocalDateTime.now())
+                .build();
+            
+            auditClient.registrarEvento(evento);
+            log.info("Audit event sent for contract status change. Contract ID: {}", id);
+        } catch (Exception e) {
+            // Error de auditoría no debe bloquear el cambio de estado
+            log.warn("Failed to send audit event for contract status change. Contract ID: {}, Error: {}", id, e.getMessage());
+        }
+        
         log.info("Status changed from {} to {} for contract: {}", oldStatus, newStatus, id);
         
         return contractMapper.toResponse(updatedContract);

@@ -29,12 +29,9 @@ def require_read_access(payload=Header(default=None), authorization: str = Heade
 
 def require_internal_post(authorization: str = Header(default="")): ##Proteje la tabla auditoria solo permite registrar eventos a los usuarios con roles permitidos
     user = decode_token(authorization)
-    roles = user.get("roles")
+    role = user.get("role")  # FIX HC-1: cambiar "roles" (plural) por "role" (singular)
 
-    if isinstance(roles, str):
-        roles = [roles]
-
-    if not roles or not any(r in ["ADMINISTRADOR", "FUNCIONARIO"] for r in roles):
+    if not role or role not in ["ADMINISTRADOR", "FUNCIONARIO"]:
         raise HTTPException(status_code=403, detail="No autorizado para registrar eventos")
 
     return user

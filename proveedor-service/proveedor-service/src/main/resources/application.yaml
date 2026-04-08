@@ -18,14 +18,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:9000
-
 server:
   port: 8082
+
+# FIX HC-2: Configuración JWT SIMÉTRICO (HS512)
+jwt:
+  secret: mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2026
 
 eureka:
   client:

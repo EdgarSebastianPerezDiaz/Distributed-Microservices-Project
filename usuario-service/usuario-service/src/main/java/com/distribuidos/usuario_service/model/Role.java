@@ -1,35 +1,56 @@
 package com.distribuidos.usuario_service.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-/**
- * Entidad Role - Tabla de Roles
- * 
- * Almacena los 3 roles del sistema:
- * - ADMINISTRADOR: Puede crear usuarios y ver todo
- * - FUNCIONARIO: Opera con contratos
- * - AUDITOR: Solo lectura de auditoría
- * 
- * Relación: Un usuario tiene exactamente UN rol (no multirol)
- * Esto es un requisito crítico del sistema.
- */
 @Entity
 @Table(name = "roles")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Role {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Auto-incremental
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @Column(nullable = false, unique = true, length = 50)
-    private String name;  // ADMINISTRADOR, FUNCIONARIO, AUDITOR
+    private String name;
     
     @Column(length = 255)
     private String description;
+    
+    public Role() {}
+    
+    public Role(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+    
+    public Role(Long id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
+    
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

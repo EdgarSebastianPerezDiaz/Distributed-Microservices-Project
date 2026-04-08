@@ -17,8 +17,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.distribuidos.proveedor_service.security.JwtPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -33,10 +34,10 @@ public class SupplierController {
     
     /**
      * Crear nuevo proveedor
-     * Permisos: ADMINISTRADOR, FUNCIONARIO (según documento)
+     * Permisos: ADMINISTRADOR solamente (según requerimiento HTD-R-003)
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'FUNCIONARIO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<SupplierResponse> createSupplier(@Valid @RequestBody SupplierRequest request) {
         log.info("POST /api/suppliers - Creating supplier");
         
@@ -46,10 +47,10 @@ public class SupplierController {
     
     /**
      * Actualizar proveedor existente
-     * Permisos: ADMINISTRADOR, FUNCIONARIO
+     * Permisos: ADMINISTRADOR solamente (según requerimiento HTD-R-003)
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'FUNCIONARIO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<SupplierResponse> updateSupplier(
             @PathVariable UUID id,
             @Valid @RequestBody SupplierUpdateRequest request) {
@@ -68,11 +69,13 @@ public class SupplierController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<SupplierResponse> changeSupplierStatus(
             @PathVariable UUID id,
-            @RequestParam SupplierStatus status,
-            @AuthenticationPrincipal Jwt jwt) {
+            @RequestParam SupplierStatus status) {
         
-        String userId = jwt.getSubject();
-        String userRole = jwt.getClaimAsString("role");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+        
+        String userId = principal.getUserId();
+        String userRole = principal.getRole();
         
         log.info("PATCH /api/suppliers/{}/status - Changing status to: {} by user: {}", id, status, userId);
         

@@ -30,7 +30,7 @@ spring:
         # SERVICIO DE CONTRATOS
         # ==============================
         - id: contrato-service
-          uri: lb://contrato-service
+          uri: lb://servicio-contratos
           predicates:
             - Path=/api/contracts/**,/contratos/**
 
@@ -38,9 +38,17 @@ spring:
         # SERVICIO DE PROVEEDORES
         # ==============================
         - id: proveedor-service
-          uri: lb://proveedor-service
+          uri: lb://servicio-proveedores
           predicates:
             - Path=/api/suppliers/**,/proveedores/**
+
+        # ==============================
+        # SERVICIO DE AUDITORÍA
+        # ==============================
+        - id: auditoria-service
+          uri: lb://servicio-auditoria
+          predicates:
+            - Path=/api/eventos/**,/eventos/**
 
       # ==============================
       # CONFIGURACIÓN CORS GLOBAL

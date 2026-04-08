@@ -7,7 +7,6 @@ import com.distribuidos.usuario_service.repository.RoleRepository;
 import com.distribuidos.usuario_service.repository.UserRepository;
 import com.distribuidos.usuario_service.security.JwtService;
 import com.distribuidos.usuario_service.security.SecurityUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +16,17 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor  // Inyección de dependencias por constructor
 public class UserService {
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
+    
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.jwtService = jwtService;
+    }
     
     /**
      * AUTENTICACIÓN DE USUARIO (Login)
