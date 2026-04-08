@@ -22,7 +22,7 @@ TipoEvento = Literal[
 ]
 #rOLES VALIDOS
 
-RolUsuario=Literal["ADMINISTRADOS","FUNCIONARIO","AUDITOR"]
+RolUsuario=Literal["ADMINISTRADOR","FUNCIONARIO","AUDITOR"]
 
 
 ##Define que campos debe tener el JSON al realizar un nuevo registro

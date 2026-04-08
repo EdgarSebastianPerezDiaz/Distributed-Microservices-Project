@@ -14,7 +14,7 @@ async def health(): ##Devuelve el servicio que existe
 @router.post("/eventos", status_code=201)
 async def registrar_evento(
     evento: EventoCreate,
-    #user=Depends(require_internal_post) 
+    user=Depends(require_internal_post) 
 
 ):
     
@@ -32,7 +32,7 @@ async def listar_eventos(
     fecha_hasta: Optional[datetime] = Query(default=None),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
-   ## user=Depends(require_read_access)
+   user=Depends(require_read_access)
 ):
     return await get_events(
         contrato_id=contrato_id,
@@ -49,7 +49,7 @@ async def listar_eventos(
 async def resumen_eventos(
     fecha_desde: Optional[datetime] = Query(default=None),
     fecha_hasta: Optional[datetime] = Query(default=None),
- ##   user=Depends(require_read_access)
+  user=Depends(require_read_access)
 ):
     return await get_resumen(
         fecha_desde=fecha_desde,
