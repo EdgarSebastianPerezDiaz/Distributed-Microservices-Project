@@ -6,7 +6,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * Microservicio de Usuarios y Autenticación (Auth)
- * Puerto: 8081
+ * Puerto: 8084
  * 
  * Responsabilidades:
  * - Login con JWT
@@ -23,7 +23,7 @@ public class UsuarioServiceApplication {
 		
 		System.out.println("========================================");
 		System.out.println("✅ USUARIO SERVICE INICIADO");
-		System.out.println("📍 URL: http://localhost:8081");
+		System.out.println("📍 URL: http://localhost:8084");
 		System.out.println("📋 Endpoints disponibles:");
 		System.out.println("   POST /api/auth/login    (Login - Público)");
 		System.out.println("   POST /api/auth/register (Crear usuario - Admin)");

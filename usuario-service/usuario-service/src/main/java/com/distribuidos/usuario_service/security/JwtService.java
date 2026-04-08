@@ -26,7 +26,7 @@ public class JwtService {
     
     // CLAVE SECRETA: Debe ser muy larga para HS512 (mínimo 512 bits = 64 caracteres)
     // En producción, esto debe venir de variables de entorno
-    private static final String SECRET_KEY = "mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2024";
+    private static final String SECRET_KEY = "mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2026";
     
     // Duración del token: 24 horas en milisegundos
     private static final long EXPIRATION_TIME = 86400000;

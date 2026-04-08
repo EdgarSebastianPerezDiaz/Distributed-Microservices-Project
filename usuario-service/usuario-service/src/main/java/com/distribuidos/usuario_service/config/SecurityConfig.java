@@ -1,5 +1,6 @@
 package com.distribuidos.usuario_service.config;
 
+import com.distribuidos.usuario_service.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,17 +11,22 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.distribuidos.usuario_service.security.SecurityUtils;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtService jwtService;
     
-    // Constructor para inyectar el filtro (ya existe como @Component)
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    public SecurityConfig(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
+    
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtService);
     }
     
     @Bean
@@ -30,12 +36,11 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated() // Rutas protegidas requieren autenticación
             )
-            // Agregar el filtro JWT antes del filtro de autenticación de Spring
-            .addFilterBefore(jwtAuthenticationFilter, 
+            .addFilterBefore(jwtAuthenticationFilter(), 
                            UsernamePasswordAuthenticationFilter.class);
             
         return http.build();
@@ -46,12 +51,12 @@ public class SecurityConfig {
         return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
-                return rawPassword.toString();
+                return SecurityUtils.hashSHA512(rawPassword.toString());
             }
-            
+
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return rawPassword.toString().equals(encodedPassword);
+                return SecurityUtils.verifyPassword(rawPassword.toString(), encodedPassword);
             }
         };
     }
