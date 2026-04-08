@@ -26,7 +26,7 @@ public class JwtService {
     
     // CLAVE SECRETA: Debe ser muy larga para HS512 (mínimo 512 bits = 64 caracteres)
     // En producción, esto debe venir de variables de entorno
-    private static final String SECRET_KEY = "mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2024";
+    private static final String SECRET_KEY = "mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2026";
     
     // Duración del token: 24 horas en milisegundos
     private static final long EXPIRATION_TIME = 86400000;
@@ -51,12 +51,13 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
         
         return Jwts.builder()
-                .setSubject(userId.toString())  // sub = ID usuario
+                .setSubject(userId.toString())
+                .claim("user_id", userId.toString()) 
                 .claim("username", username)
-                .claim("role", role)  // Rol como claim
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)  // Firma con SHA-512
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
     

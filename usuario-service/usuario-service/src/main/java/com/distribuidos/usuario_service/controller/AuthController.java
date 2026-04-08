@@ -28,7 +28,7 @@ import java.util.UUID;
  * PATCH /api/users/{id}/status - Activar/Desactivar (solo ADMIN)
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     
@@ -39,7 +39,7 @@ public class AuthController {
      * LOGIN - PÚBLICO
      * No requiere autenticación previa
      */
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = userService.login(request);
         return ResponseEntity.ok(response);
@@ -49,7 +49,7 @@ public class AuthController {
      * REGISTRAR USUARIO - SOLO ADMIN
      * Requiere token JWT con rol ADMINISTRADOR
      */
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
         UserResponse user = userService.createUser(request);
@@ -60,7 +60,7 @@ public class AuthController {
      * OBTENER USUARIO ACTUAL
      * Extrae el userId del token JWT y devuelve sus datos
      */
-    @GetMapping("/auth/me")
+    @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         // Extraer token del header "Bearer <token>"
         String token = authHeader.replace("Bearer ", "");
@@ -91,7 +91,7 @@ public class AuthController {
      * CAMBIAR ESTADO (ACTIVAR/DESACTIVAR) - SOLO ADMIN
      */
     @PatchMapping("/users/{id}/status")
-    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> toggleStatus(
             @PathVariable UUID id,
             @RequestHeader("Authorization") String authHeader) {

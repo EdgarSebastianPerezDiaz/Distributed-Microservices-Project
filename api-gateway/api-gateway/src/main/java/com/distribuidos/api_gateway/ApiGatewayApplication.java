@@ -1,7 +1,9 @@
 package com.distribuidos.api_gateway;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;  // ← Corregido
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
@@ -22,7 +24,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author Dev1 - Infraestructura - Lina Ladino
  * @version 1.0
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+    SecurityAutoConfiguration.class,
+    ReactiveSecurityAutoConfiguration.class
+})
 @EnableDiscoveryClient  // Se registra en Eureka y consulta otros servicios
 public class ApiGatewayApplication {
 

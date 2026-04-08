@@ -44,3 +44,12 @@ logging:
   level:
     com.distribuidos.usuario_service: DEBUG
     org.springframework.cloud: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
