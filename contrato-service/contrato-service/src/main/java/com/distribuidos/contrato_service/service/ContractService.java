@@ -53,94 +53,53 @@ public class ContractService {
      */
     public ContractResponse createContract(ContractRequest request, UUID userId, String userRole, String userEmail) {
         log.info("Creating new contract for supplier: {} by user: {}", request.getSupplierId(), userId);
-
+        
         // Validar fechas
         validateDates(request.getStartDate(), request.getEndDate());
-
-        // Validar objeto mínimo 200 caracteres (ya lo hace @Size)
-
-        // Validar proveedor existe y está ACTIVO
+        
+        // Validar proveedor existe y está ACTIVO (Sprint 3)
         SupplierResponse supplier = validateSupplier(request.getSupplierId());
-
+        
         // Crear contrato
         Contract contract = contractMapper.toEntity(request, userId);
-
+        
         // Generar número de contrato único
         contract.setContractNumber(generateContractNumber());
-
-        // Estado inicial: EN_PREPARACION (ya se setea en mapper)
-        contract.setStatus(ContractStatus.EN_PREPARACION);
-
+        
         // Guardar datos desnormalizados del proveedor
         contract.setSupplierNit(supplier.getNit());
         contract.setSupplierBusinessName(supplier.getBusinessName());
-
+        
         Contract savedContract = contractRepository.save(contract);
-
+        
         // Registrar primer estado en historial
-        registerStatusHistory(savedContract, null, ContractStatus.EN_PREPARACION, "Contract created", userId);
-
-        // Enviar evento a Auditoría externa (RF-CONT-18)
-        try {
-            EventoAuditoriaDTO evento = EventoAuditoriaDTO.builder()
-                    .contrato_id(savedContract.getId())
-                    .tipo_evento("CREAR_CONTRATO")
-                    .estado_anterior(null)
-                    .estado_nuevo(ContractStatus.EN_PREPARACION.toString())
-                    .motivo("Contract creation")
-                    .usuario_id(userId.toString())
-                    .usuario_nombre(userEmail)
-                    .rol_usuario(userRole)
-                    .fecha(LocalDateTime.now())
-                    .build();
-
-            auditClient.registrarEvento(evento);
-            log.info("Audit event sent for contract creation. Contract ID: {}", savedContract.getId());
-        } catch (Exception e) {
-            log.warn("Failed to send audit event for contract creation: {}", e.getMessage());
-        }
-
+        registerStatusHistory(savedContract, null, ContractStatus.BORRADOR, "Contract created", userId);
+        
         log.info("Contract created with ID: {}, Number: {}", savedContract.getId(), savedContract.getContractNumber());
         return contractMapper.toResponse(savedContract);
     }
-
     
     /**
      * Actualizar contrato (solo si está en estado BORRADOR)
      */
-    public ContractResponse updateContract(UUID id, ContractUpdateRequest request,
+    public ContractResponse updateContract(UUID id, ContractUpdateRequest request, 
                                            UUID userId, String userRole, String userEmail) {
         log.info("Updating contract with ID: {} by user: {}", id, userId);
-
+        
         Contract contract = findContractById(id);
-
-        // RN-19: Solo FUNCIONARIO puede modificar contrato
-        if (!"FUNCIONARIO".equals(userRole)) {
-            throw new AccessDeniedException("Only FUNCIONARIO can modify contracts");
+        
+        // Validar que esté en BORRADOR para editar
+        if (contract.getStatus() != ContractStatus.BORRADOR) {
+            throw new ContractNotEditableException(ERROR_NOT_EDITABLE, 
+                "Contract can only be edited in BORRADOR state. Current state: " + contract.getStatus());
         }
-
-        // Validar que esté en EN_PREPARACION para editar
-        if (contract.getStatus() != ContractStatus.EN_PREPARACION) {
-            throw new ContractNotEditableException(ERROR_NOT_EDITABLE,
-                    "Contract can only be edited in EN_PREPARACION state. Current state: " + contract.getStatus());
-        }
-
-        // Verificar permisos (propietario)
-        boolean isOwner = contract.getCreatedByUserId().equals(userId);
-        if (!isOwner) {
-            throw new AccessDeniedException("You don't have permission to edit this contract");
-        }
-
-        // Solo se actualiza el budget (object es inmutable)
-        if (request.getBudget() != null) {
-            if (request.getBudget().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("Budget must be greater than 0");
-            }
-            contract.setBudget(request.getBudget());
-        }
-
+        
+        // Verificar permisos (propietario o ADMIN)
+        checkEditPermission(contract, userId, userRole);
+        
+        contractMapper.updateEntity(contract, request);
         Contract updatedContract = contractRepository.save(contract);
-
+        
         log.info("Contract updated with ID: {}", id);
         return contractMapper.toResponse(updatedContract);
     }
@@ -285,15 +244,10 @@ public class ContractService {
      */
     @Transactional(readOnly = true)
     public List<ContractSummaryDTO> getActiveContractsBySupplier(UUID supplierId) {
-        // Estados que impiden desactivar un proveedor: PUBLICADO, ADJUDICADO, EN_EJECUCION
-        List<ContractStatus> activeStatuses = List.of(
-                ContractStatus.PUBLICADO,
-                ContractStatus.ADJUDICADO,
-                ContractStatus.EN_EJECUCION
-        );
-
+        List<ContractStatus> activeStatuses = List.of(ContractStatus.ACTIVO, ContractStatus.EN_EJECUCION);
+        
         List<Contract> contracts = contractRepository.findBySupplierIdAndStatusInAndDeletedFalse(supplierId, activeStatuses);
-
+        
         return contracts.stream()
                 .map(c -> ContractSummaryDTO.builder()
                         .id(c.getId())

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Component
 public class ContractMapper {
-
+    
     public Contract toEntity(ContractRequest request, UUID userId) {
         Contract contract = new Contract();
         contract.setSupplierId(request.getSupplierId());
@@ -21,12 +21,12 @@ public class ContractMapper {
         contract.setBudget(request.getBudget());
         contract.setStartDate(request.getStartDate());
         contract.setEndDate(request.getEndDate());
-        contract.setStatus(ContractStatus.EN_PREPARACION);  // ← CAMBIO: EN_PREPARACION
+        contract.setStatus(ContractStatus.BORRADOR);
         contract.setCreatedByUserId(userId);
         contract.setDeleted(false);
         return contract;
     }
-
+    
     public ContractResponse toResponse(Contract contract) {
         return ContractResponse.builder()
                 .id(contract.getId())
@@ -44,15 +44,16 @@ public class ContractMapper {
                 .updatedAt(contract.getUpdatedAt())
                 .build();
     }
-
+    
     public void updateEntity(Contract existing, ContractUpdateRequest request) {
-        // RF-CONT-02: object NO es modificable, solo budget
+        if (request.getObject() != null) {
+            existing.setObject(request.getObject());
+        }
         if (request.getBudget() != null) {
             existing.setBudget(request.getBudget());
         }
-        // object NO se actualiza - es inmutable
     }
-
+    
     public ContractStatusHistoryResponse toHistoryResponse(ContractStatusHistory history) {
         return ContractStatusHistoryResponse.builder()
                 .id(history.getId())

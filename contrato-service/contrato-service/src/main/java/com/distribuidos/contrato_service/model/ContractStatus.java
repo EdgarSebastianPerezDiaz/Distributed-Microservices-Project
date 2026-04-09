@@ -1,10 +1,9 @@
 package com.distribuidos.contrato_service.model;
 
 public enum ContractStatus {
-    EN_PREPARACION,   // Estado inicial (reemplaza BORRADOR)
-    PUBLICADO,        // Contrato publicado
-    ADJUDICADO,       // Adjudicado a proveedor
-    EN_EJECUCION,     // En ejecución
-    FINALIZADO,       // Finalizado correctamente
-    CANCELADO         // Cancelado (desde cualquier estado)
+    BORRADOR,      // Estado inicial - editable
+    ACTIVO,        // Contrato publicado y activo
+    EN_EJECUCION,  // En ejecución
+    VENCIDO,       // Finalizado por fecha
+    ANULADO        // Cancelado por ADMIN
 }

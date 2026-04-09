@@ -49,7 +49,7 @@ public class Contract {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ContractStatus status = ContractStatus.EN_PREPARACION;  // ← Estado inicial por defecto
+    private ContractStatus status;
 
     @Column(name = "usuario_creador_id", nullable = false)
     private UUID createdByUserId;
