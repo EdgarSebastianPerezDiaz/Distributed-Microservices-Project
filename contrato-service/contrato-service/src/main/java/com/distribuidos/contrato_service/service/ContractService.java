@@ -20,7 +20,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -211,7 +210,7 @@ public class ContractService {
         
         Contract contract = findContractById(id);
         
-        if (contract.getStatus() != ContractStatus.EN_PREPARACION) {
+        if (contract.getStatus() != ContractStatus.BORRADOR) {
             throw new ContractNotEditableException(ERROR_NOT_EDITABLE, 
                 "Only contracts in BORRADOR state can be deleted");
         }
