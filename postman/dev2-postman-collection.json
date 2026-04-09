@@ -1,0 +1,730 @@
+{
+  "info": {
+    "_postman_id": "39d92009-44f1-4e2e-b74a-d2ab0f42ee99",
+    "name": "Dev2 - proveedores y contratos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52516533",
+    "_collection_link": "https://go.postman.co/collection/52516533-39d92009-44f1-4e2e-b74a-d2ab0f42ee99?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "crear proveedor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nit\": \"900123456339\",\r\n    \"businessName\": \"Empresa Prueba55 SAS\",\r\n    \"email\": \"prueba@emjkpresa.com\",\r\n    \"phone\": \"3001234566\",\r\n    \"personType\": \"JURIDICA\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NTU1MGUyYi05YWJiLTQwNzMtOWQ4ZS0xYWI1NTk0NTU2NTIiLCJ1c2VyX2lkIjoiNjU1NTBlMmItOWFiYi00MDczLTlkOGUtMWFiNTU5NDU1NjUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc1Njk5MzA3LCJleHAiOjE3NzU3ODU3MDd9.pMo8lXA3xHozwh5XC9dGexJlXWrqUeJ99euC8K_fJ25cbqT7F6up3rNe6gIippkNr7rOc98-pL9uhFnwElT03Q",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nit\": \"900123456789\",\r\n    \"businessName\": \"Empresa Prueba SAS\",\r\n    \"email\": \"prueba@empresa.com\",\r\n    \"phone\": \"3001234567\",\r\n    \"personType\": \"JURIDICA\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "proveedorconmismonitdeotro",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nit\": \"900123456789\",\r\n    \"businessName\": \"Empresa Prueba SAS\",\r\n    \"email\": \"prueba@empresa.com\",\r\n    \"phone\": \"3001234567\",\r\n    \"personType\": \"JURIDICA\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "ogin",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sin token- funcionar",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8082/actuator/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "actuator",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listar-proveedores",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nit\": \"900123456789\",\r\n    \"businessName\": \"Empresa Prueba SAS\",\r\n    \"email\": \"prueba@empresa.com\",\r\n    \"phone\": \"3001234567\",\r\n    \"personType\": \"JURIDICA\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "proveedor-por-id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers/58470c95-2453-433f-8cda-6e4e47840eda",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers",
+            "58470c95-2453-433f-8cda-6e4e47840eda"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "proveedor por nit",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8082/api/suppliers/nit/900123456789",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8082",
+          "path": [
+            "api",
+            "suppliers",
+            "nit",
+            "900123456789"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "crear funcionario",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"funcionario.test\",\r\n    \"password\": \"123456\",\r\n    \"email\": \"funcionario@test.com\",\r\n    \"fullName\": \"Funcionario de Prueba\",\r\n    \"role\": \"FUNCIONARIO\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login con funcionario",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"funcionario.test\",\r\n    \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "crear contrato",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"supplierId\": \"58470c95-2453-433f-8cda-6e4e47840eda\",\r\n    \"object\": \"Servicio de consultoría tecnológica para el desarrollo de sistemas distribuidos. Este contrato tiene como objetivo la implementación de una arquitectura de microservicios para la gestión de contratos públicos. El proveedor deberá entregar la documentación completa, el código fuente funcionando, y las pruebas de integración. El plazo de ejecución es de 6 meses a partir de la fecha de inicio. El presupuesto incluye todos los costos asociados al desarrollo, pruebas y despliegue. El contratista deberá cumplir con los estándares de calidad definidos en el anexo técnico. Se realizarán entregas parciales cada mes con su respectiva aceptación. El pago se realizará contra entrega de cada hito alcanzado. El proveedor deberá garantizar el soporte técnico por 3 meses después de la finalización. Todas las entregas deben estar documentadas en español e inglés. El código fuente deberá estar disponible en el repositorio institucional. Las pruebas de seguridad serán realizadas por la entidad. El proveedor deberá corregir cualquier hallazgo sin costo adicional. La propiedad intelectual del desarrollo pertenecerá a la entidad contratante. El proveedor no podrá subcontratar sin autorización previa. Cualquier incumplimiento dará lugar a la terminación del contrato. El presente contrato se rige por las leyes colombianas. Las partes acuerdan someterse a la jurisdicción de los jueces de Bogotá. El contrato tiene una vigencia total de 8 meses incluyendo el soporte. El presupuesto es fijo y no será reajustado durante la ejecución. El proveedor declara conocer y aceptar todas las condiciones aquí establecidas. La aceptación final será emitida por el comité técnico de la entidad. El contrato se firma en dos ejemplares del mismo tenor. Las comunicaciones entre las partes serán por correo electrónico oficial. El proveedor deberá designar un gerente del proyecto dedicado. La entidad designará un supervisor del contrato. Se realizarán reuniones de seguimiento semanales. El incumplimiento en las entregas generará multas del 1% del valor por día de retraso. El contrato puede ser terminado anticipadamente por mutuo acuerdo. La terminación unilateral requiere justificación técnica. El proveedor acepta los términos de confidencialidad establecidos. La información intercambiada será considerada reservada. El contrato incluye una cláusula de confidencialidad de 5 años. El proveedor no podrá usar la información para fines distintos al contrato. La entidad podrá auditar el cumplimiento en cualquier momento. El proveedor deberá permitir el acceso a sus instalaciones para auditorías. Se aplicarán las sanciones previstas en la ley 80 de 1993. El contrato está sujeto a la supervisión de la Contraloría General. El proveedor deberá reportar cualquier conflicto de interés. La facturación debe cumplir con los requisitos de la DIAN. El pago se realizará dentro de los 30 días siguientes a la factura. El proveedor es responsable del pago de sus empleados. La entidad no asume responsabilidad laboral alguna. El proveedor deberá contar con todas las licencias y permisos. El objeto del contrato es de exclusiva responsabilidad del contratista. El proveedor indemnizará a la entidad por daños causados. La garantía única de cumplimiento será del 10% del valor. El contrato se perfecciona con la firma de las partes. La ejecución inicia al día siguiente de la firma. El proveedor deberá presentar un plan de trabajo detallado. La entidad tiene derecho a solicitar modificaciones justificadas. Las modificaciones deberán ser documentadas mediante otrosí. El contrato puede ser prorrogado por mutuo acuerdo. La prórroga requerirá disponibilidad presupuestal. El proveedor deberá entregar informes de avance mensuales. La entidad emitirá conceptos de aceptación dentro de los 15 días. El silencio administrativo no constituye aceptación. El proveedor deberá corregir observaciones en máximo 10 días. La no corrección dará lugar a multas. El contrato está sujeto a control fiscal. El proveedor deberá rendir cuentas cuando sea requerido. La entidad publicará el contrato en el SECOP. La información del contrato es pública excepto cláusulas de confidencialidad. El proveedor autoriza el tratamiento de sus datos personales. Este contrato contiene suficientes palabras para cumplir el requisito minimo de 200 caracteres.\",\r\n    \"budget\": 250000000,\r\n    \"startDate\": \"2026-06-01\",\r\n    \"endDate\": \"2026-12-31\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "contrato por objeto corto falla",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"supplierId\": \"58470c95-2453-433f-8cda-6e4e47840eda\",\r\n    \"object\": \"Texto muy corto que no cumple con el mínimo de 200 caracteres requeridos por el contrato\",\r\n    \"budget\": 100000,\r\n    \"startDate\": \"2026-06-01\",\r\n    \"endDate\": \"2026-12-31\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "cambiar estado contrato funcionario",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newStatus\": \"PUBLICADO\",\r\n    \"reason\": \"Contrato aprobado por el comité técnico\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "publicado -> adjudicado",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newStatus\": \"ADJUDICADO\",\r\n    \"reason\": \"Contrato adjudicado al proveedor\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "adjudicado -> ejecucion",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newStatus\": \"EN_EJECUCION\",\r\n    \"reason\": \"Inicio de ejecución del contrato\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "saltar stados falla",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newStatus\": \"FINALIZADO\",\r\n    \"reason\": \"Intento inválido de saltarse estados\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "cancelar estado",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newStatus\": \"CANCELADO\",\r\n    \"reason\": \"Cancelación desde FINALIZADO\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "historial contrato",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{tokenFuncionario}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8083/api/contracts/1f72b6a2-58f3-4c50-946d-ef209c904412/history",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8083",
+          "path": [
+            "api",
+            "contracts",
+            "1f72b6a2-58f3-4c50-946d-ef209c904412",
+            "history"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
