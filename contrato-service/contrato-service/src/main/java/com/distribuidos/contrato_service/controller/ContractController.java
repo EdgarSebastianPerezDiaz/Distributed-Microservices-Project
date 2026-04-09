@@ -67,7 +67,7 @@ public class ContractController {
     }
     
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasRole('FUNCIONARIO')")
     public ResponseEntity<ContractResponse> changeStatus(
             @PathVariable UUID id,
             @Valid @RequestBody StatusChangeRequest request) {

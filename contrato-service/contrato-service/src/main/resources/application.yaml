@@ -1,6 +1,6 @@
 spring:
   application:
-    name: servicio-contratos
+    name: SERVICIO-CONTRATOS
 
   datasource:
     url: jdbc:postgresql://localhost:5432/contratos_db
@@ -20,7 +20,7 @@ spring:
 server:
   port: 8083
 
-# FIX HC-2: Configuración JWT SIMÉTRICO (HS512)
+# Configuración JWT SIMÉTRICO (HS512)
 jwt:
   secret: mi-clave-super-secreta-para-jwt-de-512-bits-minimo-requerido-para-firmar-tokens-seguros-en-el-sistema-de-contratos-uptc-2026
 

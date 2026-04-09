@@ -1,4 +1,4 @@
-package com.distribuidos.contrato_service.dto;
+package com.distribuidos.proveedor_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,12 +12,11 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventoAuditoriaDTO {
-
-    private UUID contrato_id;
-    private UUID proveedor_id;  // Para eventos de proveedor
-    private String entidad;      // "CONTRATO" o "PROVEEDOR"
-    private String tipo_evento;  // Ej: "CREAR_CONTRATO", "CAMBIAR_ESTADO", "MODIFICAR_PROVEEDOR"
+public class AuditEventDTO {
+    
+    private UUID proveedor_id;
+    private String entidad;
+    private String tipo_evento;
     private String estado_anterior;
     private String estado_nuevo;
     private String motivo;

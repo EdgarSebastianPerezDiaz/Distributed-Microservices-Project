@@ -1,6 +1,6 @@
 spring:
   application:
-    name: servicio-proveedores
+    name: SERVICIO-PROVEEDORES
 
   datasource:
     url: jdbc:postgresql://localhost:5432/proveedores_db

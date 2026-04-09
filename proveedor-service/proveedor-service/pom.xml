@@ -11,8 +11,8 @@
         <version>3.2.0</version>
         <relativePath/>
     </parent>
-    
-    <groupId>com.example</groupId>
+
+    <groupId>com.distribuidos</groupId>
     <artifactId>proveedor-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>proveedor-service</name>
@@ -85,6 +85,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     
     <dependencyManagement>

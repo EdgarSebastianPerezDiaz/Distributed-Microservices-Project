@@ -1,6 +1,5 @@
 package com.distribuidos.contrato_service.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "historial_estados_contrato")
+@Table(name = "contratos_historial_estados")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,6 +39,6 @@ public class ContractStatusHistory {
     private UUID userId;
 
     @CreationTimestamp
-    @Column(name = "fecha", nullable = false)
+    @Column(name = "fecha_cambio", nullable = false)
     private LocalDateTime changeDate;
 }
