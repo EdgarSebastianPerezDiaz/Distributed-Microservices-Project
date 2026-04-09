@@ -7,20 +7,40 @@ import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurity
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * API Gateway - Puerta de Entrada del Sistema
- * 
- * Este componente es el "portero" de la arquitectura de microservicios.
- * Todas las peticiones externas deben pasar por aquí.
- * 
- * Responsabilidades principales:
- * 1. Enrutamiento dinámico: Redirige /api/users/** al usuario-service, etc.
- * 2. Descubrimiento de servicios: Consulta a Eureka dónde están los servicios
- * 3. Balanceo de carga: Distribuye carga entre instancias múltiples
- * 4. Seguridad centralizada: Valida JWT antes de dejar pasar la petición
- * 
- * Flujo de una petición:
- * Cliente → Gateway → (Valida JWT) → Consulta Eureka → Redirige al Microservicio
- * 
+ * 🚀 API Gateway - Punto de Entrada del Sistema
+ *
+ * Este componente actúa como la **puerta de entrada única** para todos los clientes
+ * (frontend, Postman, navegador, etc.) dentro de la arquitectura de microservicios.
+ *
+ * 📌 Responsabilidades principales:
+ * - Enrutamiento dinámico de peticiones hacia los microservicios
+ * - Descubrimiento de servicios mediante Eureka
+ * - Balanceo de carga entre instancias
+ * - Seguridad centralizada (validación de JWT)
+ *
+ * 📌 Flujo de una petición:
+ * 1. Cliente realiza petición HTTP (ej: /api/users)
+ * 2. El Gateway intercepta la petición
+ * 3. Valida el token JWT (si aplica)
+ * 4. Consulta a Eureka para ubicar el microservicio destino
+ * 5. Redirige la petición al servicio correspondiente
+ * 6. Retorna la respuesta al cliente
+ *
+ * 📌 Rutas manejadas:
+ * - /api/auth/**        → usuario-service (autenticación)
+ * - /api/users/**       → usuario-service (gestión de usuarios)
+ * - /api/suppliers/**   → proveedor-service
+ * - /api/contracts/**   → contrato-service
+ * - /api/audit/**       → auditoria-service
+ *
+ * 📌 Seguridad:
+ * Se deshabilita la configuración automática de Spring Security ya que
+ * la autenticación se maneja manualmente mediante filtros JWT personalizados.
+ *
+ * ⚠️ Importante:
+ * - Todas las peticiones externas deben pasar por este Gateway
+ * - Ningún cliente debe consumir directamente los microservicios
+ *
  * @author Dev1 - Infraestructura - Lina Ladino
  * @version 1.0
  */
@@ -28,20 +48,25 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
     SecurityAutoConfiguration.class,
     ReactiveSecurityAutoConfiguration.class
 })
-@EnableDiscoveryClient  // Se registra en Eureka y consulta otros servicios
+@EnableDiscoveryClient  // Permite registrarse y descubrir servicios en Eureka
 public class ApiGatewayApplication {
 
+    /**
+     * Método principal que inicia el API Gateway.
+     */
     public static void main(String[] args) {
         SpringApplication.run(ApiGatewayApplication.class, args);
+
+        // Logs informativos para verificar arranque correcto
         System.out.println("========================================");
-        System.out.println("✅ API GATEWAY INICIADO EXITOSAMENTE");
-        System.out.println("📍 URL Base: http://localhost:8081");
-        System.out.println("📋 Rutas disponibles:");
-        System.out.println("   - /api/auth/**   → Usuario Service");
-        System.out.println("   - /api/users/**  → Usuario Service");
-        System.out.println("   - /api/suppliers/** → Proveedor Service");
-        System.out.println("   - /api/contracts/** → Contrato Service");
-        System.out.println("   - /api/audit/**  → Auditoria Service");
+        System.out.println("API GATEWAY INICIADO EXITOSAMENTE");
+        System.out.println("URL Base: http://localhost:8081");
+        System.out.println("Rutas disponibles:");
+        System.out.println("   - /api/auth/**       → Usuario Service");
+        System.out.println("   - /api/users/**      → Usuario Service");
+        System.out.println("   - /api/suppliers/**  → Proveedor Service");
+        System.out.println("   - /api/contracts/**  → Contrato Service");
+        System.out.println("   - /api/audit/**      → Auditoria Service");
         System.out.println("========================================");
     }
 }
