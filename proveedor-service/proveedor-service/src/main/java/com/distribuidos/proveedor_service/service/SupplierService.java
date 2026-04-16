@@ -269,8 +269,10 @@ public class SupplierService {
         try {
             AuditEventDTO evento = AuditEventDTO.builder()
                     .proveedor_id(entityId)
-                    .entidad("PROVEEDOR")
+                    .entidad_tipo("PROVEEDOR")
+                    .entidad_id(entityId.toString())
                     .tipo_evento(eventType)
+                    .descripcion(reason != null && !reason.isBlank() ? reason : eventType)
                     .estado_anterior(oldStatus)
                     .estado_nuevo(newStatus)
                     .motivo(reason != null ? reason : "")

@@ -17,6 +17,8 @@ TipoEvento = Literal[
     "MODIFICAR_CONTRATO",
     "ANULAR",
     "MODIFICAR_PROVEEDOR",
+    "CREAR_PROVEEDOR",
+    "CAMBIAR_ESTADO_PROVEEDOR"
     "CREAR_USUARIO",
     "MODIFICAR_USUARIO"
 ]
@@ -28,7 +30,7 @@ RolUsuario=Literal["ADMINISTRADOR","FUNCIONARIO","AUDITOR"]
 ##Define que campos debe tener el JSON al realizar un nuevo registro
 class EventoCreate(BaseModel):
     entidad_tipo:EntidadTipo=Field(...,description="Contratp, Proveedor o Usuario")
-    entidad_id: str=Field(...,min_length=100, description="ID Unico")
+    entidad_id: str = Field(..., min_length=1, description="ID Único del recurso afectado (UUID)")
 
     #Tipo de operacion
     tipo_evento:TipoEvento =Field(...,description="Tipo de evento")

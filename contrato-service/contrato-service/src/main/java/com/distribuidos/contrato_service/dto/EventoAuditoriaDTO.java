@@ -17,7 +17,10 @@ public class EventoAuditoriaDTO {
     private UUID contrato_id;
     private UUID proveedor_id;  // Para eventos de proveedor
     private String entidad;      // "CONTRATO" o "PROVEEDOR"
+    private String entidad_id;
+    private String entidad_tipo;
     private String tipo_evento;  // Ej: "CREAR_CONTRATO", "CAMBIAR_ESTADO", "MODIFICAR_PROVEEDOR"
+    private String descripcion;
     private String estado_anterior;
     private String estado_nuevo;
     private String motivo;

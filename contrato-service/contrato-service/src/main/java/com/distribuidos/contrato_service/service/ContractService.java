@@ -152,8 +152,15 @@ public class ContractService {
         log.info("Changing contract status. ID: {}, New status: {}, User: {}", id, request.getNewStatus(), userId);
 
         // Solo FUNCIONARIO puede cambiar estados (según RN-21)
-        if (!"FUNCIONARIO".equals(userRole)) {
-            throw new AccessDeniedException("Only FUNCIONARIO can change contract status");
+      //  if (!"FUNCIONARIO".equals(userRole)) {
+        //    throw new AccessDeniedException("Only FUNCIONARIO can change contract status");
+       // }
+
+        boolean isCancelByAdmin="ADMINISTRADOR".equals(userRole) && request.getNewStatus() == ContractStatus.CANCELADO;
+        boolean isFuncionario="FUNCIONARIO".equals(userRole);
+
+        if (!isFuncionario && !isCancelByAdmin){
+            throw new AccessDeniedException("Solo Funcionario o Administrador ");
         }
 
         Contract contract = findContractById(id);
@@ -361,7 +368,10 @@ public class ContractService {
         try {
             EventoAuditoriaDTO evento = EventoAuditoriaDTO.builder()
                     .contrato_id(contractId)
+                    .entidad_tipo("CONTRATO")
+                    .entidad_id(contractId.toString())
                     .tipo_evento(eventType)
+                    .descripcion(reason !=null && !reason.isBlank() ? reason : eventType)
                     .estado_anterior(oldStatus)
                     .estado_nuevo(newStatus)
                     .motivo(reason != null ? reason : "")

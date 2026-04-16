@@ -15,8 +15,11 @@ import java.util.UUID;
 public class AuditEventDTO {
     
     private UUID proveedor_id;
-    private String entidad;
+   
+    private String entidad_tipo;
+    private String entidad_id;
     private String tipo_evento;
+    private String descripcion;
     private String estado_anterior;
     private String estado_nuevo;
     private String motivo;
