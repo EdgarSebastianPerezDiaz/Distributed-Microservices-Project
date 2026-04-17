@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Dict, Any, Literal
 from datetime import datetime  ##Importacion para fecha
 from uuid import UUID    ##Importacion ppara id
+
 
 #Tipo de etidad
 EntidadTipo=Literal["CONTRATO","PROVEEDOR","USUARIO"]
@@ -49,10 +50,10 @@ class EventoCreate(BaseModel):
     #Usuario que hizo el cambio
     usuario_id: UUID =Field(...,description="ID del usuario que ejecuto la accion")
     usuario_nombre: str = Field(min_length=2, max_length=120,description="Nombre usuario")
-    usuario_rol:RolUsuario=Field(...,description="Rol del ejecutor")
-
+    rol_usuario: RolUsuario = Field(..., description="Rol del ejecutor")
     #Fecha del evento
     fecha: Optional[datetime]=Field(default=None,description="Fecha")
+    
 
     version:int=Field(
         ge=1,
@@ -62,6 +63,7 @@ class EventoCreate(BaseModel):
     metadata: Optional[Dict[str,Any]]=Field(default=None,description="Datos adicionales")
 
     contrato_id: Optional[UUID]=Field(default=None,description="ID contrato")
+    
 
 
 class EventoResponse(BaseModel):
