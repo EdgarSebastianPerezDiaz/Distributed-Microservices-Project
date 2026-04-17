@@ -34,6 +34,10 @@ async def listar_eventos(
     limit: int = Query(default=20, ge=1, le=100),
    user=Depends(require_read_access)
 ):
+    rol = user.get("role")
+
+    if(rol== "AUDITOR"): entidad_tipo= "CONTRATO"
+
     return await get_events(
         contrato_id=contrato_id,
         entidad_tipo=entidad_tipo,
