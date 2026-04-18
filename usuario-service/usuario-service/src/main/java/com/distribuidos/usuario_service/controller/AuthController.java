@@ -42,9 +42,11 @@ public class AuthController {
      */
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
-        UserResponse user = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<UserResponse> register(  @Valid @RequestBody UserRequest request,
+        @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+    UserResponse user = userService.createUser(request, token); 
+    return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
     
     /**
@@ -91,6 +93,6 @@ public class AuthController {
         String token = authHeader.replace("Bearer ", "");
         UUID adminId = jwtService.extractUserId(token);
         
-        return ResponseEntity.ok(userService.toggleUserStatus(id, adminId));
+        return ResponseEntity.ok(userService.toggleUserStatus(id, adminId,token));
     }
 }

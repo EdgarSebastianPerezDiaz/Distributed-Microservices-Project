@@ -1,31 +1,37 @@
 package com.distribuidos.usuario_service.service;
 
 import com.distribuidos.usuario_service.dto.*;
+import com.distribuidos.usuario_service.client.AuditClient;
 import com.distribuidos.usuario_service.model.Role;
 import com.distribuidos.usuario_service.model.User;
 import com.distribuidos.usuario_service.repository.RoleRepository;
 import com.distribuidos.usuario_service.repository.UserRepository;
 import com.distribuidos.usuario_service.security.JwtService;
 import com.distribuidos.usuario_service.security.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j  
 public class UserService {
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
+    private final AuditClient auditClient;
     
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, JwtService jwtService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, JwtService jwtService,AuditClient auditClient) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtService = jwtService;
+        this.auditClient=auditClient;
     }
     
     /**
@@ -83,7 +89,7 @@ public class UserService {
      * - Password se hashea con SHA-512
      */
     @Transactional
-    public UserResponse createUser(UserRequest request) {
+    public UserResponse createUser(UserRequest request,String adminToken) {
         // Validar username único
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("El username ya existe");
@@ -106,9 +112,61 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setRole(role);
         user.setActive(true);
-        
-        User saved = userRepository.save(user);
-        return mapToResponse(saved);
+
+
+         UUID adminId     = jwtService.extractUserId(adminToken);
+        String adminName = jwtService.extractUsername(adminToken);
+        String adminRole = jwtService.extractRole(adminToken);
+
+         User saved = userRepository.save(user);
+       
+
+        sendAuditEvent(
+                saved.getId().toString(),
+                "CREAR_USUARIO",
+                null,
+                "ACTIVO",
+                "Nuevo usuario creado: " + saved.getUsername() + " con rol " + saved.getRole().getName(),
+                adminId.toString(),
+                adminName,
+                adminRole,
+                1,
+                adminToken
+        );
+
+         return mapToResponse(saved);
+       
+    }
+
+
+    //Auditoria
+
+     private void sendAuditEvent(String entidadId, String tipoEvento,
+                                 String estadoAnterior, String estadoNuevo,
+                                 String descripcion, String usuarioId,
+                                 String usuarioNombre, String rolUsuario,
+                                 int version, String token) {
+        try {
+            AuditEventDTO evento = AuditEventDTO.builder()
+                    .entidad_tipo("USUARIO")
+                    .entidad_id(entidadId)
+                    .tipo_evento(tipoEvento)
+                    .descripcion(descripcion)
+                    .estado_anterior(estadoAnterior)
+                    .estado_nuevo(estadoNuevo)
+                    .motivo(null)
+                    .usuario_id(usuarioId)
+                    .usuario_nombre(usuarioNombre)
+                    .rol_usuario(rolUsuario)
+                    .version(version)
+                    .fecha(OffsetDateTime.now(ZoneOffset.UTC))
+                    .contrato_id(null)
+                    .build();
+
+            auditClient.registrarEvento(evento, token);
+        } catch (Exception e) {
+            log.warn("Error enviando auditoría para usuario {}: {}", entidadId, e.getMessage());
+        }
     }
     
     /**
@@ -143,9 +201,10 @@ public class UserService {
     /**
      * CAMBIAR ESTADO DE USUARIO (Activar/Desactivar)
      * Solo ADMIN. No puede desactivarse a sí mismo.
+     * @param token 
      */
     @Transactional
-    public UserResponse toggleUserStatus(UUID id, UUID adminId) {
+    public UserResponse toggleUserStatus(UUID id, UUID adminId, String token) {
         // No auto-desactivación
         if (id.equals(adminId)) {
             throw new RuntimeException("No puedes desactivar tu propio usuario");
@@ -153,10 +212,30 @@ public class UserService {
         
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+         String estadoAnterior = user.getActive() ? "ACTIVO" : "INACTIVO";
         
-        user.setActive(!user.getActive());
-        User saved = userRepository.save(user);
+         user.setActive(!user.getActive());
+         User saved = userRepository.save(user);
         
+         String adminName = jwtService.extractUsername(token);
+        String adminRole = jwtService.extractRole(token);
+
+
+        String estadoNuevo = saved.getActive() ? "ACTIVO" : "INACTIVO";
+
+        sendAuditEvent(
+            saved.getId().toString(),
+            "MODIFICAR_USUARIO",
+            estadoAnterior,
+            estadoNuevo,
+            "Estado de usuario '" + saved.getUsername() + "' cambiado de " + estadoAnterior + " a " + estadoNuevo,
+            adminId.toString(),
+            adminName,
+            adminRole,
+            1,
+            token
+    );
+    log.info("Estado de usuario {} cambiado: {} → {}", id, estadoAnterior, estadoNuevo);
         return mapToResponse(saved);
     }
     

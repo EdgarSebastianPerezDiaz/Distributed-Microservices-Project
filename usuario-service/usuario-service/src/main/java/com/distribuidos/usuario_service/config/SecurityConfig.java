@@ -11,6 +11,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+
 import com.distribuidos.usuario_service.security.SecurityUtils;
 
 @Configuration
@@ -61,5 +63,10 @@ public class SecurityConfig {
                 return SecurityUtils.verifyPassword(rawPassword.toString(), encodedPassword);
             }
         };
+    }
+
+      @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

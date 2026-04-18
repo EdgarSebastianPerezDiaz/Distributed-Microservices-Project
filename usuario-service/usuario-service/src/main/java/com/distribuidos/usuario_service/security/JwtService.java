@@ -111,4 +111,9 @@ public class JwtService {
             return false;
         }
     }
+
+    public String extractUsername(String adminToken) {
+        // TODO Auto-generated method stub
+        return (String) extractClaims(adminToken).get("username");
+    }
 }
