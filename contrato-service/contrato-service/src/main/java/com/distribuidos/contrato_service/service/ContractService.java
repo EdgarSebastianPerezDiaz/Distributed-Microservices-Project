@@ -218,6 +218,7 @@ public class ContractService {
         if (!"FUNCIONARIO".equals(userRole)) {
             throw new AccessDeniedException("Only FUNCIONARIO can delete contracts");
         }
+        
 
         Contract contract = findContractById(id);
 
@@ -229,11 +230,31 @@ public class ContractService {
         if (!contract.getCreatedByUserId().equals(userId)) {
             throw new AccessDeniedException("You don't have permission to delete this contract");
         }
+        Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+        String userName = principal.getEmail() != null && !principal.getEmail().isBlank()
+            ? principal.getEmail()
+            : principal.getUsername();
+         userRole = principal.getRole();
+        int version = getNextVersion(contract.getId());
 
         contract.setDeleted(true);
         contractRepository.save(contract);
 
         log.info("Contract deleted (soft delete) with ID: {}", id);
+
+        //registro en auditoria
+          sendAuditEvent(
+            contract.getId(),
+            "ELIMINAR_CONTRATO",
+            contract.getStatus().toString(),
+            "ELIMINADO",
+            "Contrato eliminado lógicamente por el funcionario",
+            userId.toString(),
+            userName,
+            userRole,
+            version
+    );
     }
 
     /**

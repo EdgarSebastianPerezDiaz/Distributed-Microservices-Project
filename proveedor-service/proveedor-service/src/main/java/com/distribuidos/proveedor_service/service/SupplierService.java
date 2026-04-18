@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ import com.distribuidos.proveedor_service.model.PersonType;
 import com.distribuidos.proveedor_service.model.Supplier;
 import com.distribuidos.proveedor_service.model.SupplierStatus;
 import com.distribuidos.proveedor_service.repository.SupplierRepository;
+import com.distribuidos.proveedor_service.security.JwtPrincipal;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -73,11 +76,27 @@ public class SupplierService {
         supplier.setStatus(SupplierStatus.ACTIVO); // Estado inicial HABILITADO
         Supplier savedSupplier = supplierRepository.save(supplier);
 
-        // Enviar evento de auditoría para creación
-        sendAuditEvent(savedSupplier.getId(), "CREAR_PROVEEDOR", null, "ACTIVO",
-                "Supplier created", null, null, null, 1);
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+    String userId   = principal.getUserId();
+    String userName = (principal.getEmail() != null && !principal.getEmail().isBlank())
+                      ? principal.getEmail() : principal.getUsername();
+    String userRole = principal.getRole();
 
-        log.info("Supplier created with ID: {}", savedSupplier.getId());
+        // Enviar evento de auditoría para creación
+       sendAuditEvent(
+            savedSupplier.getId(),
+            "CREAR_PROVEEDOR",
+            null,
+            "ACTIVO",
+            "Nuevo proveedor registrado: " + savedSupplier.getBusinessName(),
+            userId,     
+            userName,  
+            userRole,   
+            1
+    );
+
+       
         return supplierMapper.toResponse(savedSupplier);
     }
 
@@ -89,6 +108,13 @@ public class SupplierService {
      */
     public SupplierResponse updateSupplier(UUID id, SupplierUpdateRequest request, String userId, String userEmail, String userRole) {
         log.info("Updating supplier with ID: {}", id);
+Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+     userId   = principal.getUserId();
+    String userName = (principal.getEmail() != null && !principal.getEmail().isBlank())
+                      ? principal.getEmail() : principal.getUsername();
+     userRole = principal.getRole();
+
 
         // Solo ADMIN puede modificar proveedores (según RF-PROV-03, FUNCIONARIO solo lectura)
         if (!"ADMINISTRADOR".equals(userRole)) {
@@ -125,6 +151,17 @@ public class SupplierService {
         sendAuditEvent(updatedSupplier.getId(), "MODIFICAR_PROVEEDOR", null, null,
                 changes, userId, userEmail, userRole, getNextVersion(updatedSupplier.getId()));
 
+                 sendAuditEvent(
+            updatedSupplier.getId(),
+            "MODIFICAR_PROVEEDOR",
+            oldStatus.toString(),
+            updatedSupplier.getStatus().toString(),
+            changes.isBlank() ? "Proveedor modificado sin cambios detectados" : changes,
+            userId,
+            userName,
+            userRole,
+            getNextVersion(updatedSupplier.getId())
+    );
         log.info("Supplier updated with ID: {}", id);
         return supplierMapper.toResponse(updatedSupplier);
     }
@@ -268,6 +305,16 @@ public class SupplierService {
                                 String newStatus, String reason, String userId,
                                 String userEmail, String userRole, int version) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+
+ userId   = principal.getUserId();
+        String userName = principal.getEmail() != null && !principal.getEmail().isBlank()
+                          ? principal.getEmail()
+                          : principal.getUsername();
+         userRole = principal.getRole();
+
+
             AuditEventDTO evento = AuditEventDTO.builder()
                     .proveedor_id(entityId)
                     .entidad_tipo("PROVEEDOR")
