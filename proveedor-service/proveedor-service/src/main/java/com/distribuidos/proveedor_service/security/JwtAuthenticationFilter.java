@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Construir la autoridad con el prefijo ROLE_
                     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
                     UsernamePasswordAuthenticationToken authentication = 
-                        new UsernamePasswordAuthenticationToken(principal, null, 
+                        new UsernamePasswordAuthenticationToken(principal, token, 
                             Collections.singletonList(authority));
                     
                     SecurityContextHolder.getContext().setAuthentication(authentication);

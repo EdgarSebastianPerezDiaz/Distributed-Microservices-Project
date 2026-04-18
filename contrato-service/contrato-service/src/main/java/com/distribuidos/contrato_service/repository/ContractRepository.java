@@ -18,7 +18,7 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
 
     Optional<Contract> findByContractNumber(String contractNumber);
 
-    @Query(value = "SELECT * FROM contratos WHERE deleted = false ORDER BY CAST(numero_contrato AS INTEGER) DESC LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM contratos WHERE eliminado = false ORDER BY CAST(numero_contrato AS INTEGER) DESC LIMIT 1", nativeQuery = true)
     Optional<Contract> findTopByOrderByContractNumberDesc();
 
     boolean existsByContractNumber(String contractNumber);

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -27,5 +28,5 @@ public class AuditEventDTO {
     private String usuario_nombre;
     private String rol_usuario;
     private Integer version;
-    private LocalDateTime fecha;
+     private OffsetDateTime fecha;
 }

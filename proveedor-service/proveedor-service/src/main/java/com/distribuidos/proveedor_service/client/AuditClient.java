@@ -6,6 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +24,18 @@ public class AuditClient {
     
     public void registrarEvento(AuditEventDTO evento) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String token = (String) auth.getCredentials();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(token);
+
+
+            HttpEntity<AuditEventDTO> entity = new HttpEntity<>(evento, headers);
+
             String url = auditServiceUrl + "/eventos";
-            restTemplate.postForObject(url, evento, Void.class);
+            restTemplate.postForObject(url, entity, Void.class);
             log.info("Evento registrado en auditoría: {}", evento.getTipo_evento());
         } catch (Exception e) {
             log.error("Error registrando evento en auditoría: ", e);

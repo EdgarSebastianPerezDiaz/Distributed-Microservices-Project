@@ -1,6 +1,7 @@
 package com.distribuidos.proveedor_service.service;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -280,7 +281,7 @@ public class SupplierService {
                     .usuario_nombre(userEmail)
                     .rol_usuario(userRole)
                     .version(version)
-                    .fecha(LocalDateTime.now())
+                   .fecha(OffsetDateTime.now(java.time.ZoneOffset.UTC))
                     .build();
 
             auditClient.registrarEvento(evento);

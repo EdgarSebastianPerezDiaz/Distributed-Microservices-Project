@@ -10,17 +10,22 @@ import com.distribuidos.contrato_service.model.ContractStatus;
 import com.distribuidos.contrato_service.model.ContractStatusHistory;
 import com.distribuidos.contrato_service.repository.ContractRepository;
 import com.distribuidos.contrato_service.repository.ContractStatusHistoryRepository;
+import com.distribuidos.contrato_service.security.JwtPrincipal;
+
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
+import java.time.OffsetDateTime;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
@@ -131,14 +136,23 @@ public class ContractService {
         }
 
         Contract updatedContract = contractRepository.save(contract);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
 
+        String userId1 = principal.getUserId();
+        String userName = principal.getEmail() != null && !principal.getEmail().isBlank()
+        ? principal.getEmail()
+        : principal.getUsername();
+        String userRole1 = principal.getRole();
         // Enviar evento a Auditoría (versión incrementada)
         sendAuditEvent(contract.getId(), "MODIFICAR_CONTRATO", null, null,
-                "Contract updated", userId.toString(), userEmail, userRole,
+                "Contract updated", userId1, userName, userRole1,
                 getNextVersion(contract.getId()));
 
         log.info("Contract updated with ID: {}", id);
         return contractMapper.toResponse(updatedContract);
+
+
     }
 
     /**
@@ -376,13 +390,23 @@ public class ContractService {
                     .estado_nuevo(newStatus)
                     .motivo(reason != null ? reason : "")
                     .usuario_id(userId)
-                    .usuario_nombre(userEmail)
+                    .usuario_nombre( userEmail != null && !userEmail.isBlank()
+                        ? userEmail
+                        : "usuario_desconocido")
                     .rol_usuario(userRole)
                     .version(version)
-                    .fecha(LocalDateTime.now())
+                .fecha(OffsetDateTime.now(java.time.ZoneOffset.UTC))
                     .build();
 
-            auditClient.registrarEvento(evento);
+         boolean sent= auditClient.registrarEvento(evento);
+
+if (sent) {
+    log.info("Audit event sent: {} for contract: {}", eventType, contractId);
+} else {
+    log.warn("Audit event could not be recorded for contract: {}", contractId);
+}
+
+
             log.info("Audit event sent: {} for contract: {}", eventType, contractId);
         } catch (Exception e) {
             log.warn("Failed to send audit event for contract: {}, Error: {}", contractId, e.getMessage());
@@ -392,6 +416,7 @@ public class ContractService {
     private int getNextVersion(UUID contractId) {
         // Implementar lógica para obtener la siguiente versión desde audit-service
         // Por ahora retorna un número incremental simple
-        return (int) historyRepository.countByContractId(contractId) + 1;
+         long historialCount = historyRepository.countByContractId(contractId);
+    return (int) historialCount + 2;
     }
 }
