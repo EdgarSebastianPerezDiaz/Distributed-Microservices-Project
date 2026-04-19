@@ -95,4 +95,16 @@ public class AuthController {
         
         return ResponseEntity.ok(userService.toggleUserStatus(id, adminId,token));
     }
+
+    @PutMapping("/users/{id}")
+@PreAuthorize("hasRole('ADMINISTRADOR')")
+public ResponseEntity<UserResponse> updateUser(
+        @PathVariable UUID id,
+        @Valid @RequestBody UserUpdateRequest request,
+        @RequestHeader("Authorization") String authHeader) {
+
+    String token = authHeader.replace("Bearer ", "");
+    return ResponseEntity.ok(userService.updateUser(id, request, token));
+}
+
 }

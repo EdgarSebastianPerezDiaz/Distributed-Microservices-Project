@@ -254,4 +254,76 @@ public class UserService {
                 .lastLogin(user.getLastLogin())
                 .build();
     }
+
+
+    public UserResponse updateUser(UUID id, UserUpdateRequest request,String adminToken){
+        
+        //Extraer los datos del usuario existenet
+        UUID adminId=jwtService.extractUserId(adminToken);
+        String adminName=jwtService.extractUsername(adminToken);
+        String adminRole=jwtService.extractRole(adminToken);
+
+        //Par no editar su propio rol
+ User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        //Guardar valores para la descripcion del cambio
+        String oldEmail    = user.getEmail();
+    String oldFullName = user.getFullName();
+    String oldRole     = user.getRole().getName();
+
+
+    //7/Actualizar email
+     if (request.getEmail() != null && !request.getEmail().isBlank()) {
+        if (!request.getEmail().equals(user.getEmail()) &&
+                userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("El email ya existe");
+        }
+        user.setEmail(request.getEmail());
+    }
+
+    //Fullname 
+     if (request.getFullName() != null && !request.getFullName().isBlank()) {
+        user.setFullName(request.getFullName());
+    }
+
+
+    //Rol 
+    if (request.getRole() != null && !request.getRole().isBlank()) {
+        //No su propio rol
+        if (id.equals(adminId)) {
+            throw new RuntimeException("No puedes cambiar tu propio rol");
+        }
+        Role newRole = roleRepository.findByName(request.getRole())
+                .orElseThrow(() -> new RuntimeException("Rol no válido: " + request.getRole()));
+        user.setRole(newRole);
+    }
+     User saved = userRepository.save(user);
+
+     StringBuilder cambios=new StringBuilder("Usiario modificado: ");
+
+    if (!oldEmail.equals( saved.getEmail()))
+    cambios.append(" email='").append(saved.getEmail()).append("';");
+    if (!oldFullName.equals(saved.getFullName()))
+    cambios.append(" nombre='").append(saved.getFullName()).append("';");
+if (!oldRole.equals( saved.getRole().getName()))
+    cambios.append(" rol='").append(saved.getRole().getName()).append("';");
+
+      sendAuditEvent(
+            saved.getId().toString(),
+            "MODIFICAR_USUARIO",
+            null,
+            null,
+            cambios.toString(),
+            adminId.toString(),
+            adminName,
+            adminRole,
+            1,
+            adminToken
+    );
+ log.info("Usuario {} actualizado por admin {}", id, adminId);
+    return mapToResponse(saved);
+    }
+
+
 }
