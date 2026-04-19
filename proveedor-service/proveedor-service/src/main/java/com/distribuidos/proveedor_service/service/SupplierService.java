@@ -148,9 +148,12 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
                 oldEmail, updatedSupplier.getEmail(),
                 oldStatus, updatedSupplier.getStatus());
 
+        /*
         sendAuditEvent(updatedSupplier.getId(), "MODIFICAR_PROVEEDOR", null, null,
                 changes, userId, userEmail, userRole, getNextVersion(updatedSupplier.getId()));
 
+
+         */
                  sendAuditEvent(
             updatedSupplier.getId(),
             "MODIFICAR_PROVEEDOR",

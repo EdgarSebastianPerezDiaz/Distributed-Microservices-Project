@@ -1,6 +1,6 @@
 spring:
   application:
-    name: SERVICIO-PROVEEDORES
+    name: servicio-proveedores
 
   datasource:
     url: jdbc:postgresql://localhost:5432/proveedores_db
@@ -66,3 +66,6 @@ feign:
       default:
         connectTimeout: 2000
         readTimeout: 5000
+audit:
+  service:
+    url: http://localhost:8000

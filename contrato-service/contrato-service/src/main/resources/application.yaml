@@ -1,6 +1,6 @@
 spring:
   application:
-    name: SERVICIO-CONTRATOS
+    name: servicio-contratos
 
   datasource:
     url: jdbc:postgresql://localhost:5432/contratos_db
@@ -70,3 +70,7 @@ feign:
 supplier:
   service:
     url: http://localhost:8082
+
+audit:
+  service:
+    url: http://localhost:8000
