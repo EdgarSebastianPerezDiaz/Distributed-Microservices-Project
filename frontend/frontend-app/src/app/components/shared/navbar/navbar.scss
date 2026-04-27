@@ -1,0 +1,104 @@
+.navbar {
+  background-color: #edbb02 !important;
+  
+  .navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+  }
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  
+  .logo-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #1f2933;
+  }
+  
+  .brand-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2933;
+  }
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+  justify-content: center;
+  
+  a {
+    color: #1f2933 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    &.active {
+      border-bottom: 3px solid #1f2933;
+      background-color: rgba(31, 41, 51, 0.1);
+    }
+    
+    &:hover {
+      background-color: rgba(31, 41, 51, 0.15);
+      border-radius: 4px;
+    }
+  }
+}
+
+.navbar-user {
+  button {
+    color: #1f2933 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.user-info {
+  padding: 10px 16px;
+  min-width: 200px;
+  
+  strong {
+    display: block;
+    color: #1f2933;
+  }
+  
+  small {
+    display: block;
+    color: #738096;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .navbar-nav {
+    display: none;
+  }
+  
+  .navbar-brand .brand-name {
+    display: none;
+  }
+}

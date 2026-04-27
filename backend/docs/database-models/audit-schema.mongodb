@@ -1,0 +1,228 @@
+-- =============================================================================
+-- Audit Service Database Schema (MongoDB 6.0+)
+-- =============================================================================
+-- This schema defines the structure for audit events collection
+-- All events are immutable (insert-only, no updates or deletes)
+-- Schema validation enforced at the MongoDB engine level
+-- =============================================================================
+
+/**
+ * Collection: events
+ * Purpose: Immutable audit log of all system operations
+ * 
+ * Event Structure:
+ * - Immutable: Once inserted, events cannot be modified or deleted (enforced)
+ * - EventId: Unique UUID for each event
+ * - EventType: Type of operation (LOGIN, CREATE, UPDATE, DELETE, STATE_TRANSITION, ERROR)
+ * - EntityType: Type of entity affected (USER, SUPPLIER, CONTRACT, SYSTEM)
+ * - PerformedBy: UUID of the user who performed the action
+ * - Timestamp: UTC ISO 8601 timestamp of the event
+ * - Details: Nested object containing operation-specific data
+ */
+
+// Collection creation with schema validation
+db.createCollection("events", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["eventId", "eventType", "entityType", "performedBy", "timestamp"],
+            properties: {
+                _id: {
+                    bsonType: "objectId",
+                    description: "MongoDB ObjectId (automatically generated, immutable)"
+                },
+                eventId: {
+                    bsonType: "string",
+                    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    description: "UUID v4 identifier for the event"
+                },
+                eventType: {
+                    enum: ["LOGIN", "LOGOUT", "CREATE", "UPDATE", "DELETE", "TRANSITION_STATE", "ERROR"],
+                    description: "Type of event that occurred"
+                },
+                entityType: {
+                    enum: ["USER", "SUPPLIER", "CONTRACT", "SYSTEM"],
+                    description: "Type of entity affected by the event"
+                },
+                entityId: {
+                    bsonType: "string",
+                    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    description: "UUID of the affected entity (not required for system events)"
+                },
+                performedBy: {
+                    bsonType: "string",
+                    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    description: "UUID of the user who performed the action"
+                },
+                previousData: {
+                    bsonType: "object",
+                    description: "State of the entity before the operation (for UPDATE/DELETE)"
+                },
+                newData: {
+                    bsonType: "object",
+                    description: "State of the entity after the operation (for CREATE/UPDATE)"
+                },
+                timestamp: {
+                    bsonType: "date",
+                    description: "Event occurrence timestamp (UTC, ISO 8601)"
+                },
+                ipAddress: {
+                    bsonType: "string",
+                    pattern: "^([0-9]{1,3}\\.){3}[0-9]{1,3}$|^[0-9a-fA-F:]+$",
+                    description: "IPv4 or IPv6 address of the request source"
+                },
+                userAgent: {
+                    bsonType: "string",
+                    description: "HTTP User-Agent header value (optional)"
+                },
+                statusCode: {
+                    bsonType: "int",
+                    description: "HTTP response status code"
+                },
+                errorMessage: {
+                    bsonType: "string",
+                    description: "Error message (if statusCode indicates error)"
+                },
+                details: {
+                    bsonType: "object",
+                    description: "Event-specific details and metadata (flexible subdocument)"
+                }
+            }
+        }
+    },
+    validationLevel: "strict",
+    validationAction: "error"
+});
+
+// Indexes for audit queries (performance requirement: <2ms)
+
+// Index 1: Query events by type and timestamp (most common audit query)
+db.events.createIndex(
+    { eventType: 1, timestamp: -1 },
+    { name: "idx_eventType_timestamp" }
+);
+
+// Index 2: Query events by entity ID (audit trail for a single entity)
+db.events.createIndex(
+    { entityId: 1, timestamp: -1 },
+    { name: "idx_entityId_timestamp" }
+);
+
+// Index 3: Query events by user (activity log for a specific user)
+db.events.createIndex(
+    { performedBy: 1, timestamp: -1 },
+    { name: "idx_performedBy_timestamp" }
+);
+
+// Index 4: Query events by timestamp range (time-based reports)
+db.events.createIndex(
+    { timestamp: -1 },
+    { name: "idx_timestamp" }
+);
+
+// Index 5: Query errors (troubleshooting)
+db.events.createIndex(
+    { eventType: 1, statusCode: 1, timestamp: -1 },
+    { name: "idx_errors" }
+);
+
+// Index 6: Compound index for complex audit reports
+db.events.createIndex(
+    { entityType: 1, eventType: 1, timestamp: -1 },
+    { name: "idx_entityType_eventType_timestamp" }
+);
+
+// =============================================================================
+// Sample Audit Events (for development and testing)
+// =============================================================================
+
+db.events.insertOne({
+    eventId: "550e8400-e29b-41d4-a716-446655440000",
+    eventType: "LOGIN",
+    entityType: "USER",
+    entityId: "550e8400-e29b-41d4-a716-446655440001",
+    performedBy: "550e8400-e29b-41d4-a716-446655440001",
+    timestamp: new Date("2026-01-15T10:30:00Z"),
+    ipAddress: "127.0.0.1",
+    userAgent: "PostmanRuntime/7.32.0",
+    statusCode: 200,
+    details: {
+        method: "POST",
+        endpoint: "/api/users/auth/login",
+        username: "admin"
+    }
+});
+
+db.events.insertOne({
+    eventId: "550e8400-e29b-41d4-a716-446655440002",
+    eventType: "CREATE",
+    entityType: "SUPPLIER",
+    entityId: "550e8400-e29b-41d4-a716-446655440003",
+    performedBy: "550e8400-e29b-41d4-a716-446655440001",
+    timestamp: new Date("2026-01-15T11:15:00Z"),
+    ipAddress: "127.0.0.1",
+    statusCode: 201,
+    newData: {
+        supplierName: "Tech Solutions Inc.",
+        businessId: "NIT-1234567890",
+        status: "ACTIVE"
+    },
+    details: {
+        method: "POST",
+        endpoint: "/api/suppliers/create",
+        service: "suppliers-service"
+    }
+});
+
+db.events.insertOne({
+    eventId: "550e8400-e29b-41d4-a716-446655440004",
+    eventType: "TRANSITION_STATE",
+    entityType: "CONTRACT",
+    entityId: "550e8400-e29b-41d4-a716-446655440005",
+    performedBy: "550e8400-e29b-41d4-a716-446655440001",
+    timestamp: new Date("2026-01-15T12:00:00Z"),
+    ipAddress: "127.0.0.1",
+    statusCode: 200,
+    previousData: {
+        status: "SIGNED"
+    },
+    newData: {
+        status: "ACTIVE"
+    },
+    details: {
+        method: "PATCH",
+        endpoint: "/api/contracts/transition/{contractId}",
+        reason: "Contract activation"
+    }
+});
+
+// =============================================================================
+// IMPORTANT: Event Immutability Policy
+// =============================================================================
+// 
+// 1. NO INSERT or UPDATE triggers allowed on this collection
+// 2. NO DELETE operations permitted on events (enforce at application layer)
+// 3. validationLevel: "strict" enforces schema validation on INSERT and UPDATE
+// 4. validationAction: "error" rejects any document that doesn't match the schema
+// 
+// Clients must:
+// - Insert complete, valid documents (no partial inserts)
+// - Never attempt to UPDATE or DELETE existing documents
+// - Use application-level record retention policies (e.g., archive old events after 1 year)
+// 
+// =============================================================================
+
+// =============================================================================
+// Database Metadata
+// =============================================================================
+// Database: audit_events
+// Service: Audit Microservice (Python/FastAPI)
+// Port: 8083
+// Driver: Motor (async MongoDB driver for Python)
+// Authentication: JWT (Bearer tokens)
+// Consistency Model: Eventual consistency (NoSQL document store)
+// Event Volume: Expected 1000+ events/hour in production
+// Retention: Configurable archival policy (default: 5 years)
+// Sharding: Planned for production (shard key: _id or timestamp)
+// Replication: Planned for production (replica set)
+// =============================================================================

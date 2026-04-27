@@ -1,0 +1,148 @@
+.user-list-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  h2 {
+    margin: 0;
+    color: #1f2933;
+    font-size: 28px;
+    font-weight: 600;
+  }
+}
+
+.create-btn {
+  background-color: #edbb02 !important;
+  color: #1f2933 !important;
+  
+  &:hover {
+    background-color: #d4a602 !important;
+  }
+  
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  
+  .search-field {
+    flex: 1;
+    max-width: 300px;
+  }
+}
+
+.table-container {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.users-table {
+  width: 100%;
+  
+  th {
+    background-color: #f5f7fa;
+    color: #1f2933;
+    font-weight: 600;
+  }
+  
+  tr:hover {
+    background-color: #f9fafb;
+  }
+  
+  td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    
+    &:last-child {
+      text-align: right;
+      button {
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+.loading-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 30px;
+  
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    color: #1f2933;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: #718096;
+    margin: 0;
+  }
+}
+
+mat-paginator {
+  border-top: 1px solid #e2e8f0;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .user-list-container {
+    padding: 15px;
+  }
+  
+  .list-header {
+    flex-direction: column;
+    gap: 15px;
+    
+    h2 {
+      font-size: 20px;
+    }
+  }
+  
+  .create-btn {
+    width: 100%;
+  }
+  
+  .search-bar {
+    flex-direction: column;
+    
+    .search-field {
+      max-width: 100%;
+    }
+  }
+  
+  .users-table {
+    font-size: 12px;
+    
+    th, td {
+      padding: 12px 8px;
+    }
+  }
+}
