@@ -1,0 +1,23 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--color-background);
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  background-color: var(--color-background);
+}
+
+// Smooth animations
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Remove transition for rapid interactions
+.no-animate {
+  transition: none !important;
+}
