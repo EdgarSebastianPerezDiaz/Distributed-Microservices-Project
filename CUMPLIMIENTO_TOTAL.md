@@ -14,10 +14,10 @@
 
 | Aspecto | Estado | Cumplimiento |
 |---------|--------|:---:|
-| **Arquitectura General** | ✅ CUMPLE | 100% |
-| **Autenticación y Seguridad** | ✅ CUMPLE | 100% |
-| **Servicio de Usuarios** | ✅ CUMPLE | 100% |
-| **Servicio de Proveedores** | ✅ CUMPLE | 100% |
+| **Arquitectura General** | ✅ CUMPLE | 85% |
+| **Autenticación y Seguridad** | ✅ CUMPLE | 85% |
+| **Servicio de Usuarios** | ✅ CUMPLE | 90% |
+| **Servicio de Proveedores** | ✅ CUMPLE | 90% |
 | **Servicio de Contratos** | ✅ CUMPLE | 95% |
 | **Servicio de Auditoría** | ✅ CUMPLE | 95% |
 | **API Gateway** | ✅ CUMPLE | 100% |

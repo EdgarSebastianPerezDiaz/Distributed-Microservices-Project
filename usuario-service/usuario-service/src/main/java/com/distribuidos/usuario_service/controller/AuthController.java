@@ -107,4 +107,18 @@ public ResponseEntity<UserResponse> updateUser(
     return ResponseEntity.ok(userService.updateUser(id, request, token));
 }
 
+/**
+ * ELIMINAR USUARIO - SOLO ADMIN
+ * Elimina un usuario de la base de datos (eliminación física)
+ */
+@DeleteMapping("/users/{id}")
+@PreAuthorize("hasRole('ADMINISTRADOR')")
+public ResponseEntity<Void> deleteUser(
+        @PathVariable UUID id,
+        @RequestHeader("Authorization") String authHeader) {
+    
+    String token = authHeader.replace("Bearer ", "");
+    userService.deleteUser(id, token);
+    
+    return ResponseEntity.noContent().build();
 }

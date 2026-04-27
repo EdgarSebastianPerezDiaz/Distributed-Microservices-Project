@@ -2,6 +2,7 @@ package com.distribuidos.usuario_service.service;
 
 import com.distribuidos.usuario_service.dto.*;
 import com.distribuidos.usuario_service.client.AuditClient;
+import com.distribuidos.usuario_service.exception.*;
 import com.distribuidos.usuario_service.model.Role;
 import com.distribuidos.usuario_service.model.User;
 import com.distribuidos.usuario_service.repository.RoleRepository;
@@ -49,16 +50,21 @@ public class UserService {
     public LoginResponse login(LoginRequest request) {
         // Buscar usuario
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> {
+                    log.warn("Intento de login con usuario inexistente: {}", request.getUsername());
+                    return new InvalidCredentialsException("Usuario o contraseña incorrectos");
+                });
         
         // Verificar activo
         if (!user.getActive()) {
-            throw new RuntimeException("Usuario desactivado");
+            log.warn("Intento de login de usuario desactivado: {}", request.getUsername());
+            throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
         }
         
         // Verificar password con SHA-512
         if (!SecurityUtils.verifyPassword(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Contraseña incorrecta");
+            log.warn("Intento de login con contraseña incorrecta para usuario: {}", request.getUsername());
+            throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
         }
         
         // Actualizar último login
@@ -72,6 +78,7 @@ public class UserService {
                 user.getRole().getName()
         );
         
+        log.info("Login exitoso para usuario: {}", request.getUsername());
         return LoginResponse.builder()
                 .token(token)
                 .type("Bearer")
@@ -92,17 +99,22 @@ public class UserService {
     public UserResponse createUser(UserRequest request,String adminToken) {
         // Validar username único
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("El username ya existe");
+            log.warn("Intento de crear usuario con username duplicado: {}", request.getUsername());
+            throw new UserAlreadyExistsException("El username '" + request.getUsername() + "' ya existe");
         }
         
         // Validar email único
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya existe");
+            log.warn("Intento de crear usuario con email duplicado: {}", request.getEmail());
+            throw new UserAlreadyExistsException("El email '" + request.getEmail() + "' ya existe");
         }
         
         // Buscar rol
         Role role = roleRepository.findByName(request.getRole())
-                .orElseThrow(() -> new RuntimeException("Rol no válido: " + request.getRole()));
+                .orElseThrow(() -> {
+                    log.warn("Intento de crear usuario con rol inválido: {}", request.getRole());
+                    return new InvalidRoleException("Rol no válido: " + request.getRole());
+                });
         
         // Crear usuario
         User user = new User();
@@ -113,13 +125,13 @@ public class UserService {
         user.setRole(role);
         user.setActive(true);
 
-
-         UUID adminId     = jwtService.extractUserId(adminToken);
+        UUID adminId     = jwtService.extractUserId(adminToken);
         String adminName = jwtService.extractUsername(adminToken);
         String adminRole = jwtService.extractRole(adminToken);
 
-         User saved = userRepository.save(user);
-       
+        User saved = userRepository.save(user);
+        
+        log.info("Usuario creado: {} (ID: {}) con rol: {}", saved.getUsername(), saved.getId(), role.getName());
 
         sendAuditEvent(
                 saved.getId().toString(),
@@ -134,8 +146,7 @@ public class UserService {
                 adminToken
         );
 
-         return mapToResponse(saved);
-       
+        return mapToResponse(saved);
     }
 
 
@@ -186,7 +197,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> {
+                    log.warn("Intento de acceso a usuario inexistente con ID: {}", id);
+                    return new UserNotFoundException("Usuario con ID " + id + " no encontrado");
+                });
         return mapToResponse(user);
     }
     
@@ -207,11 +221,16 @@ public class UserService {
     public UserResponse toggleUserStatus(UUID id, UUID adminId, String token) {
         // No auto-desactivación
         if (id.equals(adminId)) {
+            log.warn("Admin {} intentó desactivarse a sí mismo", adminId);
             throw new RuntimeException("No puedes desactivar tu propio usuario");
         }
         
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> {
+                    log.warn("Intento de cambiar estado de usuario inexistente: {}", id);
+                    return new UserNotFoundException("Usuario con ID " + id + " no encontrado");
+                });
+        
          String estadoAnterior = user.getActive() ? "ACTIVO" : "INACTIVO";
         
          user.setActive(!user.getActive());
@@ -219,7 +238,6 @@ public class UserService {
         
          String adminName = jwtService.extractUsername(token);
         String adminRole = jwtService.extractRole(token);
-
 
         String estadoNuevo = saved.getActive() ? "ACTIVO" : "INACTIVO";
 
@@ -235,7 +253,7 @@ public class UserService {
             1,
             token
     );
-    log.info("Estado de usuario {} cambiado: {} → {}", id, estadoAnterior, estadoNuevo);
+    log.info("Estado de usuario {} cambiado por admin {}: {} → {}", id, adminId, estadoAnterior, estadoNuevo);
         return mapToResponse(saved);
     }
     
@@ -258,58 +276,65 @@ public class UserService {
 
     public UserResponse updateUser(UUID id, UserUpdateRequest request,String adminToken){
         
-        //Extraer los datos del usuario existenet
+        //Extraer los datos del usuario existente
         UUID adminId=jwtService.extractUserId(adminToken);
         String adminName=jwtService.extractUsername(adminToken);
         String adminRole=jwtService.extractRole(adminToken);
 
-        //Par no editar su propio rol
- User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        //Para no editar su propio rol
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Intento de actualizar usuario inexistente: {}", id);
+                    return new UserNotFoundException("Usuario con ID " + id + " no encontrado");
+                });
 
-        //Guardar valores para la descripcion del cambio
+        //Guardar valores para la descripción del cambio
         String oldEmail    = user.getEmail();
-    String oldFullName = user.getFullName();
-    String oldRole     = user.getRole().getName();
+        String oldFullName = user.getFullName();
+        String oldRole     = user.getRole().getName();
 
-
-    //7/Actualizar email
-     if (request.getEmail() != null && !request.getEmail().isBlank()) {
-        if (!request.getEmail().equals(user.getEmail()) &&
-                userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya existe");
+        //Actualizar email
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            if (!request.getEmail().equals(user.getEmail()) &&
+                    userRepository.existsByEmail(request.getEmail())) {
+                log.warn("Intento de actualizar usuario con email duplicado: {}", request.getEmail());
+                throw new UserAlreadyExistsException("El email '" + request.getEmail() + "' ya existe");
+            }
+            user.setEmail(request.getEmail());
         }
-        user.setEmail(request.getEmail());
-    }
 
-    //Fullname 
-     if (request.getFullName() != null && !request.getFullName().isBlank()) {
-        user.setFullName(request.getFullName());
-    }
-
-
-    //Rol 
-    if (request.getRole() != null && !request.getRole().isBlank()) {
-        //No su propio rol
-        if (id.equals(adminId)) {
-            throw new RuntimeException("No puedes cambiar tu propio rol");
+        //Fullname 
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName());
         }
-        Role newRole = roleRepository.findByName(request.getRole())
-                .orElseThrow(() -> new RuntimeException("Rol no válido: " + request.getRole()));
-        user.setRole(newRole);
-    }
-     User saved = userRepository.save(user);
 
-     StringBuilder cambios=new StringBuilder("Usiario modificado: ");
+        //Rol 
+        if (request.getRole() != null && !request.getRole().isBlank()) {
+            //No su propio rol
+            if (id.equals(adminId)) {
+                log.warn("Admin {} intentó cambiar su propio rol", adminId);
+                throw new RuntimeException("No puedes cambiar tu propio rol");
+            }
+            Role newRole = roleRepository.findByName(request.getRole())
+                    .orElseThrow(() -> {
+                        log.warn("Intento de asignar rol inválido: {}", request.getRole());
+                        return new InvalidRoleException("Rol no válido: " + request.getRole());
+                    });
+            user.setRole(newRole);
+        }
 
-    if (!oldEmail.equals( saved.getEmail()))
-    cambios.append(" email='").append(saved.getEmail()).append("';");
-    if (!oldFullName.equals(saved.getFullName()))
-    cambios.append(" nombre='").append(saved.getFullName()).append("';");
-if (!oldRole.equals( saved.getRole().getName()))
-    cambios.append(" rol='").append(saved.getRole().getName()).append("';");
+        User saved = userRepository.save(user);
 
-      sendAuditEvent(
+        StringBuilder cambios=new StringBuilder("Usuario modificado: ");
+
+        if (!oldEmail.equals(saved.getEmail()))
+            cambios.append(" email='").append(saved.getEmail()).append("';");
+        if (!oldFullName.equals(saved.getFullName()))
+            cambios.append(" nombre='").append(saved.getFullName()).append("';");
+        if (!oldRole.equals(saved.getRole().getName()))
+            cambios.append(" rol='").append(saved.getRole().getName()).append("';");
+
+        sendAuditEvent(
             saved.getId().toString(),
             "MODIFICAR_USUARIO",
             null,
@@ -320,10 +345,56 @@ if (!oldRole.equals( saved.getRole().getName()))
             adminRole,
             1,
             adminToken
-    );
- log.info("Usuario {} actualizado por admin {}", id, adminId);
-    return mapToResponse(saved);
+        );
+        
+        log.info("Usuario {} actualizado por admin {}", id, adminId);
+        return mapToResponse(saved);
     }
 
+    /**
+     * ELIMINAR USUARIO - SOLO ADMIN
+     * Elimina permanentemente un usuario de la base de datos
+     * 
+     * Validaciones:
+     * - No puede eliminarse a sí mismo
+     * - El usuario debe existir
+     */
+    @Transactional
+    public void deleteUser(UUID id, String adminToken) {
+        UUID adminId = jwtService.extractUserId(adminToken);
+        String adminName = jwtService.extractUsername(adminToken);
+        String adminRole = jwtService.extractRole(adminToken);
+        
+        // No auto-eliminación
+        if (id.equals(adminId)) {
+            log.warn("Admin {} intentó eliminarse a sí mismo", adminId);
+            throw new RuntimeException("No puedes eliminar tu propio usuario");
+        }
+        
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Intento de eliminar usuario inexistente: {}", id);
+                    return new UserNotFoundException("Usuario con ID " + id + " no encontrado");
+                });
+        
+        String username = user.getUsername();
+        userRepository.delete(user);
+        
+        // Registrar en auditoría
+        sendAuditEvent(
+            id.toString(),
+            "ELIMINAR_USUARIO",
+            "ACTIVO",
+            "ELIMINADO",
+            "Usuario '" + username + "' fue eliminado permanentemente",
+            adminId.toString(),
+            adminName,
+            adminRole,
+            1,
+            adminToken
+        );
+        
+        log.info("Usuario {} (ID: {}) eliminado por admin {}", username, id, adminId);
+    }
 
 }
