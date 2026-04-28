@@ -42,11 +42,9 @@ public class AuthController {
      */
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<UserResponse> register(  @Valid @RequestBody UserRequest request,
-        @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-    UserResponse user = userService.createUser(request, token); 
-    return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
+        UserResponse user = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
     
     /**
@@ -93,34 +91,6 @@ public class AuthController {
         String token = authHeader.replace("Bearer ", "");
         UUID adminId = jwtService.extractUserId(token);
         
-        return ResponseEntity.ok(userService.toggleUserStatus(id, adminId,token));
+        return ResponseEntity.ok(userService.toggleUserStatus(id, adminId));
     }
-
-    @PutMapping("/users/{id}")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
-public ResponseEntity<UserResponse> updateUser(
-        @PathVariable UUID id,
-        @Valid @RequestBody UserUpdateRequest request,
-        @RequestHeader("Authorization") String authHeader) {
-
-    String token = authHeader.replace("Bearer ", "");
-    return ResponseEntity.ok(userService.updateUser(id, request, token));
-}
-
-/**
- * ELIMINAR USUARIO - SOLO ADMIN
- * Elimina un usuario de la base de datos (eliminación física)
- */
-@DeleteMapping("/users/{id}")
-@PreAuthorize("hasRole('ADMINISTRADOR')")
-public ResponseEntity<Void> deleteUser(
-        @PathVariable UUID id,
-        @RequestHeader("Authorization") String authHeader) {
-    
-    String token = authHeader.replace("Bearer ", "");
-    userService.deleteUser(id, token);
-    
-    return ResponseEntity.noContent().build();
-}
-
 }

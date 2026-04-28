@@ -14,7 +14,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user';
 import { AuthService } from '../../../services/auth';
-import { User, UserStatus, UserRole } from '../../../models/auth.model';
+import { User, UserRole } from '../../../models/auth.model';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -53,7 +53,6 @@ export class UserListComponent implements OnInit {
   // Current user
   currentUser: User | null = null;
   
-  UserStatus = UserStatus;
   UserRole = UserRole;
 
   constructor(
@@ -120,12 +119,12 @@ export class UserListComponent implements OnInit {
     if (!user.id) return;
     
     // Prevent admin from deactivating themselves
-    if (user.id === this.currentUser?.id && user.status === UserStatus.ACTIVO) {
+    if (user.id === this.currentUser?.id && user.active === true) {
       alert('No puedes desactivar tu propia cuenta');
       return;
     }
 
-    if (user.status === UserStatus.ACTIVO) {
+    if (user.active === true) {
       this.deactivateUser(user.id);
     } else {
       this.activateUser(user.id);

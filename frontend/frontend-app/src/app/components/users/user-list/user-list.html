@@ -66,8 +66,8 @@
         <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td mat-cell *matCellDef="let element">
           <mat-chip-set aria-label="Status">
-            <mat-chip [highlighted]="element.status === UserStatus.ACTIVO">
-              {{ element.status }}
+            <mat-chip [highlighted]="element.active === true">
+              {{ element.active === true ? 'Activo' : 'Inactivo' }}
             </mat-chip>
           </mat-chip-set>
         </td>
@@ -87,9 +87,9 @@
             mat-icon-button 
             matTooltip="Cambiar estado"
             (click)="toggleUserStatus(element)"
-            [disabled]="isCurrentUser(element) && element.status === UserStatus.ACTIVO"
+            [disabled]="isCurrentUser(element) && element.active === true"
           >
-            <mat-icon>{{ element.status === UserStatus.ACTIVO ? 'block' : 'check_circle' }}</mat-icon>
+            <mat-icon>{{ element.active === true ? 'block' : 'check_circle' }}</mat-icon>
           </button>
           <button mat-icon-button matTooltip="Eliminar" (click)="deleteUser(element.id)" color="warn">
             <mat-icon>delete</mat-icon>

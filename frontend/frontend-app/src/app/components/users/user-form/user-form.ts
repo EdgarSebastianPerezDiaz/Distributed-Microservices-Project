@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../../services/user';
-import { User, UserRole, UserStatus } from '../../../models/auth.model';
+import { User, UserRole } from '../../../models/auth.model';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -106,7 +106,7 @@ export class UserFormComponent implements OnInit {
       email: this.f['email'].value,
       fullName: this.f['fullName'].value,
       role: this.f['role'].value,
-      status: UserStatus.ACTIVO
+      active: true
     };
 
     if (!this.isEditMode) {

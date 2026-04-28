@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -16,7 +17,10 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.loadCurrentUser();
   }
 
@@ -38,6 +42,9 @@ export class AuthService {
     sessionStorage.removeItem('user');
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+    
+    // Navegar a login después de logout
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -75,11 +82,22 @@ export class AuthService {
   }
 
   private loadCurrentUser(): void {
-    const userJson = sessionStorage.getItem('user');
+    // Primero intenta sessionStorage (sesión actual)
+    let userJson = sessionStorage.getItem('user');
+    
+    // Si no está en sessionStorage, busca en localStorage
+    if (!userJson) {
+      userJson = localStorage.getItem('user');
+    }
+
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
         this.currentUserSubject.next(user);
+        // Si estaba en localStorage pero no en sessionStorage, sincronizar
+        if (!sessionStorage.getItem('user')) {
+          sessionStorage.setItem('user', userJson);
+        }
       } catch (e) {
         console.error('Error parsing user from storage', e);
       }

@@ -38,8 +38,8 @@
             <label>Estado</label>
             <p>
               <mat-chip-set aria-label="Status">
-                <mat-chip [highlighted]="user.status === UserStatus.ACTIVO">
-                  {{ user.status }}
+                <mat-chip [highlighted]="user.active === true">
+                  {{ user.active === true ? 'Activo' : 'Inactivo' }}
                 </mat-chip>
               </mat-chip-set>
             </p>

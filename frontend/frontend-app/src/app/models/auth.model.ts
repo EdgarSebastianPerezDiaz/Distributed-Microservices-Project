@@ -16,9 +16,9 @@ export interface User {
   fullName?: string;
   password?: string;
   role: UserRole;
-  status: UserStatus;
+  active: boolean;
   createdAt?: string;
-  updatedAt?: string;
+  lastLogin?: string;
 }
 
 export enum UserRole {

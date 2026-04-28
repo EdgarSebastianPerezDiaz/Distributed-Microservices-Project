@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../../../services/user';
-import { User, UserStatus, UserRole } from '../../../models/auth.model';
+import { User, UserRole } from '../../../models/auth.model';
 
 @Component({
   selector: 'app-user-detail',
@@ -31,7 +31,6 @@ export class UserDetailComponent implements OnInit {
   userId: string | null = null;
   error: string | null = null;
   
-  UserStatus = UserStatus;
   UserRole = UserRole;
 
   constructor(
