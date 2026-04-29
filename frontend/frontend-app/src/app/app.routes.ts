@@ -84,6 +84,12 @@ export const routes: Routes = [
     path: 'contratos',
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
+    component: ContratosComponent
+  },
+  {
+    path: 'contratos/list',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
     component: ContractListComponent
   },
   {

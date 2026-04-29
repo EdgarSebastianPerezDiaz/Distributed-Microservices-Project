@@ -1,55 +1,90 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { UserRole } from '../../models/auth.model';
+import { User, UserRole } from '../../models/auth.model';
 
 @Component({
   selector: 'app-contratos',
   standalone: true,
   imports: [
     CommonModule,
+    MatCardModule,
     MatButtonModule,
     MatIconModule,
     RouterModule
   ],
   template: `
     <div class="container">
-      <div class="hero-card">
-        <div class="hero-copy">
-          <span class="eyebrow">Módulo de contratos</span>
-          <h1>Consulta y crea contratos desde una sola interfaz</h1>
+      <mat-card class="welcome-card">
+        <mat-card-header>
+          <mat-card-title>Bienvenido al Módulo de Contratos</mat-card-title>
+          <mat-card-subtitle>Gestión de Contratos Administrativos</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Usuario</span>
+              <strong>{{ currentUser?.fullName || currentUser?.username }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Rol</span>
+              <strong>{{ currentUser?.role }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Correo</span>
+              <strong>{{ currentUser?.email }}</strong>
+            </div>
+          </div>
+
+          <hr>
+
           <p>
-            Desde aquí puedes revisar el listado de contratos registrados, buscar por proveedor o número y abrir el formulario de creación.
+            Este módulo permite la gestión integral de contratos.
+            Aquí podrás registrar nuevos contratos, consultar sus datos y continuar con la gestión operativa.
           </p>
-          <div class="actions">
-            <button mat-raised-button color="primary" routerLink="/contratos" *ngIf="isFuncionario()">
-              <mat-icon>table_view</mat-icon>
-              Ver lista de contratos
-            </button>
-            <button mat-stroked-button routerLink="/contratos/new" *ngIf="isFuncionario()">
-              <mat-icon>add_circle</mat-icon>
-              Crear contrato
-            </button>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <mat-icon>description</mat-icon>
+              <span>Creación de contratos</span>
+            </div>
+            <div class="feature-card">
+              <mat-icon>verified_user</mat-icon>
+              <span>Validación contra backend</span>
+            </div>
+            <div class="feature-card">
+              <mat-icon>storage</mat-icon>
+              <span>Persistencia en base de datos</span>
+            </div>
           </div>
-        </div>
-        <div class="hero-panel">
-          <div class="panel-item">
-            <mat-icon>description</mat-icon>
-            <span>Listado paginado</span>
-          </div>
-          <div class="panel-item">
-            <mat-icon>search</mat-icon>
-            <span>Búsqueda por texto</span>
-          </div>
-          <div class="panel-item">
-            <mat-icon>verified_user</mat-icon>
-            <span>Acceso por rol</span>
-          </div>
-        </div>
-      </div>
+
+          <p class="helper-text" *ngIf="!isFuncionario()">
+            La creación de contratos está habilitada solo para el rol FUNCIONARIO.
+          </p>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-raised-button color="primary" routerLink="/contratos/new" *ngIf="isFuncionario()">
+            <mat-icon>add_circle</mat-icon>
+            Crear contrato
+          </button>
+          <button mat-stroked-button routerLink="/contratos/list" *ngIf="isFuncionario()">
+            <mat-icon>list</mat-icon>
+            Ver Contratos
+          </button>
+          <button mat-stroked-button routerLink="/suppliers">
+            Ver Proveedores
+          </button>
+          <button mat-raised-button (click)="logout()">
+            Cerrar Sesión
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </div>
   `,
   styles: [`
@@ -62,80 +97,102 @@ import { UserRole } from '../../models/auth.model';
       background: linear-gradient(135deg, #edbb02 0%, #f5f7fa 100%);
     }
 
-    .hero-card {
+    .welcome-card {
       width: 100%;
-      max-width: 1100px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      align-items: stretch;
+      max-width: 920px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
-      background: white;
-      padding: 32px;
     }
 
-    .hero-copy {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    mat-card-header {
+      text-align: center;
+      margin-bottom: 12px;
     }
 
-    .eyebrow {
-      display: inline-block;
-      margin-bottom: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9a7c00;
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      color: #1f2933;
-      font-size: 40px;
+    mat-card-title {
+      font-size: 28px;
+      margin-bottom: 10px;
       color: #1f2933;
       font-weight: 600;
     }
 
-    p {
-      margin: 0;
-      line-height: 1.7;
-      color: #4a5568;
-      max-width: 56ch;
+    mat-card-subtitle {
+      color: #738096;
     }
 
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    .hero-panel {
+    .summary-grid {
       display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .summary-item {
+      background: #f5f7fa;
+      border-radius: 8px;
+      padding: 16px;
+      border-left: 4px solid #edbb02;
+    }
+
+    .summary-label {
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 12px;
+      color: #738096;
+      margin-bottom: 4px;
+    }
+
+    hr {
+      margin: 24px 0;
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    p {
+      margin: 10px 0;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
-      align-content: center;
+      margin-top: 22px;
+    }
+
+    .feature-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
       padding: 18px;
       border-radius: 10px;
-      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
       border: 1px solid #e5e7eb;
-    }
-
-    .panel-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 8px;
-      background: white;
       color: #1f2933;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
       mat-icon {
         color: #edbb02;
       }
+    }
+
+    .helper-text {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #f5f7fa;
+      border-left: 4px solid #edbb02;
+      color: #4a5568;
+      font-size: 13px;
+    }
+
+    mat-card-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 20px;
     }
 
     button[mat-raised-button]:not(:disabled) {
@@ -156,39 +213,40 @@ import { UserRole } from '../../models/auth.model';
       margin-right: 8px;
     }
 
-    @media (max-width: 900px) {
-      .hero-card {
-        grid-template-columns: 1fr;
-      }
-
-      h1 {
-        font-size: 30px;
-      }
-    }
-
     @media (max-width: 768px) {
       .container {
         padding: 12px;
       }
 
-      .hero-card {
-        padding: 20px;
+      .summary-grid,
+      .feature-grid {
+        grid-template-columns: 1fr;
       }
 
-      .actions {
+      mat-card-title {
+        font-size: 24px;
+      }
+
+      mat-card-actions {
         flex-direction: column;
       }
 
-      .actions button {
+      button[mat-raised-button],
+      button[mat-stroked-button] {
         width: 100%;
       }
     }
   `]
 })
-export class ContratosComponent {
+export class ContratosComponent implements OnInit {
+  currentUser: User | null = null;
   UserRole = UserRole;
 
   constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
+  }
 
   isFuncionario(): boolean {
     return this.authService.hasRole(UserRole.FUNCIONARIO);
