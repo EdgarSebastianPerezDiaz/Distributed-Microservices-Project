@@ -41,11 +41,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Redirige a dashboard si ya está autenticado
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     this.initializeForm();
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }

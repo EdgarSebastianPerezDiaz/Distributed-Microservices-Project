@@ -10,13 +10,14 @@ import { SupplierListComponent } from './components/suppliers/supplier-list/supp
 import { SupplierFormComponent } from './components/suppliers/supplier-form/supplier-form';
 import { SupplierDetailComponent } from './components/suppliers/supplier-detail/supplier-detail';
 import { ContratosComponent } from './components/contratos/contratos';
+import { ContractFormComponent } from './components/contratos/contract-form/contract-form';
 import { AuditoriaComponent } from './components/auditoria/auditoria';
 import { UserRole } from './models/auth.model';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/login',
     pathMatch: 'full'
   },
   {
@@ -85,6 +86,12 @@ export const routes: Routes = [
     component: ContratosComponent
   },
   {
+    path: 'contratos/new',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.FUNCIONARIO] },
+    component: ContractFormComponent
+  },
+  {
     path: 'auditoria',
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.AUDITOR] },
@@ -96,6 +103,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/login'
   }
 ];
