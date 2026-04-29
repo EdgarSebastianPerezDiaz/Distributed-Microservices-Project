@@ -11,6 +11,7 @@ import { SupplierFormComponent } from './components/suppliers/supplier-form/supp
 import { SupplierDetailComponent } from './components/suppliers/supplier-detail/supplier-detail';
 import { ContratosComponent } from './components/contratos/contratos';
 import { ContractFormComponent } from './components/contratos/contract-form/contract-form';
+import { ContractListComponent } from './components/contratos/contract-list/contract-list';
 import { AuditoriaComponent } from './components/auditoria/auditoria';
 import { UserRole } from './models/auth.model';
 
@@ -83,7 +84,7 @@ export const routes: Routes = [
     path: 'contratos',
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
-    component: ContratosComponent
+    component: ContractListComponent
   },
   {
     path: 'contratos/new',

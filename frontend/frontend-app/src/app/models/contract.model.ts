@@ -21,3 +21,17 @@ export interface ContractResponse {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface PaginatedContractResponse {
+  content: ContractResponse[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+  };
+  totalElements: number;
+  totalPages: number;
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
