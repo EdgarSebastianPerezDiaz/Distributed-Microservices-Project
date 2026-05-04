@@ -27,7 +27,13 @@
   <div class="table-container">
     <mat-spinner *ngIf="loading" diameter="40" class="loading-spinner"></mat-spinner>
 
-    <table mat-table [dataSource]="contracts" class="contracts-table" *ngIf="!loading && contracts.length > 0">
+    <div class="empty-state" *ngIf="!loading && errorMessage">
+      <mat-icon class="empty-icon">error_outline</mat-icon>
+      <h3>Error al cargar contratos</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <table mat-table [dataSource]="contracts" class="contracts-table" *ngIf="!loading && !errorMessage && contracts.length > 0">
       <ng-container matColumnDef="contractNumber">
         <th mat-header-cell *matHeaderCellDef>Número</th>
         <td mat-cell *matCellDef="let element">
@@ -89,7 +95,7 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 
-    <div class="empty-state" *ngIf="!loading && contracts.length === 0">
+    <div class="empty-state" *ngIf="!loading && !errorMessage && contracts.length === 0">
       <mat-icon class="empty-icon">description</mat-icon>
       <h3>No hay contratos</h3>
       <p *ngIf="searchTerm">No se encontraron contratos que coincidan con tu búsqueda</p>

@@ -78,7 +78,7 @@ export class LoginComponent implements OnInit {
         let redirectUrl = this.returnUrl || '/dashboard';
         
         if (role === 'ADMINISTRADOR') {
-          redirectUrl = '/users';
+          redirectUrl = '/admin';
         } else if (role === 'FUNCIONARIO') {
           redirectUrl = '/contratos';
         } else if (role === 'AUDITOR') {

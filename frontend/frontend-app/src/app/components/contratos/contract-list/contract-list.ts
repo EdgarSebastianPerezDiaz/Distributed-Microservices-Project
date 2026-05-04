@@ -42,6 +42,7 @@ export class ContractListComponent implements OnInit {
   displayedColumns: string[] = ['contractNumber', 'supplier', 'object', 'budget', 'dates', 'status', 'createdAt'];
   contracts: ContractResponse[] = [];
   loading = false;
+  errorMessage = '';
   totalElements = 0;
   pageSize = 10;
   currentPage = 0;
@@ -62,6 +63,7 @@ export class ContractListComponent implements OnInit {
 
   loadContracts(): void {
     this.loading = true;
+    this.errorMessage = '';
     this.contractService.getContracts(this.currentPage, this.pageSize, this.searchTerm).subscribe({
       next: (response: PaginatedContractResponse) => {
         this.contracts = response.content;
@@ -70,6 +72,13 @@ export class ContractListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
+        if (error?.status === 403) {
+          this.errorMessage = 'No tienes permisos para consultar contratos con este rol.';
+        } else if (error?.status === 401) {
+          this.errorMessage = 'Tu sesión expiró. Inicia sesión nuevamente.';
+        } else {
+          this.errorMessage = 'No fue posible cargar los contratos. Intenta de nuevo.';
+        }
         this.contracts = [];
         this.totalElements = 0;
         this.loading = false;
