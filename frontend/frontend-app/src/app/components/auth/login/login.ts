@@ -32,6 +32,7 @@ export class LoginComponent implements OnInit {
   submitted = false;
   error: string | null = null;
   returnUrl: string | null = null;
+  private requestedReturnUrl: string | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -47,7 +48,8 @@ export class LoginComponent implements OnInit {
     }
 
     this.initializeForm();
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.requestedReturnUrl = this.route.snapshot.queryParams['returnUrl'] || null;
+    this.returnUrl = this.requestedReturnUrl || '/dashboard';
   }
 
   initializeForm() {
@@ -82,12 +84,17 @@ export class LoginComponent implements OnInit {
         const role = response.user.role;
         let redirectUrl = this.returnUrl || '/dashboard';
         
-        if (role === 'ADMINISTRADOR') {
-          redirectUrl = '/users';
-        } else if (role === 'FUNCIONARIO') {
-          redirectUrl = '/contratos';
-        } else if (role === 'AUDITOR') {
-          redirectUrl = '/auditoria';
+        // Si el usuario venía con un returnUrl explícito (ej. venir de "Registrar usuario"),
+        // lo respetamos. Si no, aplicamos la redirección por rol.
+        const shouldHonorReturnUrl = !!this.requestedReturnUrl && this.requestedReturnUrl !== '/dashboard';
+        if (!shouldHonorReturnUrl) {
+          if (role === 'ADMINISTRADOR') {
+            redirectUrl = '/users';
+          } else if (role === 'FUNCIONARIO') {
+            redirectUrl = '/contratos';
+          } else if (role === 'AUDITOR') {
+            redirectUrl = '/auditoria';
+          }
         }
 
         this.router.navigate([redirectUrl]);
@@ -107,5 +114,11 @@ export class LoginComponent implements OnInit {
         }
       }
     });
+  }
+
+  goToRegister() {
+    // Ruta protegida (solo ADMINISTRADOR), pero si no estás autenticado el guard te enviará al login
+    // con returnUrl para volver aquí.
+    this.router.navigate(['/users/new']);
   }
 }

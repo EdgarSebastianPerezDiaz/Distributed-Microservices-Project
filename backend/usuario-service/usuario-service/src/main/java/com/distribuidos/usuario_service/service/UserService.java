@@ -90,6 +90,16 @@ public class UserService {
      */
     @Transactional
     public UserResponse createUser(UserRequest request) {
+        return createUser(request, true);
+    }
+
+    /**
+     * CREAR USUARIO con estado inicial configurable.
+     * - activeByDefault=true: flujo interno/admin
+     * - activeByDefault=false: registro público pendiente de aprobación
+     */
+    @Transactional
+    public UserResponse createUser(UserRequest request, boolean activeByDefault) {
         // Validar username único
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("El username ya existe");
@@ -111,7 +121,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
         user.setRole(role);
-        user.setActive(true);
+        user.setActive(activeByDefault);
         
         User saved = userRepository.save(user);
         

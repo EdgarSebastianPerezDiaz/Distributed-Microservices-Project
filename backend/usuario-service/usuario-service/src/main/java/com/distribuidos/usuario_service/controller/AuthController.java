@@ -37,13 +37,13 @@ public class AuthController {
     }
     
     /**
-     * REGISTRAR USUARIO - SOLO ADMIN
-     * Requiere token JWT con rol ADMINISTRADOR
+     * REGISTRAR USUARIO - PÚBLICO
+     * Permite crear una cuenta para acceder al sistema.
      */
     @PostMapping("/register")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
-        UserResponse user = userService.createUser(request);
+        // Registro público: usuario queda inactivo hasta aprobación administrativa.
+        UserResponse user = userService.createUser(request, false);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
     

@@ -1,0 +1,105 @@
+<div class="page">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Contratos</span>
+  </nav>
+
+  <header class="heading">
+    <div>
+      <h1>Contratos</h1>
+      <p>Gestión y supervisión de licitaciones activas.</p>
+    </div>
+  </header>
+
+  <div class="list">
+    <mat-card class="contract-card elevated-card">
+      <div class="card-top">
+        <div>
+          <div class="k">ID Contrato</div>
+          <div class="big">CONTR-2024-001</div>
+        </div>
+        <span class="status-badge tone-prep">En preparación</span>
+      </div>
+      <div class="card-mid">
+        <div class="half">
+          <div class="k">Proveedor</div>
+          <div class="v">Sistemas Globales S.A.</div>
+        </div>
+        <div class="half">
+          <div class="k">Presupuesto</div>
+          <div class="money">$1,250,000.00</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button mat-flat-button color="primary" type="button" class="dual" *ngIf="isFuncionario()">Editar</button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="isAdministrador()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+
+    <mat-card class="contract-card elevated-card">
+      <div class="card-top">
+        <div>
+          <div class="k">ID Contrato</div>
+          <div class="big">CONTR-2024-014</div>
+        </div>
+        <span class="status-badge tone-live">ACTIVO</span>
+      </div>
+      <div class="card-mid">
+        <div class="half">
+          <div class="k">Proveedor</div>
+          <div class="v">Contratista Andina Ltda.</div>
+        </div>
+        <div class="half">
+          <div class="k">Presupuesto</div>
+          <div class="money">$890,440.55</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button mat-flat-button color="primary" type="button" class="dual" *ngIf="isFuncionario()">Editar</button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="isAdministrador()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+
+    <mat-card class="contract-card elevated-card">
+      <div class="card-top">
+        <div>
+          <div class="k">ID Contrato</div>
+          <div class="big">CONTR-2023-221</div>
+        </div>
+        <span class="status-badge tone-done">FINALIZADO</span>
+      </div>
+      <div class="card-mid">
+        <div class="half">
+          <div class="k">Proveedor</div>
+          <div class="v">Constructora Nacional S.A. de C.V.</div>
+        </div>
+        <div class="half">
+          <div class="k">Presupuesto</div>
+          <div class="money">$4,250,000.00 MXN</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button mat-flat-button color="primary" type="button" class="dual" *ngIf="isFuncionario()">Editar</button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="isAdministrador()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="section-title">Orientación por rol</div>
+  <mat-card class="elevated-card note">
+    <mat-card-content class="note__content">
+      <p class="muted" *ngIf="currentUser as u">
+        Usuario actual: <strong>{{ u.username }}</strong> • Rol <strong>{{ u.role }}</strong>
+      </p>
+      <p>
+        Esta pantalla muestra ejemplos de tarjetas con el mismo lenguaje visual del portal. Cuando tu capa funcional liste contratos desde el gateway,
+        reemplazarás los textos por datos reales sin cambiar el layout principal.
+      </p>
+      <button mat-flat-button color="primary" routerLink="/suppliers" type="button">Ir a proveedores</button>
+    </mat-card-content>
+  </mat-card>
+</div>

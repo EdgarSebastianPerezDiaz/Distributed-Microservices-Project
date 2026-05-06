@@ -1,65 +1,119 @@
-<div class="form-container">
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>{{ isEditMode ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</mat-card-title>
-    </mat-card-header>
+<div class="page page--narrow">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">&gt;</span>
+    <a routerLink="/suppliers">Gestión de Proveedores</a>
+    <span class="crumbs__sep">&gt;</span>
+    <span class="crumbs__current">{{ isEditMode ? 'Editar Proveedor' : 'Crear Proveedor' }}</span>
+  </nav>
+
+  <header class="toolbar">
+    <button mat-button type="button" class="back" routerLink="/suppliers">
+      <mat-icon>arrow_back</mat-icon>
+      {{ isEditMode ? 'Edición de Proveedor' : 'Crear Proveedor' }}
+    </button>
+  </header>
+
+  <mat-card class="elevated-card form-card">
+    <div class="form-head" *ngIf="!isEditMode">
+      <div class="icon-tile">
+        <mat-icon>business</mat-icon>
+      </div>
+      <div>
+        <h1 class="form-title">Nuevo Registro</h1>
+        <p class="muted">Complete la información legal del nuevo proveedor.</p>
+      </div>
+    </div>
 
     <mat-card-content>
-      <div class="error-message" *ngIf="error">
+      <div class="banner banner--error" *ngIf="error">
         <mat-icon>error</mat-icon>
         <span>{{ error }}</span>
       </div>
 
+      <div class="section-title section-title--left" *ngIf="isEditMode">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        Información Base
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>NIT</mat-label>
-          <input matInput formControlName="nit" placeholder="Ej. 123456789">
-          <mat-error *ngIf="f['nit'].hasError('required')">El NIT es obligatorio</mat-error>
-          <mat-error *ngIf="f['nit'].hasError('minlength')">Mínimo 8 dígitos</mat-error>
-        </mat-form-field>
+        <div class="stack">
+          <div class="field-label">NIT</div>
+          <mat-form-field class="airy readonly-tone" appearance="outline">
+            <input matInput formControlName="nit" placeholder="{{ isEditMode ? '[NIT del Proveedor]' : 'Ej: 901234567' }}">
+            <mat-icon matSuffix aria-hidden="true">lock_outline</mat-icon>
+            <mat-error *ngIf="f['nit'].hasError('required')">El NIT es obligatorio</mat-error>
+            <mat-error *ngIf="f['nit'].hasError('minlength')">Mínimo 8 dígitos</mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Razón Social</mat-label>
-          <input matInput formControlName="businessName" placeholder="Nombre de la empresa">
-          <mat-error *ngIf="f['businessName'].hasError('required')">La razón social es obligatoria</mat-error>
-          <mat-error *ngIf="f['businessName'].hasError('minlength')">Mínimo 3 caracteres</mat-error>
-        </mat-form-field>
+          <div class="field-label">Nombre de la Empresa / Razón Social</div>
+          <mat-form-field class="airy" appearance="outline">
+            <input matInput formControlName="businessName" placeholder="{{ isEditMode ? '[Nombre de la Empresa]' : 'Ej: TechSolutions S.A.S' }}">
+            <mat-error *ngIf="f['businessName'].hasError('required')">La razón social es obligatoria</mat-error>
+            <mat-error *ngIf="f['businessName'].hasError('minlength')">Mínimo 3 caracteres</mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="correo@empresa.com">
-          <mat-error *ngIf="f['email'].hasError('required')">El email es obligatorio</mat-error>
-          <mat-error *ngIf="f['email'].hasError('email')">Email inválido</mat-error>
-        </mat-form-field>
+          <div class="divider-title" *ngIf="isEditMode">
+            <mat-icon aria-hidden="true">list_alt</mat-icon>
+            Datos de Contacto
+          </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Teléfono</mat-label>
-          <input matInput formControlName="phone" placeholder="Ej. +57 1 2345678">
-        </mat-form-field>
+          <div class="grid-2">
+            <div class="field-block span-2">
+              <div class="field-label">Correo Electrónico</div>
+              <mat-form-field class="airy" appearance="outline">
+                <input matInput type="email" formControlName="email" placeholder="contacto@empresa.com">
+                <mat-error *ngIf="f['email'].hasError('required')">El email es obligatorio</mat-error>
+                <mat-error *ngIf="f['email'].hasError('email')">Email inválido</mat-error>
+              </mat-form-field>
+            </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tipo de Persona</mat-label>
-          <mat-select formControlName="personType">
-            <mat-option *ngFor="let type of personTypes" [value]="type">
-              {{ type }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="f['personType'].hasError('required')">El tipo de persona es obligatorio</mat-error>
-        </mat-form-field>
+            <div class="field-block span-2">
+              <div class="field-label">Teléfono</div>
+              <mat-form-field class="airy" appearance="outline">
+                <input matInput formControlName="phone" placeholder="+57 300 000 0000">
+              </mat-form-field>
+            </div>
+          </div>
 
-        <div class="button-group">
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-            <mat-icon>save</mat-icon>
-            <span>{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
-          </button>
-          <button mat-stroked-button type="button" (click)="onCancel()">
-            <mat-icon>cancel</mat-icon>
-            <span>Cancelar</span>
-          </button>
+          <div class="field-label">Tipo de Persona</div>
+          <mat-form-field class="airy" appearance="outline">
+            <mat-select formControlName="personType" placeholder="Seleccione una opción">
+              <mat-option *ngFor="let type of personTypes" [value]="type">
+                {{ type === PersonType.JURIDICA ? 'Jurídica' : 'Natural' }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="f['personType'].hasError('required')">El tipo es obligatorio</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="notice" *ngIf="!isEditMode">
+          <mat-icon>info</mat-icon>
+          <div>
+            <strong>Nota:</strong>
+            <span>
+              El Número de Identificación Tributaria puede ser revisado por el módulo financiero según políticas institucionales.
+            </span>
+          </div>
+        </div>
+
+        <div class="foot-note muted" *ngIf="isEditMode">
+          Este es un formulario de edición controlado. Los cambios realizados quedarán registrados en el historial de auditoría del sistema.
+        </div>
+
+        <button mat-flat-button color="primary" class="cta" type="submit" [disabled]="form.invalid">
+          <mat-icon>save</mat-icon>
+          {{ isEditMode ? 'Guardar Cambios' : 'Registrar Proveedor' }}
+        </button>
+
+        <div class="center">
+          <button mat-button type="button" class="ghost-link" routerLink="/suppliers">Cancelar</button>
         </div>
       </form>
 
-      <mat-spinner *ngIf="loading" diameter="40"></mat-spinner>
+      <div class="center pad" *ngIf="loading">
+        <mat-spinner diameter="44"></mat-spinner>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

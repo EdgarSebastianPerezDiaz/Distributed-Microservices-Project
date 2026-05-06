@@ -91,6 +91,11 @@ a {
   .mat-mdc-form-field {
     width: 100%;
   }
+
+  .mat-mdc-form-field-error,
+  mat-error {
+    color: var(--color-error) !important;
+  }
   
   // Table styling
   .mat-mdc-table {
@@ -110,6 +115,16 @@ a {
   .mat-mdc-chip.mat-mdc-standard-chip.mat-mdc-chip-highlighted {
     background-color: var(--color-primary);
     color: var(--color-text-primary);
+  }
+
+  .mat-mdc-paginator .mat-mdc-icon-button.mat-mdc-button-base.mat-mdc-paginator-navigation-next,
+  .mat-mdc-paginator .mat-mdc-icon-button.mat-mdc-button-base.mat-mdc-paginator-navigation-previous {
+    border-radius: 10px;
+  }
+
+  .mat-mdc-paginator-page-size .mat-mdc-text-field-wrapper,
+  .mat-mdc-paginator-range-actions {
+    color: rgba(31, 41, 51, 0.75);
   }
 }
 

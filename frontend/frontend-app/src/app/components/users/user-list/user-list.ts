@@ -11,6 +11,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user';
 import { AuthService } from '../../../services/auth';
@@ -32,13 +35,16 @@ import { MatDialog } from '@angular/material/dialog';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCardModule,
+    MatSelectModule,
+    MatTooltipModule,
   ],
   templateUrl: './user-list.html',
   styleUrl: './user-list.scss',
 })
 export class UserListComponent implements OnInit {
-  displayedColumns: string[] = ['username', 'email', 'fullName', 'role', 'status', 'actions'];
+  displayedColumns: string[] = ['fullName', 'username', 'email', 'role', 'status', 'actions'];
   users: User[] = [];
   loading = false;
   
@@ -174,5 +180,22 @@ export class UserListComponent implements OnInit {
 
   isAdmin(): boolean {
     return this.authService.hasRole(UserRole.ADMINISTRADOR);
+  }
+
+  getInitials(user: User): string {
+    const source = user.fullName || user.username || user.email || '';
+    const parts = source.trim().split(/\s+/).filter(Boolean);
+    const a = parts[0]?.charAt(0);
+    const b = parts.length > 1 ? parts[parts.length - 1]?.charAt(0) : parts[0]?.charAt(1);
+    return ((a || '') + (b || '')).toUpperCase() || 'U';
+  }
+
+  roleLabel(role: UserRole): string {
+    const map: Record<UserRole, string> = {
+      [UserRole.ADMINISTRADOR]: 'Administrador',
+      [UserRole.FUNCIONARIO]: 'Funcionario',
+      [UserRole.AUDITOR]: 'Auditor',
+    };
+    return map[role] || role;
   }
 }

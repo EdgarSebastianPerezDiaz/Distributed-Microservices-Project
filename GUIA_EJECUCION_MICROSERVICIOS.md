@@ -72,7 +72,7 @@ C:\Users\DELL\Downloads\Distributed-Microservices-Project\
 
 #### Paso 1: Navegar a la carpeta del servicio
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\eureka-server\eureka-server
+cd C:\Users\DELL\Downloads\Distribuidos\Proyecto-distribuidos\Distributed-Microservices-Project\backend\eureka-server\eureka-server
 ```
 
 #### Paso 2: Compilar (primera vez solamente)
@@ -110,7 +110,7 @@ mvn spring-boot:run
 
 #### Paso 2: Navegar a la carpeta
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\api-gateway\api-gateway
+cd C:\Users\DELL\Downloads\Distribuidos\Proyecto-distribuidos\Distributed-Microservices-Project\backend\api-gateway\api-gateway
 ```
 
 #### Paso 3: Compilar (primera vez)
@@ -146,7 +146,7 @@ mvn spring-boot:run
 
 #### Paso 2: Navegar a la carpeta
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\usuario-service\usuario-service
+cd C:\Users\DELL\Downloads\Distribuidos\Proyecto-distribuidos\Distributed-Microservices-Project\backend\usuario-service\usuario-service
 ```
 
 #### Paso 3: Compilar
@@ -185,7 +185,7 @@ mvn spring-boot:run
 
 #### Paso 2: Navegar
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\proveedor-service\proveedor-service
+cd C:\Users\DELL\Downloads\Distribuidos\Proyecto-distribuidos\Distributed-Microservices-Project\backend\proveedor-service\proveedor-service
 ```
 
 #### Paso 3: Compilar
@@ -216,7 +216,7 @@ mvn spring-boot:run
 
 #### Paso 2: Navegar
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\contrato-service\contrato-service
+cd C:\Users\DELL\Downloads\Distribuidos\Proyecto-distribuidos\Distributed-Microservices-Project\backend\contrato-service\contrato-service
 ```
 
 #### Paso 3: Compilar
@@ -247,7 +247,7 @@ mvn spring-boot:run
 
 #### Paso 2: Navegar
 ```powershell
-cd C:\Users\DELL\Downloads\Distributed-Microservices-Project\audit-service
+cd C:\Users\DELL\Downloads\Distribuidos\Poyecto distribuidos\Distributed-Microservices-Project\audit-service
 ```
 
 #### Paso 3: Crear entorno virtual Python (primera vez solamente)

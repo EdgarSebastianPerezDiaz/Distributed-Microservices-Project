@@ -1,62 +1,76 @@
-<div class="detail-container">
-  <div class="detail-header">
-    <button mat-icon-button (click)="goBack()">
+<div class="page page--narrow">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">&gt;</span>
+    <a routerLink="/users">Gestión de usuarios</a>
+    <span class="crumbs__sep">&gt;</span>
+    <span class="crumbs__current">Detalle</span>
+  </nav>
+
+  <header class="page__toolbar">
+    <button mat-button type="button" class="back" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
+      Volver
     </button>
-    <h2>Detalles del Usuario</h2>
-    <button mat-raise-button color="primary" (click)="editUser()">
+    <button mat-flat-button color="primary" class="cta" (click)="editUser()">
       <mat-icon>edit</mat-icon>
-      <span>Editar</span>
+      Editar
     </button>
-  </div>
-
-  <div class="detail-content" *ngIf="!loading && user">
-    <mat-card>
-      <mat-card-content>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Usuario</label>
-            <p>{{ user.username }}</p>
-          </div>
-          <div class="info-item">
-            <label>Email</label>
-            <p>{{ user.email }}</p>
-          </div>
-          <div class="info-item">
-            <label>Nombre Completo</label>
-            <p>{{ user.fullName || '-' }}</p>
-          </div>
-          <div class="info-item">
-            <label>Rol</label>
-            <p>
-              <mat-chip-set aria-label="Role">
-                <mat-chip>{{ user.role }}</mat-chip>
-              </mat-chip-set>
-            </p>
-          </div>
-          <div class="info-item">
-            <label>Estado</label>
-            <p>
-              <mat-chip-set aria-label="Status">
-                <mat-chip [highlighted]="user.active === true">
-                  {{ user.active === true ? 'Activo' : 'Inactivo' }}
-                </mat-chip>
-              </mat-chip-set>
-            </p>
-          </div>
-          <div class="info-item" *ngIf="user.createdAt">
-            <label>Creado</label>
-            <p>{{ user.createdAt | date: 'medium' }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <mat-spinner *ngIf="loading" diameter="40"></mat-spinner>
+  </header>
 
   <div class="error-message" *ngIf="error">
     <mat-icon>error</mat-icon>
     <span>{{ error }}</span>
+  </div>
+
+  <mat-card class="elevated-card" *ngIf="!loading && user">
+    <div class="card-head">
+      <div class="big-avatar">{{ (user.fullName || user.username || 'U').trim().substring(0, 2) | uppercase }}</div>
+      <div>
+        <h1 class="title">Perfil de Usuario</h1>
+        <div class="sub muted">ID de Usuario: <strong>{{ user.id || '—' }}</strong></div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content class="content">
+      <div class="grid">
+        <div class="field">
+          <div class="field__label">Nombre completo</div>
+          <div class="field__box">{{ user.fullName || '-' }}</div>
+        </div>
+        <div class="field">
+          <div class="field__label">Nombre de usuario</div>
+          <div class="field__box mono">{{ user.username }}</div>
+        </div>
+        <div class="field span-2">
+          <div class="field__label">Correo electrónico</div>
+          <div class="field__box">{{ user.email }}</div>
+        </div>
+        <div class="field">
+          <div class="field__label">Rol</div>
+          <div class="field__box">
+            <span class="badge">{{ user.role }}</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label">Estado</div>
+          <div class="field__box">
+            <span class="chip" [class.is-active]="user.active === true" [class.is-inactive]="user.active !== true">
+              {{ user.active === true ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+        <div class="field span-2" *ngIf="user.createdAt">
+          <div class="field__label">Registro</div>
+          <div class="field__box">{{ user.createdAt | date: 'medium' }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="center" *ngIf="loading">
+    <mat-spinner diameter="46"></mat-spinner>
   </div>
 </div>

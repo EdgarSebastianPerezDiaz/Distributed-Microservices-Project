@@ -1,73 +1,210 @@
-.form-container {
-  padding: 30px;
-  max-width: 600px;
+.page {
+  padding: 28px 28px 48px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
+.page--narrow {
+  max-width: 720px;
+}
+
+.crumbs {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+
+  a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-primary);
+  }
+}
+
+.crumbs__sep {
+  margin: 0 10px;
+  opacity: 0.65;
+}
+
+.crumbs__current {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.page__intro h1 {
+  margin: 0 0 8px;
+  font-size: 1.85rem;
+  color: var(--color-text-primary);
+}
+
+.page__intro p {
+  margin: 0 0 14px;
+  color: var(--color-text-secondary);
+  max-width: 62ch;
+}
+
+.elevated-card {
+  border-radius: 14px !important;
+  box-shadow:
+    0 10px 30px rgba(17, 24, 39, 0.08),
+    0 2px 6px rgba(17, 24, 39, 0.06) !important;
+}
+
 .form-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  padding: 22px 22px 8px !important;
+
+  ::ng-deep .mat-mdc-card-content {
+    padding: 18px 6px 10px !important;
+  }
 }
 
-mat-card-header {
-  margin-bottom: 20px;
-}
-
-mat-card-title {
-  font-size: 24px;
-  color: #1f2933;
-}
-
-form {
+.form-card__head {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf1f7;
 }
 
-.full-width {
-  width: 100%;
+.big-avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 1.25rem;
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 255, 255, 0.25),
+    0 14px 30px rgba(237, 187, 2, 0.25);
 }
 
-.error-message {
+.form-card__profile-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--color-text-primary);
+}
+
+.form-card__profile-sub {
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: var(--color-text-secondary);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.pill--muted {
+  background: #fff;
+  border: 1px solid #e6ebf1;
+}
+
+.section-title {
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin: 10px 0 18px;
+}
+
+.banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background-color: #ffebee;
-  border-left: 4px solid #c62828;
-  border-radius: 4px;
-  color: #c62828;
-  font-size: 14px;
-  margin-bottom: 20px;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+
+  &--error {
+    background: #ffebee;
+    border-left: 4px solid var(--color-error);
+    color: var(--color-error);
+  }
+
+  mat-icon {
+    flex: 0 0 auto;
+  }
 }
 
-.button-group {
+.field-block {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
-  
-  button {
-    flex: 1;
-    height: 48px;
-    
-    &[color="primary"] {
-      background-color: #edbb02 !important;
-      color: #1f2933 !important;
-      
-      &:not(:disabled):hover {
-        background-color: #d4a602 !important;
-      }
-    }
+  flex-direction: column;
+}
+
+.field-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #566273;
+  margin: 14px 0 8px;
+}
+
+.stack mat-form-field.airy:first-of-type + * {
+  margin-top: -4px;
+}
+
+.radio-row {
+  display: flex;
+  gap: 18px;
+  padding: 6px 0 6px;
+
+  &.mat-mdc-radio-group {
+    display: flex;
   }
 }
 
-// Responsive design
-@media (max-width: 768px) {
-  .form-container {
-    padding: 15px;
-  }
-  
-  .button-group {
-    flex-direction: column;
-  }
+::ng-deep .golden-radio.mat-mdc-radio-button .mdc-radio__native-control:enabled:checked
+  + .mdc-radio__background
+  .mdc-radio__outer-circle {
+  border-color: var(--color-primary);
+}
+
+::ng-deep .golden-radio.mat-mdc-radio-button .mdc-radio__native-control:enabled:checked
+  + .mdc-radio__background
+  .mdc-radio__inner-circle {
+  border-color: var(--color-primary);
+}
+
+.cta {
+  width: 100%;
+  margin-top: 18px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  font-weight: 900 !important;
+  background-color: var(--color-primary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.ghost-link {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: var(--color-text-secondary) !important;
+}
+
+.pad {
+  padding: 26px 0;
 }

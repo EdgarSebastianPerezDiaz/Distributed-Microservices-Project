@@ -26,7 +26,17 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-# Eureka Client - IGUAL que servicio-proveedores
+  # Spring Security - OAuth 2.0 Resource Server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Endpoint donde están las claves públicas (RS256)
+          jwk-set-uri: http://localhost:8084/.well-known/jwks.json
+          # Validar que el "iss" (issuer) coincida
+          issuer-uri: http://localhost:8084
+
+# Eureka Client
 eureka:
   client:
     service-url:
@@ -35,21 +45,49 @@ eureka:
     register-with-eureka: true
   instance:
     hostname: localhost
-    prefer-ip-address: true  # ← IGUAL que los otros servicios
+    prefer-ip-address: true
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
+
+# OAuth 2.0 - Configuración personalizada de clientes
+oauth2:
+  # Frontend (SPA Angular)
+  frontend:
+    client-id: frontend-app
+    client-secret: ${OAUTH2_FRONTEND_SECRET:frontend-secret-change-me}
+    redirect-uris:
+      - http://localhost:4200/auth-callback
+      - http://localhost:4200/callback
+      - http://localhost:4200
+  
+  # Microservicios internos (Client Credentials)
+  microservices:
+    client-id: microservices-client
+    client-secret: ${OAUTH2_MICROSERVICES_SECRET:microservices-secret-change-me}
+  
+  # Servidor de autorización (este servicio)
+  issuer-uri: ${ISSUER_URI:http://localhost:8084}
+
+# JWT Legacy (compatibilidad hacia atrás)
+jwt:
+  secret: ${JWT_SECRET:tu_clave_secreta_jwt_128_caracteres_aqui_12345678901234567890}
+  expiration: 3600000  # 1 hora en ms
+  algorithm: HS512      # Algoritmo actual (HMAC SHA-512)
 
 # Logging
 logging:
   level:
     com.distribuidos.usuario_service: DEBUG
     org.springframework.cloud: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: DEBUG  # OAuth 2.0 debug
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,env
   endpoint:
     health:
       show-details: always
+

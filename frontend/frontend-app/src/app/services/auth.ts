@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { LoginRequest, LoginResponse, User, UserRole } from '../models/auth.model';
+import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +34,10 @@ export class AuthService {
           sessionStorage.setItem('user', JSON.stringify(response.user));
         })
       );
+  }
+
+  register(payload: RegisterRequest): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/api/auth/register`, payload);
   }
 
   logout(): void {

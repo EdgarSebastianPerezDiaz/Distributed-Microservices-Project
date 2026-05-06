@@ -1,0 +1,139 @@
+<div class="page">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Auditoría</span>
+  </nav>
+
+  <header class="heading">
+    <div>
+      <h1>Historial de Auditoría</h1>
+      <p>Historial completo de acciones y trazabilidad del sistema institucional.</p>
+      <div class="subline muted" *ngIf="currentUser as u">
+        Usuario fiscalizador <strong>{{ u.username }}</strong> • {{ u.role }}
+      </div>
+    </div>
+    <button mat-flat-button color="primary" type="button" routerLink="/suppliers" disabled>
+      Exportar informe (próximo)
+    </button>
+  </header>
+
+  <mat-card class="elevated-card filter-card">
+    <mat-card-content>
+      <div class="section-title">Filtrar eventos</div>
+      <div class="filters">
+        <mat-form-field appearance="outline" class="f">
+          <mat-label>Búsqueda general</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput placeholder="Buscar por ID, usuario o descripción..." disabled>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="f narrow">
+          <mat-label>Entidad</mat-label>
+          <mat-select disabled value="ALL">
+            <mat-option value="ALL">Todas las Entidades</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="f narrow">
+          <mat-label>Operación</mat-label>
+          <mat-select disabled value="ALL">
+            <mat-option value="ALL">Todas las Operaciones</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="f narrow">
+          <mat-label>Rol</mat-label>
+          <mat-select disabled value="ALL">
+            <mat-option value="ALL">Todos los Roles</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="f narrow">
+          <mat-label>Fecha</mat-label>
+          <input matInput placeholder="dd/mm/aaaa" disabled>
+          <mat-icon matSuffix aria-hidden="true">calendar_month</mat-icon>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" class="filter-cta" type="button">
+          <mat-icon>filter_alt</mat-icon>
+          Aplicar Filtros
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="elevated-card table-card">
+    <mat-card-content class="tbl-wrap">
+      <table class="audit-table" role="presentation">
+        <thead>
+          <tr>
+            <th>Fecha/Hora</th>
+            <th>Entidad</th>
+            <th>Operación</th>
+            <th>Descripción</th>
+            <th>Rol</th>
+            <th>Usuario</th>
+            <th>Ver.</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="muted">12/10/2023 14:22</span></td>
+            <td><span class="tag tone-blue">CONTRATO</span></td>
+            <td><span class="pill op-update">UPDATE</span></td>
+            <td>Modificación de cláusula de rescisión…</td>
+            <td>Auditor</td>
+            <td class="mono">USR-8821</td>
+            <td><span class="muted">v2.4</span></td>
+            <td><span class="action-link">Ver detalle</span></td>
+          </tr>
+          <tr>
+            <td><span class="muted">12/10/2023 11:05</span></td>
+            <td><span class="tag tone-violet">PROVEEDOR</span></td>
+            <td><span class="pill op-create">CREATE</span></td>
+            <td>Registro de nuevo consorcio regional…</td>
+            <td>Admin</td>
+            <td class="mono">USR-0192</td>
+            <td><span class="muted">v1.0</span></td>
+            <td><span class="action-link">Ver detalle</span></td>
+          </tr>
+          <tr>
+            <td><span class="muted">11/10/2023 16:45</span></td>
+            <td><span class="tag tone-amber">USUARIO</span></td>
+            <td><span class="pill op-delete">DELETE</span></td>
+            <td>Baja por inactividad prolongada…</td>
+            <td>Admin</td>
+            <td class="mono">USR-5588</td>
+            <td><span class="muted">v1.2</span></td>
+            <td><span class="action-link">Ver detalle</span></td>
+          </tr>
+          <tr>
+            <td><span class="muted">11/10/2023 09:30</span></td>
+            <td><span class="tag tone-blue">CONTRATO</span></td>
+            <td><span class="pill op-update">UPDATE</span></td>
+            <td>Actualización de cronograma de pagos…</td>
+            <td>Operador</td>
+            <td class="mono">USR-3312</td>
+            <td><span class="muted">v3.1</span></td>
+            <td><span class="action-link">Ver detalle</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+
+    <div class="pager">
+      <div class="muted">Mostrando 4 de 128 eventos (ejemplo UI)</div>
+      <div class="pager-mini">
+        <button mat-button type="button" disabled aria-label="Anterior">❮</button>
+        <button mat-flat-button color="primary" class="page-chip" disabled>1</button>
+        <button mat-button type="button" disabled aria-label="Siguiente">❯</button>
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="foot-banner">
+    <mat-icon>verified_user</mat-icon>
+    <div>
+      <div class="t">Integridad de Datos Garantizada</div>
+      <div class="muted">Todos los registros presentados en esta vista están sujetos a políticas institucionales de trazabilidad.</div>
+    </div>
+  </div>
+</div>

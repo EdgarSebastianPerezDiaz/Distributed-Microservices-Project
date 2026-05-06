@@ -57,14 +57,23 @@
         </button>
       </form>
 
-      <!-- Test Credentials Info -->
-      <div class="test-credentials">
-        <strong>Credenciales de prueba:</strong>
-        <ul>
-          <li><strong>Admin:</strong> admin / admin123</li>
-          <li><strong>Funcionario:</strong> funcionario / funcionario123</li>
-          <li><strong>Auditor:</strong> auditor / auditor123</li>
-        </ul>
+      <div class="divider-row" aria-hidden="true">
+        <span>o</span>
+      </div>
+
+      <div class="secondary-action">
+        <div class="secondary-text">¿Necesitas crear una cuenta institucional?</div>
+        <div class="secondary-hint">Abre el formulario para ingresar los datos del usuario.</div>
+        <button
+          mat-stroked-button
+          color="primary"
+          class="secondary-button"
+          type="button"
+          [disabled]="loading"
+          (click)="goToRegister()"
+        >
+          Registrar usuario
+        </button>
       </div>
     </mat-card-content>
   </mat-card>
