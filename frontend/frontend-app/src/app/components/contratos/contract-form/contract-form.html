@@ -1,0 +1,124 @@
+<div class="contract-page">
+  <mat-card class="contract-card">
+    <mat-card-header>
+      <mat-card-title>Creación de Contratos</mat-card-title>
+      <mat-card-subtitle>Registra un nuevo contrato administrativo en el sistema</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="user-summary">
+        <div>
+          <span class="summary-label">Usuario</span>
+          <strong>{{ currentUser?.fullName || currentUser?.username }}</strong>
+        </div>
+        <div>
+          <span class="summary-label">Rol</span>
+          <strong>{{ currentUser?.role }}</strong>
+        </div>
+      </div>
+
+      <div class="message-banner success" *ngIf="message?.type === 'success'">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ message?.text }}</span>
+      </div>
+
+      <div class="message-banner error" *ngIf="message?.type === 'error'">
+        <mat-icon>error</mat-icon>
+        <span>{{ message?.text }}</span>
+      </div>
+
+      <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="contract-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Proveedor</mat-label>
+          <mat-select formControlName="supplierId" [disabled]="suppliersLoading || loading">
+            <mat-option *ngIf="suppliersLoading" value="" disabled>Cargando proveedores...</mat-option>
+            <mat-option *ngFor="let supplier of availableSuppliers" [value]="supplier.id">
+              {{ supplier.businessName }} - {{ supplier.nit }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="!suppliersLoading && availableSuppliers.length === 0">
+            No hay proveedores habilitados disponibles
+          </mat-hint>
+          <mat-error *ngIf="f['supplierId'].hasError('required')">
+            Debes seleccionar un proveedor
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Objeto del contrato</mat-label>
+          <textarea
+            matInput
+            rows="7"
+            formControlName="object"
+            placeholder="Describe detalladamente el objeto del contrato"
+            [disabled]="loading"
+          ></textarea>
+          <mat-hint>Mínimo 200 caracteres y máximo 2000</mat-hint>
+          <mat-error *ngIf="f['object'].hasError('required')">
+            El objeto del contrato es obligatorio
+          </mat-error>
+          <mat-error *ngIf="f['object'].hasError('minlength')">
+            El objeto debe tener al menos 200 caracteres
+          </mat-error>
+          <mat-error *ngIf="f['object'].hasError('maxlength')">
+            El objeto no puede superar los 2000 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Presupuesto</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="budget"
+              placeholder="0.00"
+              min="0.01"
+              step="0.01"
+              [disabled]="loading"
+            />
+            <mat-error *ngIf="f['budget'].hasError('required')">
+              El presupuesto es obligatorio
+            </mat-error>
+            <mat-error *ngIf="f['budget'].hasError('min')">
+              El presupuesto debe ser mayor a 0
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha de inicio</mat-label>
+            <input matInput type="date" formControlName="startDate" [disabled]="loading" />
+            <mat-error *ngIf="f['startDate'].hasError('required')">
+              La fecha de inicio es obligatoria
+            </mat-error>
+            <mat-error *ngIf="f['startDate'].hasError('pastDate')">
+              La fecha de inicio no puede estar en el pasado
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Fecha de finalización</mat-label>
+          <input matInput type="date" formControlName="endDate" [disabled]="loading" />
+          <mat-error *ngIf="f['endDate'].hasError('required')">
+            La fecha de finalización es obligatoria
+          </mat-error>
+          <mat-error *ngIf="contractForm.hasError('dateRange') && f['endDate'].touched">
+            La fecha de finalización debe ser igual o posterior a la fecha de inicio
+          </mat-error>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="backToContracts()" [disabled]="loading">
+            Volver al panel
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+            <mat-spinner *ngIf="loading" diameter="18" class="button-spinner"></mat-spinner>
+            <span *ngIf="!loading">Crear contrato</span>
+            <span *ngIf="loading">Creando...</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

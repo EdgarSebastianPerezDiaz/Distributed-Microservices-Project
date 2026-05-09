@@ -268,11 +268,18 @@ public class ContractService {
         log.debug("Listing contracts. User: {}, Role: {}", userId, userRole);
 
         Page<Contract> contracts;
+        String normalizedSearch = (search != null && !search.isBlank()) ? search.trim() : null;
 
         if ("FUNCIONARIO".equals(userRole)) {
             contracts = contractRepository.findByUserIdWithFilters(userId, status, pageable);
         } else {
-            contracts = contractRepository.findAllWithFilters(status, search, pageable);
+            // For admin/auditor, when no filters are provided use a direct query.
+            // This avoids edge cases where optional filter params may return empty data.
+            if (status == null && normalizedSearch == null) {
+                contracts = contractRepository.findByDeletedFalse(pageable);
+            } else {
+                contracts = contractRepository.findAllWithFilters(status, normalizedSearch, pageable);
+            }
         }
 
         return contracts.map(contractMapper::toResponse);

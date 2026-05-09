@@ -42,11 +42,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Redirige a dashboard si ya está autenticado
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     this.initializeForm();
     this.requestedReturnUrl = this.route.snapshot.queryParams['returnUrl'] || null;
     this.returnUrl = this.requestedReturnUrl || '/dashboard';
@@ -89,7 +84,7 @@ export class LoginComponent implements OnInit {
         const shouldHonorReturnUrl = !!this.requestedReturnUrl && this.requestedReturnUrl !== '/dashboard';
         if (!shouldHonorReturnUrl) {
           if (role === 'ADMINISTRADOR') {
-            redirectUrl = '/users';
+            redirectUrl = '/admin';
           } else if (role === 'FUNCIONARIO') {
             redirectUrl = '/contratos';
           } else if (role === 'AUDITOR') {
