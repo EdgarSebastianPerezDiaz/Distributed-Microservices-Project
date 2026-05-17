@@ -5,8 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { User, UserRole } from '../../models/auth.model';
-import { User, UserRole } from '../../models/auth.model';
+import { User, UserRole } from '../../models/auth.model'
 
 @Component({
   selector: 'app-contratos',
