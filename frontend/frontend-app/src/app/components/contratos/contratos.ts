@@ -1,11 +1,17 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth';
-import { User, UserRole } from '../../models/auth.model';
+import { ContractService } from '../../services/contract';
+import { ContractResponse } from '../../models/contract.model';
+import { ContractListComponent } from './contract-list/contract-list';
 import { User, UserRole } from '../../models/auth.model';
 
 @Component({
@@ -13,240 +19,62 @@ import { User, UserRole } from '../../models/auth.model';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
-    RouterModule
+    MatInputModule,
+    MatProgressSpinnerModule,
+    ContractListComponent,
   ],
-  template: `
-    <div class="container">
-      <mat-card class="welcome-card">
-        <mat-card-header>
-          <mat-card-title>Bienvenido al Módulo de Contratos</mat-card-title>
-          <mat-card-subtitle>Gestión de Contratos Administrativos</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span class="summary-label">Usuario</span>
-              <strong>{{ currentUser?.fullName || currentUser?.username }}</strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Rol</span>
-              <strong>{{ currentUser?.role }}</strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Correo</span>
-              <strong>{{ currentUser?.email }}</strong>
-            </div>
-          </div>
-
-          <hr>
-
-          <p>
-            Este módulo permite la gestión integral de contratos.
-            Aquí podrás registrar nuevos contratos, consultar sus datos y continuar con la gestión operativa.
-          </p>
-
-          <div class="feature-grid">
-            <div class="feature-card">
-              <mat-icon>description</mat-icon>
-              <span>Creación de contratos</span>
-            </div>
-            <div class="feature-card">
-              <mat-icon>verified_user</mat-icon>
-              <span>Validación contra backend</span>
-            </div>
-            <div class="feature-card">
-              <mat-icon>storage</mat-icon>
-              <span>Persistencia en base de datos</span>
-            </div>
-          </div>
-
-          <p class="helper-text" *ngIf="!isFuncionario()">
-            La creación de contratos está habilitada solo para el rol FUNCIONARIO.
-          </p>
-        </mat-card-content>
-
-        <mat-card-actions>
-          <button mat-raised-button color="primary" routerLink="/contratos/new" *ngIf="isFuncionario()">
-            <mat-icon>add_circle</mat-icon>
-            Crear contrato
-          </button>
-          <button mat-stroked-button routerLink="/contratos/list" *ngIf="isFuncionario()">
-            <mat-icon>list</mat-icon>
-            Ver Contratos
-          </button>
-          <button mat-stroked-button routerLink="/suppliers">
-            Ver Proveedores
-          </button>
-          <button mat-raised-button (click)="logout()">
-            Cerrar Sesión
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  `,
-  styles: [`
-    .container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: linear-gradient(135deg, #edbb02 0%, #f5f7fa 100%);
-    }
-
-    .welcome-card {
-      width: 100%;
-      max-width: 920px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-    }
-
-    mat-card-header {
-      text-align: center;
-      margin-bottom: 12px;
-    }
-
-    mat-card-title {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: #1f2933;
-      font-weight: 600;
-    }
-
-    mat-card-subtitle {
-      color: #738096;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .summary-item {
-      background: #f5f7fa;
-      border-radius: 8px;
-      padding: 16px;
-      border-left: 4px solid #edbb02;
-    }
-
-    .summary-label {
-      display: block;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 12px;
-      color: #738096;
-      margin-bottom: 4px;
-    }
-
-    hr {
-      margin: 24px 0;
-      border: 0;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    p {
-      margin: 10px 0;
-      line-height: 1.6;
-      color: #334155;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 22px;
-    }
-
-    .feature-card {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 18px;
-      border-radius: 10px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-      border: 1px solid #e5e7eb;
-      color: #1f2933;
-
-      mat-icon {
-        color: #edbb02;
-      }
-    }
-
-    .helper-text {
-      margin-top: 18px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: #f5f7fa;
-      border-left: 4px solid #edbb02;
-      color: #4a5568;
-      font-size: 13px;
-    }
-
-    mat-card-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      padding: 20px;
-    }
-
-    button[mat-raised-button]:not(:disabled) {
-      background-color: #edbb02 !important;
-      color: #1f2933 !important;
-    }
-
-    button[mat-raised-button]:not(:disabled):hover {
-      background-color: #d4a602 !important;
-    }
-
-    button[mat-stroked-button] {
-      border-color: #edbb02 !important;
-      color: #1f2933 !important;
-    }
-
-    button mat-icon {
-      margin-right: 8px;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 12px;
-      }
-
-      .summary-grid,
-      .feature-grid {
-        grid-template-columns: 1fr;
-      }
-
-      mat-card-title {
-        font-size: 24px;
-      }
-
-      mat-card-actions {
-        flex-direction: column;
-      }
-
-      button[mat-raised-button],
-      button[mat-stroked-button] {
-        width: 100%;
-      }
-    }
-  `]
+  templateUrl: './contratos.html',
+  styleUrl: './contratos.scss',
 })
 export class ContratosComponent implements OnInit {
+  contracts: ContractResponse[] = [];
+  loading = false;
+  errorMessage = '';
+  searchTerm = '';
   currentUser: User | null = null;
-  UserRole = UserRole;
+  readonly UserRole = UserRole;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private contractService: ContractService,
+    private authService: AuthService,
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loadContracts();
+  }
+
+  loadContracts(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.contractService.getContracts(0, 12, this.searchTerm.trim()).subscribe({
+      next: (response) => {
+        this.contracts = response.content;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading contracts:', error);
+        this.errorMessage = 'No fue posible cargar los contratos. Intenta de nuevo.';
+        this.contracts = [];
+        this.loading = false;
+      },
+    });
+  }
+
+  onSearch(): void {
+    this.loadContracts();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.loadContracts();
   }
 
   isFuncionario(): boolean {
@@ -257,7 +85,33 @@ export class ContratosComponent implements OnInit {
     return this.authService.hasRole(UserRole.ADMINISTRADOR);
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
+  }
+
+  statusLabel(status: string | undefined): string {
+    return (status || '-').toUpperCase().replace(/\s+/g, '_');
+  }
+
+  statusTone(status: string | undefined): string {
+    const normalized = (status || '').toUpperCase();
+
+    if (normalized.includes('FINAL')) {
+      return 'tone-done';
+    }
+
+    if (normalized.includes('ACTIV')) {
+      return 'tone-live';
+    }
+
+    return 'tone-prep';
+  }
+
+  formatCurrency(value: number | undefined): string {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+    }).format(value || 0);
   }
 }

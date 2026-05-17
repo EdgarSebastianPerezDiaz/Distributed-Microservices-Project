@@ -4,14 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../services/auth';
 import { ContractService } from '../../../services/contract';
 import { ContractResponse, PaginatedContractResponse } from '../../../models/contract.model';
@@ -26,20 +23,16 @@ import { User, UserRole } from '../../../models/auth.model';
     RouterModule,
     MatButtonModule,
     MatCardModule,
-    MatChipsModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
-    MatTableModule,
-    MatTooltipModule,
   ],
   templateUrl: './contract-list.html',
   styleUrl: './contract-list.scss',
 })
 export class ContractListComponent implements OnInit {
-  displayedColumns: string[] = ['contractNumber', 'supplier', 'object', 'budget', 'dates', 'status', 'createdAt'];
   contracts: ContractResponse[] = [];
   loading = false;
   errorMessage = '';
@@ -107,18 +100,38 @@ export class ContractListComponent implements OnInit {
     this.router.navigate(['/contratos/new']);
   }
 
-  viewContract(id: string | undefined): void {
-    if (id) {
-      this.router.navigate(['/contratos', id]);
-    }
-  }
-
   isFuncionario(): boolean {
     return this.authService.hasRole(UserRole.FUNCIONARIO);
   }
 
+  isAdministrador(): boolean {
+    return this.authService.hasRole(UserRole.ADMINISTRADOR);
+  }
+
   getStatusLabel(status: string): string {
-    return status || '-';
+    return (status || '-').toUpperCase().replace(/\s+/g, '_');
+  }
+
+  getStatusTone(status: string): string {
+    const normalized = (status || '').toUpperCase();
+
+    if (normalized.includes('FINAL')) {
+      return 'tone-done';
+    }
+
+    if (normalized.includes('ACTIV')) {
+      return 'tone-live';
+    }
+
+    return 'tone-prep';
+  }
+
+  formatCurrency(value: number | undefined): string {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+    }).format(value || 0);
   }
 
   getObjectPreview(object: string): string {
