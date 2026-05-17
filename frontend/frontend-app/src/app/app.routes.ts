@@ -33,7 +33,7 @@ export const routes: Routes = [
     path: 'register',
     canActivate: [loginGuard],
     loadComponent: () =>
-      import('./components/auth/register/register').then((m) => m.RegisterComponent),
+      import('./components/auth/login/login').then((m) => m.LoginComponent),
   },
   {
     path: '',

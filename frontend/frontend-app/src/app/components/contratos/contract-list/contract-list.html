@@ -1,106 +1,118 @@
 <div class="contract-list-container">
-  <div class="list-header">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Contratos</span>
+  </nav>
+
+  <header class="list-header">
     <div>
-      <h2>Gestión de Contratos</h2>
-      <p>Consulta los contratos registrados en el sistema</p>
+      <h2>Contratos</h2>
+      <p>Gestión y supervisión de licitaciones activas.</p>
     </div>
-    <button mat-raised-button color="primary" class="create-btn" *ngIf="isFuncionario()" (click)="createContract()">
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="create-btn"
+      *ngIf="isFuncionario()"
+      (click)="createContract()"
+      type="button"
+    >
       <mat-icon>add</mat-icon>
-      <span>Nuevo Contrato</span>
+      <span>Crear contrato</span>
     </button>
-  </div>
+  </header>
 
   <div class="search-bar">
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Buscar contrato</mat-label>
-      <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Busca por número, proveedor o estado">
-      <button mat-icon-button matSuffix (click)="onSearch()" [disabled]="!searchTerm">
+      <input
+        matInput
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Busca por número, proveedor o estado"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="onSearch()" [disabled]="!searchTerm.trim()">
         <mat-icon>search</mat-icon>
       </button>
     </mat-form-field>
-    <button mat-stroked-button (click)="clearSearch()" *ngIf="searchTerm">
+
+    <button mat-stroked-button type="button" (click)="clearSearch()" *ngIf="searchTerm">
       <mat-icon>clear</mat-icon>
       <span>Limpiar</span>
     </button>
   </div>
 
-  <div class="table-container">
-    <mat-spinner *ngIf="loading" diameter="40" class="loading-spinner"></mat-spinner>
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
 
-    <div class="empty-state" *ngIf="!loading && errorMessage">
-      <mat-icon class="empty-icon">error_outline</mat-icon>
-      <h3>Error al cargar contratos</h3>
-      <p>{{ errorMessage }}</p>
-    </div>
+  <div class="empty-state empty-state--error" *ngIf="!loading && errorMessage">
+    <mat-icon class="empty-icon">error_outline</mat-icon>
+    <h3>Error al cargar contratos</h3>
+    <p>{{ errorMessage }}</p>
+  </div>
 
-    <table mat-table [dataSource]="contracts" class="contracts-table" *ngIf="!loading && !errorMessage && contracts.length > 0">
-      <ng-container matColumnDef="contractNumber">
-        <th mat-header-cell *matHeaderCellDef>Número</th>
-        <td mat-cell *matCellDef="let element">
-          <strong>{{ element.contractNumber }}</strong>
-        </td>
-      </ng-container>
+  <div class="cards" *ngIf="!loading && !errorMessage && contracts.length > 0">
+    <mat-card class="contract-card elevated-card" *ngFor="let element of contracts">
+      <div class="card-top">
+        <div class="card-top__title">
+          <div class="k">ID CONTRATO</div>
+          <div class="big">{{ element.contractNumber }}</div>
+        </div>
 
-      <ng-container matColumnDef="supplier">
-        <th mat-header-cell *matHeaderCellDef>Proveedor</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="supplier-cell">
-            <strong>{{ element.supplierBusinessName || 'Sin nombre' }}</strong>
-            <span>{{ element.supplierNit || element.supplierId }}</span>
+        <span class="status-badge" [ngClass]="getStatusTone(element.status)">
+          {{ getStatusLabel(element.status) }}
+        </span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card-grid__main">
+          <div class="section-block">
+            <div class="k">PROVEEDOR</div>
+            <div class="v">{{ element.supplierBusinessName || 'Sin nombre' }}</div>
+            <div class="meta">{{ element.supplierNit || element.supplierId }}</div>
           </div>
-        </td>
-      </ng-container>
 
-      <ng-container matColumnDef="object">
-        <th mat-header-cell *matHeaderCellDef>Objeto</th>
-        <td mat-cell *matCellDef="let element">
-          {{ getObjectPreview(element.object) }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="budget">
-        <th mat-header-cell *matHeaderCellDef>Presupuesto</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.budget | number:'1.2-2' }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="dates">
-        <th mat-header-cell *matHeaderCellDef>Fechas</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="date-cell">
-            <span><strong>Inicio:</strong> {{ element.startDate }}</span>
-            <span><strong>Fin:</strong> {{ element.endDate }}</span>
+          <div class="section-block">
+            <div class="k">OBJETO</div>
+            <p class="object-preview">{{ getObjectPreview(element.object) }}</p>
           </div>
-        </td>
-      </ng-container>
+        </div>
 
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let element">
-          <mat-chip-set>
-            <mat-chip [highlighted]="true">{{ getStatusLabel(element.status) }}</mat-chip>
-          </mat-chip-set>
-        </td>
-      </ng-container>
+        <div class="card-grid__side">
+          <div class="section-block">
+            <div class="k">PRESUPUESTO</div>
+            <div class="money">{{ formatCurrency(element.budget) }}</div>
+          </div>
 
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef>Creado</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.createdAt ? (element.createdAt | date:'short') : '-' }}
-        </td>
-      </ng-container>
+          <div class="section-block dates-block">
+            <div class="k">FECHAS</div>
+            <p><strong>Inicio:</strong> {{ element.startDate }}</p>
+            <p><strong>Fin:</strong> {{ element.endDate }}</p>
+          </div>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+          <div class="section-block created-at">
+            <div class="k">CREADO</div>
+            <p>{{ element.createdAt ? (element.createdAt | date:'short') : '-' }}</p>
+          </div>
+        </div>
+      </div>
 
-    <div class="empty-state" *ngIf="!loading && !errorMessage && contracts.length === 0">
-      <mat-icon class="empty-icon">description</mat-icon>
-      <h3>No hay contratos</h3>
-      <p *ngIf="searchTerm">No se encontraron contratos que coincidan con tu búsqueda</p>
-      <p *ngIf="!searchTerm">Comienza creando un nuevo contrato</p>
-    </div>
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button mat-flat-button color="primary" type="button" class="dual" *ngIf="isFuncionario()">Editar</button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="isAdministrador()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !errorMessage && contracts.length === 0">
+    <mat-icon class="empty-icon">description</mat-icon>
+    <h3>No hay contratos</h3>
+    <p *ngIf="searchTerm">No se encontraron contratos que coincidan con tu búsqueda</p>
+    <p *ngIf="!searchTerm">Comienza creando un nuevo contrato</p>
   </div>
 
   <mat-paginator

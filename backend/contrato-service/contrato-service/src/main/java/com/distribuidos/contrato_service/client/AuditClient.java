@@ -1,6 +1,5 @@
 package com.distribuidos.contrato_service.client;
 
-import com.distribuidos.contrato_service.dto.EventoAuditoriaDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,21 +28,21 @@ public class AuditClient {
      * Registra un evento en el servicio de auditoría
      * Usa Eureka para resolver el nombre del servicio en producción
      */
-    public boolean registrarEvento(EventoAuditoriaDTO evento) {
+    public boolean registrarEvento(Object evento) {
         try {
-             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String token = (String) auth.getCredentials();
 
- HttpHeaders headers = new HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(token);
 
-HttpEntity<EventoAuditoriaDTO> entity = new HttpEntity<>(evento, headers);
+            HttpEntity<Object> entity = new HttpEntity<>(evento, headers);
 
 
             String url = auditServiceUrl + "/eventos";
             restTemplate.postForObject(url, entity, Void.class);
-            log.info("Evento registrado en auditoría: {}", evento.getTipo_evento());
+            log.info("Evento registrado en auditoría: {}", evento);
             return true;
         } catch (Exception e) {
             // No fallar la transacción principal si la auditoría falla
