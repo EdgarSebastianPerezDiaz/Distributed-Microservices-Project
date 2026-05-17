@@ -17,6 +17,12 @@ export class ContractService {
     return this.http.post<ContractResponse>(`${this.apiUrl}/api/contracts`, request);
   }
 
+  downloadContractPdf(contractId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/api/contracts/${contractId}/pdf`, {
+      responseType: 'blob',
+    });
+  }
+
   getContracts(page: number = 0, size: number = 10, search?: string): Observable<PaginatedContractResponse> {
     let params = new HttpParams()
       .set('page', page.toString())

@@ -128,8 +128,9 @@ export class ContractFormComponent implements OnInit {
         this.loading = false;
         this.message = {
           type: 'success',
-          text: `Contrato ${response.contractNumber} creado correctamente para ${response.supplierBusinessName || 'el proveedor seleccionado'}.`,
+          text: `Contrato ${response.contractNumber} creado correctamente para ${response.supplierBusinessName || 'el proveedor seleccionado'}. Se está descargando el PDF.`,
         };
+        this.downloadContractPdf(response);
         this.contractForm.reset();
       },
       error: (error) => {
@@ -137,6 +138,26 @@ export class ContractFormComponent implements OnInit {
         this.message = {
           type: 'error',
           text: this.resolveErrorMessage(error),
+        };
+      },
+    });
+  }
+
+  private downloadContractPdf(contract: ContractResponse): void {
+    this.contractService.downloadContractPdf(contract.id).subscribe({
+      next: (pdfBlob: Blob) => {
+        const fileName = `contrato-${contract.contractNumber || contract.id}.pdf`;
+        const url = window.URL.createObjectURL(pdfBlob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = fileName;
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.message = {
+          type: 'error',
+          text: 'El contrato fue creado, pero no se pudo descargar el PDF automáticamente. Vuelve a intentarlo en unos segundos.',
         };
       },
     });

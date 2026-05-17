@@ -15,6 +15,10 @@ import com.distribuidos.contrato_service.security.JwtPrincipal;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -27,6 +31,9 @@ import java.time.LocalDate;
 
 import java.time.OffsetDateTime;
 import java.time.Year;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -300,6 +307,255 @@ public class ContractService {
     }
 
     /**
+     * Generar PDF profesional de contrato por ID
+     */
+    @Transactional(readOnly = true)
+    public byte[] generateContractPdf(UUID id, UUID userId, String userRole) {
+        Contract contract = findContractById(id);
+
+        if ("FUNCIONARIO".equals(userRole) && !contract.getCreatedByUserId().equals(userId)) {
+            throw new AccessDeniedException("You don't have permission to generate this contract PDF");
+        }
+
+        try (PDDocument document = new PDDocument(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            float pageWidth = page.getMediaBox().getWidth();
+            float pageHeight = page.getMediaBox().getHeight();
+            float marginLeft = 40;
+            float marginRight = 40;
+            float marginTop = 50;
+            float marginBottom = 40;
+            float contentWidth = pageWidth - marginLeft - marginRight;
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            try {
+                float yPosition = pageHeight - marginTop;
+
+                // ========== ENCABEZADO ==========
+                yPosition = drawHeader(contentStream, "DOCUMENTO DE CONTRATO", marginLeft, yPosition);
+                yPosition -= 10;
+
+                // ========== NÚMERO DE CONTRATO (DESTAQUE) ==========
+                yPosition = drawContractNumberBox(contentStream, contract.getContractNumber(), marginLeft, contentWidth, yPosition);
+                yPosition -= 15;
+
+                // ========== DATOS PRINCIPALES (DOS COLUMNAS) ==========
+                yPosition = drawSection(contentStream, "INFORMACIÓN GENERAL", marginLeft, contentWidth, yPosition);
+                yPosition -= 12;
+
+                float column1X = marginLeft;
+                float column2X = marginLeft + (contentWidth / 2) + 10;
+                float columnWidth = (contentWidth / 2) - 5;
+
+                float yCol1 = yPosition;
+                float yCol2 = yPosition;
+
+                // Columna 1
+                yCol1 -= 16;
+                drawField(contentStream, "Nº de Contrato:", safeText(contract.getContractNumber()), column1X, columnWidth, yCol1);
+                yCol1 -= 16;
+                drawField(contentStream, "ID del Contrato:", truncateUuid(contract.getId().toString()), column1X, columnWidth, yCol1);
+                yCol1 -= 16;
+                drawField(contentStream, "Estado:", contract.getStatus().toString(), column1X, columnWidth, yCol1);
+                yCol1 -= 16;
+                drawField(contentStream, "Presupuesto:", "$" + contract.getBudget().setScale(2, RoundingMode.HALF_UP), column1X, columnWidth, yCol1);
+                yCol1 -= 16;
+                drawField(contentStream, "Fecha Inicio:", contract.getStartDate().toString(), column1X, columnWidth, yCol1);
+
+                // Columna 2
+                yCol2 -= 16;
+                drawField(contentStream, "Proveedor:", safeText(contract.getSupplierBusinessName()), column2X, columnWidth, yCol2);
+                yCol2 -= 16;
+                drawField(contentStream, "NIT Proveedor:", safeText(contract.getSupplierNit()), column2X, columnWidth, yCol2);
+                yCol2 -= 16;
+                drawField(contentStream, "ID Proveedor:", truncateUuid(contract.getSupplierId().toString()), column2X, columnWidth, yCol2);
+                yCol2 -= 16;
+                drawField(contentStream, "Fecha Fin:", contract.getEndDate().toString(), column2X, columnWidth, yCol2);
+                yCol2 -= 16;
+                drawField(contentStream, "Creado:", contract.getCreatedAt().toString().substring(0, 10), column2X, columnWidth, yCol2);
+
+                yPosition = Math.min(yCol1, yCol2) - 20;
+
+                // ========== OBJETO DEL CONTRATO ==========
+                yPosition = drawSection(contentStream, "OBJETO DEL CONTRATO", marginLeft, contentWidth, yPosition);
+                yPosition -= 12;
+
+                String objectText = safeText(contract.getObject());
+                for (String line : wrapTextToWidth(objectText, contentWidth, 10)) {
+                    contentStream.beginText();
+                    contentStream.setFont(PDType1Font.HELVETICA, 10);
+                    contentStream.newLineAtOffset(marginLeft + 10, yPosition);
+                    contentStream.showText(line);
+                    contentStream.endText();
+                    yPosition -= 14;
+
+                    // Si se acerca al pie de página, crear nueva página
+                    if (yPosition < marginBottom + 100) {
+                        contentStream.close();
+                        page = new PDPage();
+                        document.addPage(page);
+                        contentStream = new PDPageContentStream(document, page);
+                        yPosition = pageHeight - marginTop;
+                    }
+                }
+
+                // ========== LÍNEA FINAL ==========
+                yPosition -= 10;
+                contentStream.setStrokingColor(0.7f, 0.7f, 0.7f);
+                contentStream.setLineWidth(1);
+                contentStream.moveTo(marginLeft, yPosition);
+                contentStream.lineTo(pageWidth - marginRight, yPosition);
+                contentStream.stroke();
+
+                // ========== PIE DE PÁGINA ==========
+                yPosition -= 15;
+                drawFooter(contentStream, "Documento generado automáticamente - " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), marginLeft, contentWidth, yPosition);
+
+                contentStream.close();
+            } catch (IOException e) {
+                try {
+                    contentStream.close();
+                } catch (IOException ex) {
+                    log.warn("Error closing content stream", ex);
+                }
+                throw e;
+            }
+
+            document.save(output);
+            return output.toByteArray();
+        } catch (IOException e) {
+            log.error("Error generating PDF for contract {}", id, e);
+            throw new RuntimeException("Could not generate contract PDF", e);
+        }
+    }
+
+    private float drawHeader(PDPageContentStream contentStream, String title, float x, float y) throws IOException {
+        contentStream.setStrokingColor(0.2f, 0.4f, 0.8f);
+        contentStream.setLineWidth(2);
+        contentStream.moveTo(x, y - 5);
+        contentStream.lineTo(x + 200, y - 5);
+        contentStream.stroke();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+        contentStream.setNonStrokingColor(0.2f, 0.4f, 0.8f);
+        contentStream.newLineAtOffset(x, y - 20);
+        contentStream.showText(title);
+        contentStream.endText();
+
+        return y - 25;
+    }
+
+    private float drawContractNumberBox(PDPageContentStream contentStream, String contractNumber, float x, float width, float y) throws IOException {
+        float boxHeight = 25;
+        contentStream.setNonStrokingColor(0.9f, 0.95f, 1.0f);
+        contentStream.fillRect(x, y - boxHeight, width, boxHeight);
+
+        contentStream.setStrokingColor(0.2f, 0.4f, 0.8f);
+        contentStream.setLineWidth(1);
+        contentStream.addRect(x, y - boxHeight, width, boxHeight);
+        contentStream.stroke();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+        contentStream.setNonStrokingColor(0.2f, 0.4f, 0.8f);
+        contentStream.newLineAtOffset(x + 10, y - 18);
+        contentStream.showText("Contrato Nº " + contractNumber);
+        contentStream.endText();
+
+        return y - boxHeight;
+    }
+
+    private float drawSection(PDPageContentStream contentStream, String title, float x, float width, float y) throws IOException {
+        contentStream.setNonStrokingColor(0.95f, 0.95f, 0.95f);
+        contentStream.fillRect(x, y - 18, width, 18);
+
+        contentStream.setStrokingColor(0.5f, 0.5f, 0.5f);
+        contentStream.setLineWidth(0.5f);
+        contentStream.addRect(x, y - 18, width, 18);
+        contentStream.stroke();
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 11);
+        contentStream.setNonStrokingColor(0.2f, 0.2f, 0.2f);
+        contentStream.newLineAtOffset(x + 8, y - 13);
+        contentStream.showText(title);
+        contentStream.endText();
+
+        return y - 18;
+    }
+
+    private void drawField(PDPageContentStream contentStream, String label, String value, float x, float width, float y) throws IOException {
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 9);
+        contentStream.setNonStrokingColor(0.2f, 0.4f, 0.8f);
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(label);
+        contentStream.endText();
+
+        String truncatedValue = value;
+        if (value.length() > 40) {
+            truncatedValue = value.substring(0, 37) + "...";
+        }
+
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA, 9);
+        contentStream.setNonStrokingColor(0.3f, 0.3f, 0.3f);
+        contentStream.newLineAtOffset(x + 120, y);
+        contentStream.showText(truncatedValue);
+        contentStream.endText();
+    }
+
+    private void drawFooter(PDPageContentStream contentStream, String text, float x, float width, float y) throws IOException {
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 8);
+        contentStream.setNonStrokingColor(0.6f, 0.6f, 0.6f);
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(text);
+        contentStream.endText();
+    }
+
+    private List<String> wrapTextToWidth(String text, float width, float fontSize) {
+        if (text == null || text.isBlank()) {
+            return List.of("-");
+        }
+
+        List<String> lines = new java.util.ArrayList<>();
+        String[] words = text.split("\\s+");
+        StringBuilder current = new StringBuilder();
+        int maxCharsPerLine = (int) (width / (fontSize * 0.6f));
+
+        for (String word : words) {
+            if (current.length() == 0) {
+                current.append(word);
+            } else if (current.length() + 1 + word.length() <= maxCharsPerLine) {
+                current.append(' ').append(word);
+            } else {
+                if (current.length() > 0) {
+                    lines.add(current.toString());
+                }
+                current = new StringBuilder(word);
+            }
+        }
+
+        if (current.length() > 0) {
+            lines.add(current.toString());
+        }
+
+        return lines;
+    }
+
+    private String truncateUuid(String uuid) {
+        if (uuid == null || uuid.length() < 8) {
+            return uuid;
+        }
+        return uuid.substring(0, 8) + "...";
+    }
+
+    /**
      * Obtener historial de estados de un contrato
      */
     @Transactional(readOnly = true)
@@ -446,5 +702,17 @@ if (sent) {
         // Por ahora retorna un número incremental simple
          long historialCount = historyRepository.countByContractId(contractId);
     return (int) historialCount + 2;
+    }
+
+    private String safeText(String value) {
+        if (value == null || value.isBlank()) {
+            return "-";
+        }
+
+        return value
+                .replace('\n', ' ')
+                .replace('\r', ' ')
+                .replace('\t', ' ')
+                .trim();
     }
 }
