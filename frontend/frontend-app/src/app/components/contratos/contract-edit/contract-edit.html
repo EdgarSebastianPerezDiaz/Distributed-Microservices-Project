@@ -1,0 +1,140 @@
+<div class="contract-page">
+  <div class="page-shell">
+    <header class="page-header">
+      <button mat-icon-button type="button" class="back-btn" (click)="backToContracts()" aria-label="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <div class="page-kicker">Editar Contrato</div>
+      </div>
+    </header>
+
+    <mat-card class="contract-card" *ngIf="!loading && contract; else loadingBlock">
+      <mat-card-content>
+        <div class="form-heading">
+          <h1>Editar presupuesto</h1>
+          <p>Solo se puede ajustar el presupuesto del contrato mientras permanece en preparación.</p>
+        </div>
+
+        <div class="message-banner success" *ngIf="message?.type === 'success'">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ message?.text }}</span>
+        </div>
+
+        <div class="message-banner error" *ngIf="message?.type === 'error'">
+          <mat-icon>error</mat-icon>
+          <span>{{ message?.text }}</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Contrato</span>
+            <strong>{{ contract.contractNumber }}</strong>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Estado</span>
+            <strong class="status-badge" [ngClass]="statusTone(contract.status)">{{ statusLabel(contract.status) }}</strong>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Proveedor</span>
+            <strong>{{ contract.supplierBusinessName || 'Sin nombre' }}</strong>
+          </div>
+        </div>
+
+        <div class="read-only-panel">
+          <div class="panel-head">
+            <div>
+              <span class="panel-kicker">Detalle actual</span>
+              <h2>Información del contrato</h2>
+            </div>
+            <span class="panel-badge">Solo lectura</span>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-block">
+              <div class="field-label">Objeto del contrato</div>
+              <p class="object-preview">{{ getObjectPreview(contract.object) }}</p>
+            </div>
+
+            <div class="detail-block">
+              <div class="field-label">Proveedor</div>
+              <p>{{ contract.supplierBusinessName || 'Sin nombre' }}</p>
+              <p class="muted">{{ contract.supplierNit || contract.supplierId }}</p>
+            </div>
+
+            <div class="detail-block detail-block--compact">
+              <div class="field-label">Fechas</div>
+              <p><strong>Inicio:</strong> {{ contract.startDate }}</p>
+              <p><strong>Fin:</strong> {{ contract.endDate }}</p>
+            </div>
+
+            <div class="detail-block detail-block--compact">
+              <div class="field-label">Presupuesto actual</div>
+              <p class="money">{{ formatCurrency(contract.budget) }}</p>
+              <p class="muted">Cambia este valor para guardar la actualización.</p>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="contract-form">
+          <div class="field-group">
+            <label class="field-label">Nuevo presupuesto estimado</label>
+            <mat-form-field appearance="outline" class="full-width field-soft">
+              <span matPrefix class="currency-prefix">$&nbsp;</span>
+              <input
+                matInput
+                type="number"
+                formControlName="budget"
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
+                [disabled]="saving"
+              />
+              <mat-error *ngIf="f['budget'].hasError('required')">
+                Campo requerido
+              </mat-error>
+              <mat-error *ngIf="f['budget'].hasError('min')">
+                Debe ser mayor a 0
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group inline-hint">
+            <span class="hint-left">Solo se actualiza el presupuesto</span>
+            <span class="hint-right">Usuario: {{ getCurrentUserLabel() }}</span>
+          </div>
+
+          <div class="actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving" class="save-btn">
+              <mat-spinner *ngIf="saving" diameter="18" class="button-spinner"></mat-spinner>
+              <span *ngIf="!saving">Guardar cambios</span>
+              <span *ngIf="saving">Guardando...</span>
+            </button>
+            <button mat-button type="button" (click)="backToContracts()" [disabled]="saving" class="cancel-btn">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <ng-template #loadingBlock>
+      <mat-card class="contract-card">
+        <mat-card-content>
+          <div class="loading-state" *ngIf="loading">
+            <mat-spinner diameter="44"></mat-spinner>
+          </div>
+
+          <div class="empty-state empty-state--error" *ngIf="!loading && message?.type === 'error'">
+            <mat-icon class="empty-icon">error_outline</mat-icon>
+            <h3>No fue posible abrir la edición</h3>
+            <p>{{ message?.text }}</p>
+            <button mat-raised-button color="primary" type="button" class="back-action" (click)="backToContracts()">
+              Volver al listado
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-template>
+  </div>
+</div>

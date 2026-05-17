@@ -3,7 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ContractCreateRequest, ContractResponse, PaginatedContractResponse } from '../models/contract.model';
+import {
+  ContractCreateRequest,
+  ContractResponse,
+  ContractUpdateRequest,
+  PaginatedContractResponse,
+} from '../models/contract.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +20,14 @@ export class ContractService {
 
   createContract(request: ContractCreateRequest): Observable<ContractResponse> {
     return this.http.post<ContractResponse>(`${this.apiUrl}/api/contracts`, request);
+  }
+
+  getContractById(contractId: string): Observable<ContractResponse> {
+    return this.http.get<ContractResponse>(`${this.apiUrl}/api/contracts/${contractId}`);
+  }
+
+  updateContract(contractId: string, request: ContractUpdateRequest): Observable<ContractResponse> {
+    return this.http.put<ContractResponse>(`${this.apiUrl}/api/contracts/${contractId}`, request);
   }
 
   downloadContractPdf(contractId: string): Observable<Blob> {

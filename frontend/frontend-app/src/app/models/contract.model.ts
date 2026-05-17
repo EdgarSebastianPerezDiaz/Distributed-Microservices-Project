@@ -6,6 +6,10 @@ export interface ContractCreateRequest {
   endDate: string;
 }
 
+export interface ContractUpdateRequest {
+  budget: number;
+}
+
 export interface ContractResponse {
   id: string;
   supplierId: string;

@@ -12,6 +12,7 @@ import { SupplierDetailComponent } from './components/suppliers/supplier-detail/
 import { ContratosComponent } from './components/contratos/contratos';
 import { AdminContratosComponent } from './components/contratos/admin-contratos';
 import { ContractFormComponent } from './components/contratos/contract-form/contract-form';
+import { ContractEditComponent } from './components/contratos/contract-edit/contract-edit';
 import { ContractListComponent } from './components/contratos/contract-list/contract-list';
 import { AuditoriaComponent } from './components/auditoria/auditoria';
 import { UserRole } from './models/auth.model';
@@ -86,6 +87,12 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.FUNCIONARIO] },
     component: ContractFormComponent
+  },
+  {
+    path: 'contratos/:id/edit',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.FUNCIONARIO] },
+    component: ContractEditComponent
   },
       {
         path: 'auditoria',

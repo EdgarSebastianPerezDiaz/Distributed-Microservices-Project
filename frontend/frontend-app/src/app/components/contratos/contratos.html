@@ -88,7 +88,17 @@
 
       <div class="card-actions">
         <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
-        <button mat-flat-button color="primary" type="button" class="dual" *ngIf="isFuncionario()">Editar</button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          class="dual"
+          *ngIf="isFuncionario()"
+          [routerLink]="['/contratos', contract.id, 'edit']"
+        >
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
         <button mat-stroked-button type="button" class="dual" *ngIf="!isFuncionario()" disabled>Solo lectura</button>
       </div>
     </mat-card>
