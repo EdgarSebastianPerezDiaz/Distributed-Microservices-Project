@@ -19,12 +19,18 @@ spring:
       routes:
 
         # ==============================
-        # SERVICIO DE USUARIOS (AUTH)
+        # SERVICIO DE USUARIOS (AUTH + OAUTH2)
+        # ==============================
+        # Incluye:
+        # - /api/auth/** - Endpoints de autenticación legacy
+        # - /oauth2/** - Endpoints OAuth 2.0 (nuevos)
+        # - /.well-known/** - Discovery de configuración OAuth2
+        # - /api/oauth2-info/** - Información sobre OAuth2
         # ==============================
         - id: usuario-service
           uri: lb://usuario-service
           predicates:
-            - Path=/usuarios/**,/api/users/**,/api/auth/**
+            - Path=/usuarios/**,/api/users/**,/api/auth/**,/oauth2/**,/.well-known/**,/api/oauth2-info/**
 
         # ==============================
         # SERVICIO DE CONTRATOS

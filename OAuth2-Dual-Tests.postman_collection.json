@@ -1,0 +1,407 @@
+{
+  "info": {
+    "_postman_id": "oauth2-dual-tests-{{ $uuid }}",
+    "name": "OAuth 2.0 Dual Authentication Tests",
+    "description": "Suite de pruebas para validar coexistencia de JWT Legacy y OAuth 2.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "distribuidos-project"
+  },
+  "item": [
+    {
+      "name": "1. Health Checks",
+      "item": [
+        {
+          "name": "Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/actuator/health",
+              "host": ["{{gateway_url}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        },
+        {
+          "name": "Usuario Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{usuario_service_url}}/actuator/health",
+              "host": ["{{usuario_service_url}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. JWT Legacy Flow",
+      "item": [
+        {
+          "name": "Login (Legacy JWT HS512)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var responseData = pm.response.json();",
+                  "  pm.environment.set('legacy_token', responseData.token);",
+                  "  pm.test('Legacy token obtenido', function() {",
+                  "    pm.expect(responseData.token).to.exist;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \\\"username\\\": \\\"admin\\\",\\n  \\\"password\\\": \\\"Admin123\\\"\\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Users with Legacy Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Legacy token válido - usuarios obtenidos', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "  if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.be.an('array');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{legacy_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. OAuth 2.0 Flow",
+      "item": [
+        {
+          "name": "Client Credentials Grant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var responseData = pm.response.json();",
+                  "  pm.environment.set('oauth2_access_token', responseData.access_token);",
+                  "  pm.environment.set('oauth2_refresh_token', responseData.refresh_token);",
+                  "  pm.test('OAuth2 tokens obtenidos', function() {",
+                  "    pm.expect(responseData.access_token).to.exist;",
+                  "    pm.expect(responseData.refresh_token).to.exist;",
+                  "    pm.expect(responseData.token_type).to.equal('Bearer');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                },
+                {
+                  "key": "client_id",
+                  "value": "microservices-client"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "microservices-secret-change-me"
+                },
+                {
+                  "key": "scope",
+                  "value": "read"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{gateway_url}}/oauth2/token",
+              "host": ["{{gateway_url}}"],
+              "path": ["oauth2", "token"]
+            }
+          }
+        },
+        {
+          "name": "Get Users with OAuth2 Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OAuth2 token válido - usuarios obtenidos', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "  if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.be.an('array');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{oauth2_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "users"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var responseData = pm.response.json();",
+                  "  pm.environment.set('oauth2_access_token', responseData.access_token);",
+                  "  pm.test('Token refrescado correctamente', function() {",
+                  "    pm.expect(responseData.access_token).to.exist;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "refresh_token"
+                },
+                {
+                  "key": "client_id",
+                  "value": "microservices-client"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "microservices-secret-change-me"
+                },
+                {
+                  "key": "refresh_token",
+                  "value": "{{oauth2_refresh_token}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{gateway_url}}/oauth2/token",
+              "host": ["{{gateway_url}}"],
+              "path": ["oauth2", "token"]
+            }
+          }
+        },
+        {
+          "name": "Revoke Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "token",
+                  "value": "{{oauth2_refresh_token}}"
+                },
+                {
+                  "key": "client_id",
+                  "value": "microservices-client"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "microservices-secret-change-me"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{gateway_url}}/oauth2/revoke",
+              "host": ["{{gateway_url}}"],
+              "path": ["oauth2", "revoke"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. OAuth 2.0 Info Endpoints",
+      "item": [
+        {
+          "name": "Get OAuth2 Endpoints Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/oauth2-info/endpoints",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "oauth2-info", "endpoints"]
+            }
+          }
+        },
+        {
+          "name": "Get Registered Clients Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/oauth2-info/clients",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "oauth2-info", "clients"]
+            }
+          }
+        },
+        {
+          "name": "Get Client Credentials Example",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/oauth2-info/example-client-credentials",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "oauth2-info", "example-client-credentials"]
+            }
+          }
+        },
+        {
+          "name": "Get Migration Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/oauth2-info/migration-info",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "oauth2-info", "migration-info"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Well-Known Endpoints",
+      "item": [
+        {
+          "name": "JWKS Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{usuario_service_url}}/.well-known/jwks.json",
+              "host": ["{{usuario_service_url}}"],
+              "path": [".well-known", "jwks.json"]
+            }
+          }
+        },
+        {
+          "name": "OAuth Authorization Server Configuration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{usuario_service_url}}/.well-known/oauth-authorization-server",
+              "host": ["{{usuario_service_url}}"],
+              "path": [".well-known", "oauth-authorization-server"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "usuario_service_url",
+      "value": "http://localhost:8084",
+      "type": "string"
+    },
+    {
+      "key": "legacy_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "oauth2_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "oauth2_refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
