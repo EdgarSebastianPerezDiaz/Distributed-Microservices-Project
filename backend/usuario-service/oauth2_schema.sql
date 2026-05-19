@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS oauth_refresh_tokens (
     
     -- Referencia al usuario propietario del token
     -- Permite revocar todos los tokens de un usuario al cambiar contraseña
-    user_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- ID del cliente OAuth que pidió el token (frontend-app, microservices-client, etc.)
     -- Útil para auditoria y para diferencias entre clientes
@@ -130,7 +130,7 @@ SELECT
     (ort.expires_at - CURRENT_TIMESTAMP) as time_remaining,
     ort.revoked
 FROM oauth_refresh_tokens ort
-JOIN usuarios u ON ort.user_id = u.user_id
+JOIN users u ON ort.user_id = u.id
 WHERE ort.revoked = FALSE AND ort.expires_at > CURRENT_TIMESTAMP;
 
 -- Vista 2: Historial de tokens (incluyendo revocados)
@@ -149,7 +149,7 @@ SELECT
         ELSE 'ACTIVE'
     END as status
 FROM oauth_refresh_tokens ort
-JOIN usuarios u ON ort.user_id = u.user_id
+JOIN users u ON ort.user_id = u.id
 ORDER BY ort.created_at DESC;
 
 -- =============================================================================
@@ -180,7 +180,7 @@ ORDER BY ort.created_at DESC;
 -- Requisitos previos:
 -- 1. PostgreSQL 12+ debe estar ejecutándose
 -- 2. Base de datos "usuarios_db" debe existir
--- 3. Tabla "usuarios" debe existir (ver users.sql)
+-- 3. Tabla "users" debe existir (con columna id UUID como PK)
 --
 -- Verificación posterior a la ejecución:
 -- SELECT * FROM oauth_refresh_tokens;
