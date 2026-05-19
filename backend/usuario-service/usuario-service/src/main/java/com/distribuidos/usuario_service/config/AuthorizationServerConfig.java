@@ -94,12 +94,14 @@ public class AuthorizationServerConfig {
 	@Bean
 	@Order(1)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher("/oauth2/**", "/.well-known/**");
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 		http.exceptionHandling(exceptions ->
 			exceptions.authenticationEntryPoint(
 				new LoginUrlAuthenticationEntryPoint("/login")
 			)
 		);
+		
 		return http.build();
 	}
 
