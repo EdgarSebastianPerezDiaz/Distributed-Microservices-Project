@@ -19,7 +19,7 @@
         <mat-icon>description</mat-icon>
         <span>Contratos</span>
       </a>
-      <a mat-button routerLink="/auditoria" routerLinkActive="active" *ngIf="isAuditor()">
+      <a mat-button routerLink="/auditoria" routerLinkActive="active" *ngIf="isAuditor() || isAdmin()">
         <mat-icon>security_audit</mat-icon>
         <span>Auditoría</span>
       </a>

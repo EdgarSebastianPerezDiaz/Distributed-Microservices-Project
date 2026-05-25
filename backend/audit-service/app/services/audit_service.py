@@ -3,24 +3,33 @@ from typing import Optional
 from bson import ObjectId
 from app.database import eventos_collection
 
+def _to_str(value, default=None):
+    if value is None:
+        return default
+    return str(value)
+
 def serialize_document(doc: dict) -> dict: ##Convierte un documento para devolverlo a JSON
+    tipo_evento = doc.get("tipo_evento") or doc.get("operacion") or "UNKNOWN"
+    usuario_nombre = doc.get("usuario_nombre") or doc.get("usuario") or ""
+    fecha = doc.get("fecha") or datetime.now(timezone.utc)
+
     return {
-           "id": str(doc["_id"]),
-        "entidad_tipo": doc.get("entidad_tipo"),
-        "entidad_id": doc.get("entidad_id"),
-        "operacion": doc.get("operacion"),
-        "tipo_evento": doc["tipo_evento"],
+        "id": _to_str(doc.get("_id"), ""),
+        "entidad_tipo": doc.get("entidad_tipo") or doc.get("entidadType"),
+        "entidad_id": doc.get("entidad_id") or doc.get("entidadId"),
+        "operacion": doc.get("operacion") or tipo_evento,
+        "tipo_evento": tipo_evento,
         "descripcion": doc.get("descripcion"),
         "estado_anterior": doc.get("estado_anterior"),
         "estado_nuevo": doc.get("estado_nuevo"),
         "motivo": doc.get("motivo"),
-        "usuario_id": str(doc["usuario_id"]),
-        "usuario_nombre": doc["usuario_nombre"],
-        "rol_usuario": doc.get("rol_usuario"),
-        "fecha": doc["fecha"],
+        "usuario_id": _to_str(doc.get("usuario_id"), ""),
+        "usuario_nombre": usuario_nombre,
+        "rol_usuario": doc.get("rol_usuario") or doc.get("usuario_rol"),
+        "fecha": fecha,
         "version": doc.get("version"),
         "metadata": doc.get("metadata", {}),
-        "contrato_id": str(doc["contrato_id"]) if doc.get("contrato_id") else None
+        "contrato_id": _to_str(doc.get("contrato_id"), None)
     }
 
 async def create_event(event_data: dict): ## Recibe los datos validados y los guarda en mongo

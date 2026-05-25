@@ -13,7 +13,7 @@
         Usuario fiscalizador <strong>{{ u.username }}</strong> • {{ u.role }}
       </div>
     </div>
-    <button mat-flat-button color="primary" type="button" routerLink="/suppliers" disabled>
+    <button mat-flat-button color="primary" type="button" disabled>
       Exportar informe (próximo)
     </button>
   </header>
@@ -25,108 +25,143 @@
         <mat-form-field appearance="outline" class="f">
           <mat-label>Búsqueda general</mat-label>
           <mat-icon matPrefix>search</mat-icon>
-          <input matInput placeholder="Buscar por ID, usuario o descripción..." disabled>
+          <input
+            matInput
+            placeholder="Buscar por ID, usuario o descripción..."
+            [(ngModel)]="filters.searchTerm"
+            (keyup.enter)="applyFilters()"
+          >
         </mat-form-field>
         <mat-form-field appearance="outline" class="f narrow">
           <mat-label>Entidad</mat-label>
-          <mat-select disabled value="ALL">
+          <mat-select [(ngModel)]="filters.entityType">
             <mat-option value="ALL">Todas las Entidades</mat-option>
+            <mat-option *ngFor="let entityType of entityTypeOptions" [value]="entityType">
+              {{ entityType }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" class="f narrow">
           <mat-label>Operación</mat-label>
-          <mat-select disabled value="ALL">
+          <mat-select [(ngModel)]="filters.eventType">
             <mat-option value="ALL">Todas las Operaciones</mat-option>
+            <mat-option *ngFor="let eventType of eventTypeOptions" [value]="eventType">
+              {{ eventType }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" class="f narrow">
-          <mat-label>Rol</mat-label>
-          <mat-select disabled value="ALL">
-            <mat-option value="ALL">Todos los Roles</mat-option>
-          </mat-select>
+          <mat-label>Usuario</mat-label>
+          <input matInput [(ngModel)]="filters.userId" placeholder="UUID de usuario" (keyup.enter)="applyFilters()">
         </mat-form-field>
         <mat-form-field appearance="outline" class="f narrow">
-          <mat-label>Fecha</mat-label>
-          <input matInput placeholder="dd/mm/aaaa" disabled>
+          <mat-label>Desde</mat-label>
+          <input matInput type="date" [(ngModel)]="filters.startDate">
+          <mat-icon matSuffix aria-hidden="true">calendar_month</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="f narrow">
+          <mat-label>Hasta</mat-label>
+          <input matInput type="date" [(ngModel)]="filters.endDate">
           <mat-icon matSuffix aria-hidden="true">calendar_month</mat-icon>
         </mat-form-field>
 
-        <button mat-flat-button color="primary" class="filter-cta" type="button">
-          <mat-icon>filter_alt</mat-icon>
-          Aplicar Filtros
-        </button>
+        <div class="filter-actions">
+          <button mat-stroked-button type="button" (click)="clearFilters()" [disabled]="loading">
+            Limpiar
+          </button>
+          <button mat-flat-button color="primary" class="filter-cta" type="button" (click)="applyFilters()" [disabled]="loading">
+            <mat-icon>filter_alt</mat-icon>
+            Aplicar Filtros
+          </button>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
 
   <mat-card class="elevated-card table-card">
+    <div class="center pad" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state empty-state--error" *ngIf="!loading && errorMessage">
+      <mat-icon>error_outline</mat-icon>
+      <h3>Error al consultar auditoría</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
     <mat-card-content class="tbl-wrap">
-      <table class="audit-table" role="presentation">
+      <table class="audit-table" role="presentation" *ngIf="!loading && !errorMessage && displayedEvents.length > 0">
         <thead>
           <tr>
             <th>Fecha/Hora</th>
             <th>Entidad</th>
             <th>Operación</th>
             <th>Descripción</th>
-            <th>Rol</th>
             <th>Usuario</th>
-            <th>Ver.</th>
+            <th>Estado</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><span class="muted">12/10/2023 14:22</span></td>
-            <td><span class="tag tone-blue">CONTRATO</span></td>
-            <td><span class="pill op-update">UPDATE</span></td>
-            <td>Modificación de cláusula de rescisión…</td>
-            <td>Auditor</td>
-            <td class="mono">USR-8821</td>
-            <td><span class="muted">v2.4</span></td>
-            <td><span class="action-link">Ver detalle</span></td>
-          </tr>
-          <tr>
-            <td><span class="muted">12/10/2023 11:05</span></td>
-            <td><span class="tag tone-violet">PROVEEDOR</span></td>
-            <td><span class="pill op-create">CREATE</span></td>
-            <td>Registro de nuevo consorcio regional…</td>
-            <td>Admin</td>
-            <td class="mono">USR-0192</td>
-            <td><span class="muted">v1.0</span></td>
-            <td><span class="action-link">Ver detalle</span></td>
-          </tr>
-          <tr>
-            <td><span class="muted">11/10/2023 16:45</span></td>
-            <td><span class="tag tone-amber">USUARIO</span></td>
-            <td><span class="pill op-delete">DELETE</span></td>
-            <td>Baja por inactividad prolongada…</td>
-            <td>Admin</td>
-            <td class="mono">USR-5588</td>
-            <td><span class="muted">v1.2</span></td>
-            <td><span class="action-link">Ver detalle</span></td>
-          </tr>
-          <tr>
-            <td><span class="muted">11/10/2023 09:30</span></td>
-            <td><span class="tag tone-blue">CONTRATO</span></td>
-            <td><span class="pill op-update">UPDATE</span></td>
-            <td>Actualización de cronograma de pagos…</td>
-            <td>Operador</td>
-            <td class="mono">USR-3312</td>
-            <td><span class="muted">v3.1</span></td>
-            <td><span class="action-link">Ver detalle</span></td>
+          <tr *ngFor="let event of displayedEvents">
+            <td><span class="muted">{{ formatDate(event.timestamp) }}</span></td>
+            <td><span class="tag" [ngClass]="entityTone(event.entityType)">{{ event.entityType }}</span></td>
+            <td><span class="pill" [ngClass]="eventTone(event.eventType)">{{ event.eventType }}</span></td>
+            <td>{{ buildDescription(event) }}</td>
+            <td class="mono">{{ event.performedBy || '-' }}</td>
+            <td><span class="muted">{{ event.statusCode || '-' }}</span></td>
+            <td>
+              <button mat-button type="button" class="action-link" (click)="selectEvent(event)">
+                Ver detalle
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
+
+      <div class="empty-state" *ngIf="!loading && !errorMessage && displayedEvents.length === 0">
+        <mat-icon>history</mat-icon>
+        <h3>No hay eventos para mostrar</h3>
+        <p>Ajusta tus filtros para consultar el historial de auditoría.</p>
+      </div>
     </mat-card-content>
 
     <div class="pager">
-      <div class="muted">Mostrando 4 de 128 eventos (ejemplo UI)</div>
+      <div class="muted">
+        Mostrando {{ displayedEvents.length }} de {{ total }} eventos
+      </div>
       <div class="pager-mini">
-        <button mat-button type="button" disabled aria-label="Anterior">❮</button>
-        <button mat-flat-button color="primary" class="page-chip" disabled>1</button>
-        <button mat-button type="button" disabled aria-label="Siguiente">❯</button>
+        <button mat-button type="button" [disabled]="!canGoPrevious()" (click)="previousPage()" aria-label="Anterior">❮</button>
+        <button mat-flat-button color="primary" class="page-chip" disabled>{{ currentPage() }}</button>
+        <button mat-button type="button" [disabled]="!canGoNext()" (click)="nextPage()" aria-label="Siguiente">❯</button>
       </div>
     </div>
+  </mat-card>
+
+  <mat-card class="elevated-card detail-card" *ngIf="selectedEvent || detailLoading">
+    <mat-card-content>
+      <div class="section-title">Detalle del Evento</div>
+      <div class="center pad" *ngIf="detailLoading">
+        <mat-spinner diameter="34"></mat-spinner>
+      </div>
+      <div class="detail-grid" *ngIf="!detailLoading && selectedEvent as event">
+        <div><span class="k">Evento</span><span class="v">{{ event.eventType }}</span></div>
+        <div><span class="k">Entidad</span><span class="v">{{ event.entityType }}</span></div>
+        <div><span class="k">ID Entidad</span><span class="v mono">{{ event.entityId || '-' }}</span></div>
+        <div><span class="k">IP</span><span class="v mono">{{ event.ipAddress || '-' }}</span></div>
+      </div>
+
+      <div class="json-wrap" *ngIf="!detailLoading && selectedEvent as event">
+        <div class="json-block">
+          <div class="k">Datos Previos</div>
+          <pre>{{ formatJson(event.previousData) }}</pre>
+        </div>
+        <div class="json-block">
+          <div class="k">Datos Nuevos</div>
+          <pre>{{ formatJson(event.newData) }}</pre>
+        </div>
+      </div>
+    </mat-card-content>
   </mat-card>
 
   <div class="foot-banner">

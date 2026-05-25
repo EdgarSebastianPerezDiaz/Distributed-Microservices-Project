@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Inicializador de datos
  * 
  * Se ejecuta al arrancar la aplicación.
- * Crea los 3 roles y un usuario admin por defecto si no existen.
+ * Crea los 3 roles y usuarios por defecto si no existen.
  */
 @Configuration
 public class DataInitializer {
@@ -46,7 +46,7 @@ public class DataInitializer {
                 System.out.println("✅ Roles creados: ADMINISTRADOR, FUNCIONARIO, AUDITOR");
             }
             
-            // 2. Crear usuario admin por defecto si no hay usuarios
+            // 2. Crear usuario admin por defecto si no existe
             if (userRepo.count() == 0) {
                 System.out.println("🔄 Creando usuario admin por defecto...");
                 
@@ -65,6 +65,28 @@ public class DataInitializer {
                 System.out.println("✅ Usuario admin creado:");
                 System.out.println("   Username: admin");
                 System.out.println("   Password: admin123");
+                System.out.println("   ⚠️  Cambia esta contraseña en producción!");
+            }
+
+            // 3. Crear usuario auditor por defecto si no existe
+            if (!userRepo.existsByUsername("auditor")) {
+                System.out.println("🔄 Creando usuario auditor por defecto...");
+
+                Role audRole = roleRepo.findByName("AUDITOR").orElseThrow();
+
+                User auditor = new User();
+                auditor.setUsername("auditor");
+                auditor.setPasswordHash(SecurityUtils.hashSHA512("auditor123"));
+                auditor.setEmail("auditor@uptc.edu.co");
+                auditor.setFullName("Auditor del Sistema");
+                auditor.setRole(audRole);
+                auditor.setActive(true);
+
+                userRepo.save(auditor);
+
+                System.out.println("✅ Usuario auditor creado:");
+                System.out.println("   Username: auditor");
+                System.out.println("   Password: auditor123");
                 System.out.println("   ⚠️  Cambia esta contraseña en producción!");
             }
         };

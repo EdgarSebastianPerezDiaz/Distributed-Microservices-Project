@@ -54,7 +54,9 @@ spring:
         - id: auditoria-service
           uri: lb://servicio-auditoria
           predicates:
-            - Path=/api/eventos/**,/eventos/**
+            - Path=/api/eventos,/api/eventos/**
+          filters:
+            - StripPrefix=1
 
       # ==============================
       # CONFIGURACIÓN CORS GLOBAL
