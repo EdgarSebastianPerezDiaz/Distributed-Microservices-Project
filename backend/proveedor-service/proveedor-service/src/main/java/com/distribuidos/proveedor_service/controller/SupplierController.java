@@ -2,6 +2,7 @@ package com.distribuidos.proveedor_service.controller;
 
 import com.distribuidos.proveedor_service.dto.SupplierRequest;
 import com.distribuidos.proveedor_service.dto.SupplierResponse;
+import com.distribuidos.proveedor_service.dto.SupplierStatusChangeRequest;
 import com.distribuidos.proveedor_service.dto.SupplierUpdateRequest;
 import com.distribuidos.proveedor_service.model.PersonType;
 import com.distribuidos.proveedor_service.model.SupplierStatus;
@@ -73,11 +74,11 @@ public class SupplierController {
      * Permisos: Solo ADMINISTRADOR
      * Si se inactiva, valida que no tenga contratos activos
      */
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<SupplierResponse> changeSupplierStatus(
             @PathVariable UUID id,
-            @RequestParam SupplierStatus status) {
+            @Valid @RequestBody SupplierStatusChangeRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
@@ -86,9 +87,9 @@ public class SupplierController {
         String userEmail = principal.getEmail();
         String userRole = principal.getRole();
 
-        log.info("PATCH /api/suppliers/{}/status - Changing status to: {} by user: {}", id, status, userId);
+        log.info("PATCH /api/suppliers/{}/estado - Changing status to: {} by user: {}", id, request.getStatus(), userId);
 
-        SupplierResponse response = supplierService.changeSupplierStatus(id, status, userId, userEmail, userRole);
+        SupplierResponse response = supplierService.changeSupplierStatus(id, request.getStatus(), userId, userEmail, userRole);
         return ResponseEntity.ok(response);
     }
 

@@ -77,11 +77,28 @@ public class AuthController {
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
-    
+
+    /**
+     * ACTUALIZAR USUARIO - SOLO ADMIN
+     */
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody UserUpdateRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        
+        // Extraer adminId del token para auditoría
+        String token = authHeader.replace("Bearer ", "");
+        UUID adminId = jwtService.extractUserId(token);
+        
+        return ResponseEntity.ok(userService.updateUser(id, request, adminId));
+    }
+
     /**
      * CAMBIAR ESTADO (ACTIVAR/DESACTIVAR) - SOLO ADMIN
      */
-    @PatchMapping("/users/{id}/status")
+    @PatchMapping("/users/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> toggleStatus(
             @PathVariable UUID id,
