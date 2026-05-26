@@ -165,6 +165,43 @@ export class UserFormComponent implements OnInit {
         ? this.userService.updateUser(this.userId, base)
         : this.userService.createUser(base);
 
+    // If creating a new user, after successful creation activate it so it appears in lists
+    if (!this.isEditMode) {
+      request.subscribe({
+        next: (created: User) => {
+          // If backend returned the created user id, call activate endpoint
+          const id = (created as any)?.id;
+          if (id) {
+            this.userService.activateUser(id).subscribe({
+              next: () => {
+                this.loading = false;
+                // remove temporary placeholder if present
+                this.userService.tempUsers = (this.userService.tempUsers || []).filter(u => u.id !== id);
+                try { alert('Usuario creado y activado correctamente'); } catch (e) {}
+                this.router.navigate(['/users']);
+              },
+              error: (err) => {
+                this.loading = false;
+                console.error('Error al activar usuario:', err);
+                // still navigate back to list so user can see created record if backend made it active later
+                this.router.navigate(['/users']);
+              }
+            });
+          } else {
+            this.loading = false;
+            this.router.navigate(['/users']);
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('Error creating user:', error);
+          this.error = error.error?.message || 'Error al guardar el usuario';
+        }
+      });
+      return;
+    }
+
+    // Update existing user flow
     request.subscribe({
       next: () => {
         this.loading = false;

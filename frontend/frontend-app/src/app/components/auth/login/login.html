@@ -1,80 +1,143 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>Inicio de Sesión</mat-card-title>
-      <mat-card-subtitle>Ingresa tus credenciales para acceder</mat-card-subtitle>
-    </mat-card-header>
+<div class="login-wrapper">
+  <!-- Background decoration -->
+  <div class="bg-decoration"></div>
 
-    <mat-card-content>
-      <!-- Error Alert -->
-      <div class="error-message" *ngIf="error">
-        <mat-icon class="error-icon">error</mat-icon>
-        <span>{{ error }}</span>
+  <!-- Main Login Container -->
+  <div class="login-container">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <div class="logo-circle">
+        <mat-icon class="logo-icon">business</mat-icon>
       </div>
+      <h1 class="app-title">Portal de Compras</h1>
+      <p class="app-subtitle">Sistema de Gestión de Microservicios</p>
+    </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <!-- Username Field -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Usuario</mat-label>
-          <input
-            matInput
-            formControlName="username"
-            placeholder="Ingresa tu usuario"
-            [disabled]="loading"
-          />
-          <mat-error *ngIf="f['username'].hasError('required')">
-            El usuario es obligatorio
-          </mat-error>
-        </mat-form-field>
+    <!-- Login Card -->
+    <mat-card class="login-card">
+      <!-- Card Header -->
+      <mat-card-header>
+        <mat-card-title class="card-title">
+          <mat-icon class="title-icon">login</mat-icon>
+          Iniciar Sesión
+        </mat-card-title>
+        <mat-card-subtitle class="card-subtitle">
+          Ingresa tus credenciales para continuar
+        </mat-card-subtitle>
+      </mat-card-header>
 
-        <!-- Password Field -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Contraseña</mat-label>
-          <input
-            matInput
-            type="password"
-            formControlName="password"
-            placeholder="Ingresa tu contraseña"
-            [disabled]="loading"
-          />
-          <mat-error *ngIf="f['password'].hasError('required')">
-            La contraseña es obligatoria
-          </mat-error>
-          <mat-error *ngIf="f['password'].hasError('minlength')">
-            La contraseña debe tener al menos 6 caracteres
-          </mat-error>
-        </mat-form-field>
+      <!-- Card Content -->
+      <mat-card-content>
+        <!-- Error Alert -->
+        <div class="alert alert-error" *ngIf="error" [@fadeInOut]>
+          <mat-icon class="alert-icon">error_outline</mat-icon>
+          <div class="alert-content">
+            <span class="alert-title">Error de autenticación</span>
+            <span class="alert-message">{{ error }}</span>
+          </div>
+        </div>
 
-        <!-- Submit Button -->
-        <button
-          mat-raised-button
-          color="primary"
-          class="full-width submit-button"
-          [disabled]="loading"
-        >
-          <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
-          <span *ngIf="!loading">Ingresar</span>
-        </button>
-      </form>
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Username Field -->
+          <div class="form-field-group">
+            <mat-form-field
+              class="full-width"
+              appearance="outline"
+              [class.has-error]="f['username'].invalid && submitted"
+            >
+              <mat-label>Usuario o Email</mat-label>
+              <mat-icon matPrefix class="field-icon">person</mat-icon>
+              <input
+                matInput
+                formControlName="username"
+                placeholder="admin@example.com"
+                [disabled]="loading"
+                autocomplete="username"
+              />
+              <mat-error *ngIf="f['username'].hasError('required')">
+                <mat-icon class="error-icon-inline">info</mat-icon>
+                El usuario es obligatorio
+              </mat-error>
+            </mat-form-field>
+            <p class="field-hint" *ngIf="!f['username'].errors">
+              <mat-icon class="hint-icon">info</mat-icon>
+              Ejemplo: admin, usuario@example.com
+            </p>
+          </div>
 
-      <div class="divider-row" aria-hidden="true">
-        <span>o</span>
-      </div>
+          <!-- Password Field -->
+          <div class="form-field-group">
+            <mat-form-field
+              class="full-width"
+              appearance="outline"
+              [class.has-error]="f['password'].invalid && submitted"
+            >
+              <mat-label>Contraseña</mat-label>
+              <mat-icon matPrefix class="field-icon">lock</mat-icon>
+              <input
+                matInput
+                [type]="hidePassword ? 'password' : 'text'"
+                formControlName="password"
+                placeholder="••••••••"
+                [disabled]="loading"
+                autocomplete="current-password"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="hidePassword = !hidePassword"
+                type="button"
+                [disabled]="loading"
+                class="toggle-password"
+              >
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="f['password'].hasError('required')">
+                <mat-icon class="error-icon-inline">info</mat-icon>
+                La contraseña es obligatoria
+              </mat-error>
+              <mat-error *ngIf="f['password'].hasError('minlength')">
+                <mat-icon class="error-icon-inline">info</mat-icon>
+                Mínimo 6 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-      <div class="secondary-action">
-        <div class="secondary-text">¿Necesitas crear una cuenta institucional?</div>
-        <div class="secondary-hint">Abre el formulario para ingresar los datos del usuario.</div>
-        <button
-          mat-stroked-button
-          color="primary"
-          class="secondary-button"
-          type="button"
-          [disabled]="loading"
-          (click)="goToRegister()"
-        >
-          Registrar usuario
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+          <!-- Submit Button -->
+          <button
+            mat-raised-button
+            color="primary"
+            class="login-button"
+            [disabled]="loading || loginForm.invalid"
+            type="submit"
+          >
+            <mat-icon *ngIf="!loading" class="button-icon">login</mat-icon>
+            <mat-spinner
+              *ngIf="loading"
+              diameter="20"
+              class="button-spinner"
+            ></mat-spinner>
+            <span class="button-text">{{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}</span>
+          </button>
+
+          <!-- Additional Info -->
+          <div class="login-info">
+            <p class="info-text">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span>¿Necesitas ayuda? Contacta al administrador del sistema</span>
+            </p>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p class="footer-text">
+        <span class="version-badge">v1.0</span>
+        Sistema de Gestión de Compras © 2026
+      </p>
+    </div>
+  </div>
 </div>

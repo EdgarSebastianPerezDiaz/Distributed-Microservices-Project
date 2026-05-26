@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -13,10 +13,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { SupplierService } from '../../../services/supplier';
 import { AuthService } from '../../../services/auth';
-import { Supplier, SupplierStatus, PersonType } from '../../../models/supplier.model';
 import { UserRole } from '../../../models/auth.model';
+import { Supplier, SupplierStatus, PersonType } from '../../../models/supplier.model';
 
 @Component({
   selector: 'app-supplier-list',
@@ -40,7 +42,7 @@ import { UserRole } from '../../../models/auth.model';
   styleUrl: './supplier-list.scss',
 })
 export class SupplierListComponent implements OnInit {
-  displayedColumns: string[] = ['nit', 'businessName', 'email', 'phone', 'personType', 'status', 'actions'];
+  displayedColumns: string[] = ['nombre', 'nit', 'email', 'telefono', 'estado', 'actions'];
   suppliers: Supplier[] = [];
   loading = false;
   
@@ -49,12 +51,17 @@ export class SupplierListComponent implements OnInit {
   pageSize = 10;
   currentPage = 0;
   
-  // Search
+  // Search and filters
   searchTerm = '';
+  statusFilter: SupplierStatus | 'ALL' = 'ALL';
+  personTypeFilter: PersonType | 'ALL' = 'ALL';
+  private searchTerms$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
   
+  UserRole = UserRole;
   SupplierStatus = SupplierStatus;
   PersonType = PersonType;
-  UserRole = UserRole;
+  currentUserRole: UserRole | null = null;
 
   constructor(
     private supplierService: SupplierService,
@@ -63,22 +70,77 @@ export class SupplierListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.currentUserRole = this.authService.getUserRole();
+    this.initSearchSubscription();
+    this.loadData();
+
+    // Refresh when service signals mutations
+    this.supplierService.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loadSuppliers();
+    });
+  }
+
+  // Public alias used by templates to load data when filters change
+  loadData() {
+    this.currentPage = 0;
     this.loadSuppliers();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initSearchSubscription() {
+    this.searchTerms$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 0;
+        this.loadSuppliers();
+      });
   }
 
   loadSuppliers() {
     this.loading = true;
-    this.supplierService.getSuppliers(this.currentPage, this.pageSize, this.searchTerm).subscribe({
-      next: (response) => {
-        this.suppliers = response.content;
-        this.totalElements = response.totalElements;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading suppliers:', error);
-        this.loading = false;
-      }
-    });
+    this.supplierService
+      .getSuppliers(
+        this.currentPage,
+        this.pageSize,
+        this.searchTerm,
+        this.statusFilter,
+        this.personTypeFilter
+      )
+      .subscribe({
+        next: (response) => {
+          this.suppliers = response.content || [];
+          this.totalElements = response.totalElements ?? response.content?.length ?? 0;
+
+          // If supplierService ever provides temp entries, prepend them similarly to users
+          // to ensure newly created suppliers are visible immediately.
+          const temps = (this.supplierService as any).tempSuppliers || [];
+          if (temps.length) {
+            const visibleTemps = temps.map((t: Supplier) => ({ ...t, status: SupplierStatus.HABILITADO } as Supplier));
+            this.suppliers = [...visibleTemps, ...this.suppliers].filter((s, i, self) => self.findIndex(x => x.id === s.id) === i);
+            this.totalElements = Math.max(this.totalElements || 0, this.suppliers.length);
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading suppliers:', error);
+          this.loading = false;
+        }
+      });
+  }
+
+  onSearchTermChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm = value;
+    this.searchTerms$.next(value);
+  }
+
+  onFilterChange() {
+    this.currentPage = 0;
+    this.loadSuppliers();
   }
 
   onPageChange(event: PageEvent) {
@@ -94,6 +156,8 @@ export class SupplierListComponent implements OnInit {
 
   clearSearch() {
     this.searchTerm = '';
+    this.statusFilter = 'ALL';
+    this.personTypeFilter = 'ALL';
     this.currentPage = 0;
     this.loadSuppliers();
   }
@@ -117,31 +181,17 @@ export class SupplierListComponent implements OnInit {
   toggleSupplierStatus(supplier: Supplier) {
     if (!supplier.id) return;
 
-    if (supplier.status === SupplierStatus.HABILITADO) {
-      this.disableSupplier(supplier.id);
-    } else {
-      this.enableSupplier(supplier.id);
-    }
+    const nuevoEstado = supplier.status === SupplierStatus.HABILITADO ? SupplierStatus.INHABILITADO : SupplierStatus.HABILITADO;
+    this.changeSupplierStatus(supplier.id, nuevoEstado);
   }
 
-  enableSupplier(id: string) {
-    this.supplierService.enableSupplier(id).subscribe({
+  changeSupplierStatus(id: string, status: SupplierStatus) {
+    this.supplierService.changeStatus(id, status).subscribe({
       next: () => {
         this.loadSuppliers();
       },
       error: (error) => {
-        console.error('Error enabling supplier:', error);
-      }
-    });
-  }
-
-  disableSupplier(id: string) {
-    this.supplierService.disableSupplier(id).subscribe({
-      next: () => {
-        this.loadSuppliers();
-      },
-      error: (error) => {
-        console.error('Error disabling supplier:', error);
+        console.error('Error changing supplier status:', error);
       }
     });
   }
@@ -165,3 +215,4 @@ export class SupplierListComponent implements OnInit {
     return this.authService.hasRole(UserRole.ADMINISTRADOR);
   }
 }
+

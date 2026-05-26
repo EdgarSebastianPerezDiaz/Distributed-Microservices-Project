@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole } from '../models/auth.model';
 
@@ -24,59 +24,99 @@ export class AuthService {
     this.loadCurrentUser();
   }
 
+  /**
+   * Realizar login con credenciales (legacy JWT method)
+   */
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/api/auth/login`, credentials)
-      .pipe(
-        tap(response => {
-          this.saveToken(response.token);
-          this.currentUserSubject.next(response.user);
-          this.isAuthenticatedSubject.next(true);
-          sessionStorage.setItem('user', JSON.stringify(response.user));
-        })
-      );
+    return this.http.post<LoginResponse>(
+      `${this.apiUrl}/api/auth/login`,
+      credentials
+    ).pipe(
+      tap(response => {
+        this.saveToken(response.token);
+        this.currentUserSubject.next(response.user);
+        this.isAuthenticatedSubject.next(true);
+        localStorage.setItem('user', JSON.stringify(response.user));
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Login error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
+  /**
+   * Registrar nuevo usuario (solo ADMIN)
+   */
   register(payload: RegisterRequest): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/api/auth/register`, payload);
+    return this.http.post<User>(
+      `${this.apiUrl}/api/auth/register`,
+      payload
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Register error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
+  /**
+   * Cerrar sesión
+   */
   logout(): void {
     localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    localStorage.removeItem('user');
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
-    
-    // Navegar a login después de logout
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Obtener token JWT del almacenamiento
+   */
   getToken(): string | null {
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
+    return localStorage.getItem('token');
   }
 
+  /**
+   * Guardar token JWT en almacenamiento
+   */
   saveToken(token: string): void {
     localStorage.setItem('token', token);
-    sessionStorage.setItem('token', token);
   }
 
+  /**
+   * Verificar si el usuario está autenticado
+   */
   isLoggedIn(): boolean {
     return this.hasToken();
   }
 
+  /**
+   * Verificar si existe token
+   */
   private hasToken(): boolean {
     return !!this.getToken();
   }
 
+  /**
+   * Obtener usuario actual
+   */
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
+  /**
+   * Obtener rol del usuario actual
+   */
   getUserRole(): UserRole | null {
     const user = this.getCurrentUser();
     return user ? user.role : null;
   }
 
+  /**
+   * Verificar si el usuario tiene un rol específico
+   */
   hasRole(role: UserRole | UserRole[]): boolean {
     const userRole = this.getUserRole();
     if (!userRole) return false;
@@ -85,25 +125,18 @@ export class AuthService {
     return rolesArray.includes(userRole);
   }
 
+  /**
+   * Cargar usuario actual del almacenamiento local
+   */
   private loadCurrentUser(): void {
-    // Primero intenta sessionStorage (sesión actual)
-    let userJson = sessionStorage.getItem('user');
-    
-    // Si no está en sessionStorage, busca en localStorage
-    if (!userJson) {
-      userJson = localStorage.getItem('user');
-    }
-
+    const userJson = localStorage.getItem('user');
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
         this.currentUserSubject.next(user);
-        // Si estaba en localStorage pero no en sessionStorage, sincronizar
-        if (!sessionStorage.getItem('user')) {
-          sessionStorage.setItem('user', userJson);
-        }
       } catch (e) {
         console.error('Error parsing user from storage', e);
+        localStorage.removeItem('user');
       }
     }
   }

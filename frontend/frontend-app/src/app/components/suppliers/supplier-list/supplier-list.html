@@ -30,6 +30,7 @@
         <input
           matInput
           [(ngModel)]="searchTerm"
+          (input)="onSearchTermChange($event)"
           (keyup.enter)="onSearch()"
           placeholder="Buscar por NIT o nombre..."
         >
@@ -37,19 +38,29 @@
 
       <mat-form-field appearance="outline" class="select">
         <mat-label>Tipo Persona</mat-label>
-        <mat-select [disabled]="true" value="ALL">
+        <mat-select [(ngModel)]="personTypeFilter" (selectionChange)="onFilterChange()" (change)="onFilterChange()">
           <mat-option value="ALL">Todos</mat-option>
+          <mat-option [value]="PersonType.JURIDICA">Jurídica</mat-option>
+          <mat-option [value]="PersonType.NATURAL">Natural</mat-option>
         </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="select">
         <mat-label>Estado</mat-label>
-        <mat-select [disabled]="true" value="ALL">
+        <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()" (change)="onFilterChange()">
           <mat-option value="ALL">Todos</mat-option>
+          <mat-option [value]="SupplierStatus.HABILITADO">Habilitado</mat-option>
+          <mat-option [value]="SupplierStatus.INHABILITADO">Inhabilitado</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <button mat-stroked-button type="button" (click)="clearSearch()" *ngIf="searchTerm" class="pill-clear">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="clearSearch()"
+        *ngIf="searchTerm || statusFilter !== 'ALL' || personTypeFilter !== 'ALL'"
+        class="pill-clear"
+      >
         Limpiar
       </button>
     </div>
