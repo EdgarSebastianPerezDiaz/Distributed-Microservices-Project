@@ -39,7 +39,7 @@ test('Usuarios y Proveedores - flujo completo (UI)', async ({ page }) => {
   // 2. Login admin
   await tryStep('Login admin', page, async () => {
     await page.fill('input[formcontrolname="username"]', 'admin');
-    await page.fill('input[formcontrolname="password"]', 'Admin@123');
+    await page.fill('input[formcontrolname="password"]', 'admin123');
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle' }),
       page.click('button:has-text("Ingresar")').catch(() => page.click('button:has-text("Login")').catch(() => page.click('button[type="submit"]')))
