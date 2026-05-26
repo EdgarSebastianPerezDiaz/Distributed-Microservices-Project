@@ -130,7 +130,7 @@ export class UserListComponent implements OnInit {
           const temps = this.userService.tempUsers || [];
           if (temps.length) {
             // create visible copies (mark active true for UI only) and prepend
-            const visibleTemps = temps.map(t => ({ ...t, active: true } as User));
+            const visibleTemps = temps.map(t => ({ ...t, __pending: true } as any));
             // combine and remove duplicates by id, keeping first occurrence
             this.users = [...visibleTemps, ...this.users].filter((u, i, self) => self.findIndex(s => s.id === u.id) === i);
             this.totalElements = Math.max(this.totalElements || 0, this.users.length);

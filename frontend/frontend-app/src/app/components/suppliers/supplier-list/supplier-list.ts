@@ -112,21 +112,47 @@ export class SupplierListComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          this.suppliers = response.content || [];
-          this.totalElements = response.totalElements ?? response.content?.length ?? 0;
+          // Robust handling of possible response shapes coming from different backends
+          const resp: any = response;
+          let items: Supplier[] = [];
+          let total = 0;
 
-          // If supplierService ever provides temp entries, prepend them similarly to users
-          // to ensure newly created suppliers are visible immediately.
-          const temps = (this.supplierService as any).tempSuppliers || [];
-          if (temps.length) {
-            const visibleTemps = temps.map((t: Supplier) => ({ ...t, status: SupplierStatus.HABILITADO } as Supplier));
-            this.suppliers = [...visibleTemps, ...this.suppliers].filter((s, i, self) => self.findIndex(x => x.id === s.id) === i);
-            this.totalElements = Math.max(this.totalElements || 0, this.suppliers.length);
+          if (Array.isArray(resp)) {
+            items = resp as Supplier[];
+            total = items.length;
+          } else if (resp?.content && Array.isArray(resp.content)) {
+            items = resp.content as Supplier[];
+            total = resp.totalElements ?? resp.content.length;
+          } else if (resp?.data && Array.isArray(resp.data)) {
+            items = resp.data as Supplier[];
+            total = resp.data.length;
+          } else if (resp?.items && Array.isArray(resp.items)) {
+            // some APIs use 'items'
+            items = resp.items as Supplier[];
+            total = resp.totalElements ?? resp.items.length;
+          } else {
+            console.error('Formato de respuesta inesperado en getSuppliers():', resp);
+            items = [];
+            total = 0;
           }
+
+          // Merge UI-only temporary entries (if any) so newly created suppliers appear immediately.
+          const temps = (this.supplierService as any).tempSuppliers || [];
+          if (Array.isArray(temps) && temps.length) {
+            const visibleTemps = temps.map((t: Supplier) => ({ ...t, __pending: true } as any));
+            // Prepend temps and remove duplicates by id (keep first occurrence)
+            items = [...visibleTemps, ...items].filter((s, i, self) => self.findIndex(x => x.id === s.id) === i);
+            total = Math.max(total || 0, items.length);
+          }
+
+          this.suppliers = items;
+          this.totalElements = total || 0;
           this.loading = false;
         },
         error: (error) => {
           console.error('Error loading suppliers:', error);
+          this.suppliers = [];
+          this.totalElements = 0;
           this.loading = false;
         }
       });

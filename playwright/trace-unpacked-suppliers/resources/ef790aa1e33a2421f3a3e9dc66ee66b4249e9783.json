@@ -1,0 +1,1 @@
+{"codigo":"PRV_002","mensaje":"Duplicate value: nit","detalles":[{"error":"NIT already exists: 900_508727-9","campo":"nit"}],"timestamp":"2026-05-26T09:58:29.3716732","path":"/api/suppliers"}

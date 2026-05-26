@@ -1,0 +1,129 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: playwright\tests\frontend-completo.spec.ts >> Frontend + API smoke: Users & Suppliers >> UI: Login admin, users page loads, create user via UI and visibility, role segregation
+- Location: playwright\tests\frontend-completo.spec.ts:196:7
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 0
+Received: 10
+```
+
+# Test source
+
+```ts
+  186 |       expect([200,204,403].includes(change.status())).toBeTruthy();
+  187 |     }
+  188 | 
+  189 |     // Delete
+  190 |     if (supplierId) {
+  191 |       const del = await apiContext.delete(`/api/suppliers/${supplierId}`, { headers });
+  192 |       expect([200,204].includes(del.status())).toBeTruthy();
+  193 |     }
+  194 |   });
+  195 | 
+  196 |   test('UI: Login admin, users page loads, create user via UI and visibility, role segregation', async ({ page }) => {
+  197 |     test.setTimeout(300000);
+  198 |     // Go to app
+  199 |     await page.goto(APP_BASE, { waitUntil: 'networkidle' });
+  200 | 
+  201 |     // Login (UI)
+  202 |     await page.fill("input[formcontrolname='username']", ADMIN_USER);
+  203 |     await page.fill("input[formcontrolname='password']", ADMIN_PASS);
+  204 |     await page.click('button[type="submit"], button:has-text("Ingresar"), button:has-text("Login")').catch(() => {});
+  205 |     // If login didn't succeed (still on login form), try a common alternate password
+  206 |     await page.waitForTimeout(1000);
+  207 |     const stillOnLogin = await page.locator("input[formcontrolname='username']").count();
+  208 |     if (stillOnLogin) {
+  209 |       const altPass = ADMIN_PASS === 'admin123' ? 'Admin@123' : 'admin123';
+  210 |       await page.fill("input[formcontrolname='username']", ADMIN_USER).catch(()=>{});
+  211 |       await page.fill("input[formcontrolname='password']", altPass).catch(()=>{});
+  212 |       await page.click('button[type="submit"], button:has-text("Ingresar"), button:has-text("Login")').catch(() => {});
+  213 |     }
+  214 |     // Ensure dashboard or root loads by waiting for a known selector
+  215 |     await page.waitForSelector('app-root, nav.mat-toolbar, .main-layout', { timeout: 20000 }).catch(()=>{});
+  216 | 
+  217 |     // Navigate to users
+  218 |     await page.goto(`${APP_BASE}/users`);
+  219 |     // Table should load automatically - wait for table or empty state
+  220 |     await page.waitForSelector('table.users-table, .empty-state, .loading-spinner', { timeout: 20000 });
+  221 | 
+  222 |     // Create a user via UI
+  223 |     await page.click('button:has-text("Crear usuario")');
+  224 |     await page.waitForSelector('form');
+  225 |     const username = unique('ui_user');
+  226 |     await page.fill("input[formcontrolname='username']", username);
+  227 |     await page.fill("input[formcontrolname='email']", `${username}@example.com`);
+  228 |     await page.fill("input[formcontrolname='fullName']", 'UI Test');
+  229 |     await page.fill("input[formcontrolname='password']", 'Passw0rd!');
+  230 |     await page.fill("input[formcontrolname='confirmPassword']", 'Passw0rd!');
+  231 |     // Role select
+  232 |     await page.click('mat-select[formcontrolname="role"]');
+  233 |     await page.waitForSelector('mat-option:has-text("Funcionario")', { timeout: 5000 }).catch(()=>{});
+  234 |     await page.click('mat-option:has-text("Funcionario")').catch(()=>{});
+  235 | 
+  236 |     await page.click('button:has-text("Guardar"), button[type="submit"]').catch(() => {});
+  237 |     await page.waitForTimeout(1000);
+  238 | 
+  239 |     // After create, user should appear in list. Use search box to find it.
+  240 |     await page.fill('input[placeholder*="Buscar"], input[formcontrolname="search"]', username).catch(()=>{});
+  241 |     await page.waitForTimeout(1200);
+  242 |     // Wait for table or cards
+  243 |     await page.waitForSelector(`span.mono:has-text("${username}")`, { timeout: 10000 }).catch(()=>{});
+  244 | 
+  245 |     // Safe logout: avoid clicking UI logout which in some builds closes the page.
+  246 |     // Clear token and reload instead, then use a fresh page for login attempts.
+  247 |     await page.evaluate(() => { try { localStorage.removeItem('token'); localStorage.removeItem('user'); } catch (e) {} });
+  248 |     await page.reload({ waitUntil: 'networkidle' }).catch(()=>{});
+  249 | 
+  250 |     // Use a new page for login attempts to avoid any page-close side-effects
+  251 |     const loginPage = await page.context().newPage();
+  252 |     await loginPage.goto(APP_BASE, { waitUntil: 'networkidle' });
+  253 |     await loginPage.fill("input[formcontrolname='username']", username).catch(()=>{});
+  254 |     await loginPage.fill("input[formcontrolname='password']", 'Passw0rd!').catch(()=>{});
+  255 |     await loginPage.click('button[type="submit"], button:has-text("Ingresar")').catch(()=>{});
+  256 |     await loginPage.waitForTimeout(1000);
+  257 | 
+  258 |     // If user can't login (not activated), log back in as admin to validate segregation
+  259 |     if (!/dashboard|\/users|admin/.test(loginPage.url())) {
+  260 |       // fallback to admin login using a fresh page
+  261 |       await loginPage.goto(APP_BASE, { waitUntil: 'networkidle' });
+  262 |       await loginPage.fill("input[formcontrolname='username']", ADMIN_USER);
+  263 |       await loginPage.fill("input[formcontrolname='password']", ADMIN_PASS);
+  264 |       await loginPage.click('button[type="submit"], button:has-text("Ingresar")').catch(()=>{});
+  265 |       await loginPage.waitForSelector('app-root, nav.mat-toolbar, .main-layout', { timeout: 20000 }).catch(()=>{});
+  266 |     }
+  267 | 
+  268 |     // Now verify funcionario role segregation: create a funcionario and validate it sees only suppliers
+  269 |     // Create a funcionario via API (so activation is immediate if backend allows)
+  270 |     const funcUser = unique('func_user');
+  271 |     const createRes = await apiContext.post('/api/auth/register', { data: { username: funcUser, email: `${funcUser}@example.com`, password: 'Passw0rd!', fullName: 'Func Test', role: 'FUNCIONARIO' }, headers: { Authorization: `Bearer ${adminToken}` } });
+  272 |     const funcCreated = await createRes.json();
+  273 | 
+  274 |     // Login as funcionario via UI
+  275 |     await page.goto(APP_BASE);
+  276 |     await page.fill("input[formcontrolname='username']", funcUser);
+  277 |     await page.fill("input[formcontrolname='password']", 'Passw0rd!');
+  278 |     await page.click('button[type="submit"], button:has-text("Ingresar")').catch(()=>{});
+  279 |     await page.waitForSelector('app-root, nav.mat-toolbar, .main-layout', { timeout: 20000 }).catch(()=>{});
+  280 | 
+  281 |     // Navigate to /suppliers and check no edit buttons for funcionario
+  282 |     await page.goto(`${APP_BASE}/suppliers`);
+  283 |     // Wait for suppliers to load
+  284 |     await page.waitForSelector('mat-card.supplier-card, .empty-state', { timeout: 10000 });
+  285 |     const editButtons = await page.locator('button:has-text("Editar")').count();
+> 286 |     expect(editButtons).toBe(0);
+      |                         ^ Error: expect(received).toBe(expected) // Object.is equality
+  287 |   });
+  288 | });
+  289 | 
+```
