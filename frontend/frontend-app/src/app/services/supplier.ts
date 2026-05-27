@@ -70,7 +70,9 @@ export class SupplierService {
       tap((created: Supplier) => {
         this.refresh$.next();
         if (created) {
-          this.tempSuppliers.push(created);
+          // mark as pending for immediate UI visibility until the server
+          // confirms the created resource (keeps __pending flag)
+          this.tempSuppliers.push({ ...created, __pending: true } as Supplier);
         }
       }),
       catchError(this.handleError)
@@ -101,7 +103,7 @@ export class SupplierService {
    * Activar/Habilitar proveedor (solo ADMIN)
    */
   enableSupplier(id: string): Observable<Supplier> {
-    return this.http.patch<Supplier>(`${this.apiUrl}/api/suppliers/${id}/estado`, { estado: 'HABILITADO' }).pipe(
+    return this.http.patch<Supplier>(`${this.apiUrl}/api/suppliers/${id}/estado`, { status: SupplierStatus.HABILITADO }).pipe(
       tap(() => this.refresh$.next()),
       catchError(this.handleError)
     );
@@ -111,7 +113,7 @@ export class SupplierService {
    * Desactivar/Inhabilitar proveedor (solo ADMIN)
    */
   disableSupplier(id: string): Observable<Supplier> {
-    return this.http.patch<Supplier>(`${this.apiUrl}/api/suppliers/${id}/estado`, { estado: 'INHABILITADO' }).pipe(
+    return this.http.patch<Supplier>(`${this.apiUrl}/api/suppliers/${id}/estado`, { status: SupplierStatus.INHABILITADO }).pipe(
       tap(() => this.refresh$.next()),
       catchError(this.handleError)
     );
@@ -121,10 +123,7 @@ export class SupplierService {
    * Cambiar estado del proveedor (genérico)
    */
   changeStatus(id: string, status: 'HABILITADO' | 'INHABILITADO'): Observable<Supplier> {
-    return this.http.patch<Supplier>(
-      `${this.apiUrl}/api/suppliers/${id}/estado`,
-      { estado: status }
-    ).pipe(
+    return this.http.patch<Supplier>(`${this.apiUrl}/api/suppliers/${id}/estado`, { status }).pipe(
       catchError(this.handleError)
     );
   }

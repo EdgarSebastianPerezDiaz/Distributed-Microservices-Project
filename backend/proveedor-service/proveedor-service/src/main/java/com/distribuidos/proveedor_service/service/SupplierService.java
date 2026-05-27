@@ -283,6 +283,34 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
     }
 
     /**
+     * Verificar si un NIT está disponible
+     */
+    @Transactional(readOnly = true)
+    public boolean isNitAvailable(String nit) {
+        return !supplierRepository.existsByNit(nit);
+    }
+
+    /**
+     * Verificar si un email está disponible
+     */
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !supplierRepository.existsByEmail(email);
+    }
+
+    /**
+     * Borrado lógico de proveedor: cambia a INHABILITADO (usa la misma validación que changeSupplierStatus)
+     */
+    @Transactional
+    public void deleteSupplier(UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+
+        // Reutilizar la lógica de cambio de estado para respetar validaciones
+        changeSupplierStatus(id, SupplierStatus.INHABILITADO, principal.getUserId(), principal.getEmail(), principal.getRole());
+    }
+
+    /**
      * Obtener proveedor como entidad (para comunicación interna)
      */
     @Transactional(readOnly = true)

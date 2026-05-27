@@ -135,10 +135,12 @@ export class ProveedorService {
    * @param estado nuevo estado (ACTIVO | INACTIVO)
    * @returns Observable con el proveedor actualizado
    */
-  cambiarEstado(id: string, estado: 'ACTIVO' | 'INACTIVO'): Observable<Proveedor> {
+  cambiarEstado(id: string, estado: 'ACTIVO' | 'INACTIVO' | 'HABILITADO' | 'INHABILITADO'): Observable<Proveedor> {
+    // Mapir estados legacy a los enums que acepta el backend
+    const statusValue = (estado === 'ACTIVO') ? 'HABILITADO' : (estado === 'INACTIVO' ? 'INHABILITADO' : estado);
     return this.http.patch<Proveedor>(
       `${this.apiUrl}/api/suppliers/${id}/estado`,
-      { status: estado, estado }
+      { status: statusValue }
     ).pipe(
       catchError(this.handleError)
     );

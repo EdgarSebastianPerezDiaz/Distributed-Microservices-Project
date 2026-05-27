@@ -75,11 +75,11 @@
       <div class="supplier-card__top">
         <span
           class="status-badge"
-          [class.is-on]="s.status === SupplierStatus.HABILITADO && !s.__pending"
-          [class.is-off]="s.status === SupplierStatus.INHABILITADO && !s.__pending"
-          [class.is-pending]="s.__pending"
+          [class.is-on]="s.status === SupplierStatus.HABILITADO && s.__pending !== true"
+          [class.is-off]="s.status === SupplierStatus.INHABILITADO && s.__pending !== true"
+          [class.is-pending]="s.__pending === true"
         >
-          {{ s.__pending ? 'Pendiente' : (s.status === SupplierStatus.HABILITADO ? 'Habilitado' : 'Inhabilitado') }}
+          {{ s.__pending === true ? 'Pendiente' : (s.status === SupplierStatus.HABILITADO ? 'Habilitado' : 'Inhabilitado') }}
         </span>
         <div class="nit">NIT: <span class="mono">{{ s.nit }}</span></div>
       </div>

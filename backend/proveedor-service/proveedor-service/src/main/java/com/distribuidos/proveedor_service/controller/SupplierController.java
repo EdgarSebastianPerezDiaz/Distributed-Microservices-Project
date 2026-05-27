@@ -46,6 +46,28 @@ public class SupplierController {
     }
 
     /**
+     * Validar disponibilidad de NIT
+     * GET /api/suppliers/validate/nit?nit=XXX
+     */
+    @GetMapping("/validate/nit")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FUNCIONARIO','AUDITOR')")
+    public ResponseEntity<java.util.Map<String, Boolean>> validateNit(@RequestParam String nit) {
+        boolean available = supplierService.isNitAvailable(nit);
+        return ResponseEntity.ok(java.util.Map.of("available", available));
+    }
+
+    /**
+     * Validar disponibilidad de email
+     * GET /api/suppliers/validate/email?email=XXX
+     */
+    @GetMapping("/validate/email")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FUNCIONARIO','AUDITOR')")
+    public ResponseEntity<java.util.Map<String, Boolean>> validateEmail(@RequestParam String email) {
+        boolean available = supplierService.isEmailAvailable(email);
+        return ResponseEntity.ok(java.util.Map.of("available", available));
+    }
+
+    /**
      * Actualizar proveedor existente
      * Permisos: ADMINISTRADOR solamente
      * Solo se pueden modificar: razón social, teléfono, estado
@@ -121,6 +143,16 @@ public class SupplierController {
 
         SupplierResponse supplier = supplierService.getSupplierById(id);
         return ResponseEntity.ok(supplier);
+    }
+
+    /**
+     * Eliminar proveedor (baja lógica) -> INHABILITADO
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deleteSupplier(@PathVariable UUID id) {
+        supplierService.deleteSupplier(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**
