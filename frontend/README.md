@@ -1,33 +1,212 @@
-# Frontend - Dev1
+# Frontend - Aplicación Angular
 
 ## 📋 Descripción
 
-Carpeta dedicada al frontend del proyecto **Dev1** (Desarrollador 1). Aquí se generará la aplicación Angular que se integra con el backend de microservicios.
+Frontend de la aplicación de microservicios. Aplicación Angular que se conecta con el backend de microservicios a través del API Gateway (puerto 8081).
 
-## 🏗️ Estructura (A Generar)
+**Estado:** ✅ **INTEGRACIÓN COMPLETADA**
+
+## ✨ Cambios Realizados (May 19, 2026)
+
+### 1. Servicios Implementados/Actualizados
+- ✅ **AuthService** - Login, logout, gestión de tokens JWT
+- ✅ **UserService** - CRUD de usuarios + nuevo método `getCurrentUser()` y `updateUserStatus()`
+- ✅ **ProveedorService** - NUEVO - Conexión a `/api/proveedores` (endpoints correctos)
+- ✅ **HttpInterceptor** - Agrega token Bearer + manejo de 401 Unauthorized
+
+### 2. Componentes Actualizados
+- ✅ **LoginComponent** - Funcionando con backend
+- ✅ **UserListComponent** - Conectado a UserService
+- ✅ **SupplierListComponent** - Actualizado a ProveedorService con endpoints `/api/proveedores`
+
+### 3. Configuración
+- ✅ **environment.ts** - API URL configurada a `http://localhost:8081`
+- ✅ **environment.prod.ts** - NUEVO - Archivo de producción
+
+### 4. Documentación
+- ✅ **QUICKSTART.md** - Guía rápida de 5 pasos
+- ✅ **INTEGRACION_FRONTEND_BACKEND.md** - Documentación completa
+- ✅ **TROUBLESHOOTING.md** - Guía de problemas comunes
+
+## 🚀 INICIO RÁPIDO
+
+```powershell
+# 1. Instalar dependencias
+cd frontend/frontend-app
+npm install
+
+# 2. Iniciar servidor de desarrollo
+ng serve --open
+
+# 3. Login con credenciales
+# Usuario: admin
+# Contraseña: Admin@123
+
+# 4. Navegar por la aplicación
+# - http://localhost:4200/login (login)
+# - http://localhost:4200/users (listado de usuarios)
+# - http://localhost:4200/suppliers (listado de proveedores)
+```
+
+Ver más en: [QUICKSTART.md](QUICKSTART.md)
+
+## 📁 Estructura Actualizada
 
 ```
 frontend/
-├── frontend-dev1/                 # Proyecto Angular (ng new --routing --style=css)
+├── frontend-app/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── components/
-│   │   │   │   ├── login/
-│   │   │   │   │   ├── login.component.ts
-│   │   │   │   │   ├── login.component.html
-│   │   │   │   │   └── login.component.css
-│   │   │   │   ├── register/
-│   │   │   │   ├── user-list/
-│   │   │   │   ├── user-profile/
-│   │   │   │   └── navbar/
 │   │   │   ├── services/
-│   │   │   │   ├── auth.service.ts
-│   │   │   │   ├── user.service.ts
-│   │   │   │   └── api.interceptor.ts
-│   │   │   ├── guards/
-│   │   │   │   └── auth.guard.ts
-│   │   │   ├── models/
-│   │   │   │   ├── auth.model.ts
+│   │   │   │   ├── auth.ts              ✅ Completo
+│   │   │   │   ├── user.ts              ✅ Actualizado
+│   │   │   │   ├── proveedor.ts         ✅ NUEVO
+│   │   │   │   └── supplier.ts          (Legacy)
+│   │   │   ├── interceptors/
+│   │   │   │   └── auth-interceptor.ts  ✅ Mejorado
+│   │   │   ├── components/
+│   │   │   │   ├── auth/login/          ✅ Funcional
+│   │   │   │   ├── users/               ✅ Conectado
+│   │   │   │   └── suppliers/           ✅ Actualizado
+│   │   │   ├── guards/                  ✅ En lugar
+│   │   │   ├── models/                  ✅ Completo
+│   │   │   └── app.config.ts            ✅ Interceptor registrado
+│   │   └── environments/
+│   │       ├── environment.ts           ✅ Configurado
+│   │       └── environment.prod.ts      ✅ NUEVO
+│   └── package.json
+├── QUICKSTART.md                        ✅ NUEVO
+├── INTEGRACION_FRONTEND_BACKEND.md      ✅ NUEVO
+└── TROUBLESHOOTING.md                   ✅ NUEVO
+```
+
+## 🔌 Endpoints Conectados
+
+### Autenticación (usuario-service → gateway:8081)
+| Método | Ruta | Status |
+|--------|------|--------|
+| POST | `/api/auth/login` | ✅ Conectado |
+| GET | `/api/auth/me` | ✅ Implementado |
+| GET | `/api/auth/users` | ✅ Conectado |
+| POST | `/api/auth/register` | ✅ Conectado |
+| PATCH | `/api/users/{id}/status` | ✅ Implementado |
+
+### Proveedores (proveedor-service → gateway:8081)
+| Método | Ruta | Status |
+|--------|------|--------|
+| GET | `/api/proveedores` | ✅ Conectado |
+| GET | `/api/proveedores/{id}` | ✅ Conectado |
+| POST | `/api/proveedores` | ✅ Conectado |
+| PUT | `/api/proveedores/{id}` | ✅ Conectado |
+| PATCH | `/api/proveedores/{id}/estado` | ✅ Conectado |
+| DELETE | `/api/proveedores/{id}` | ✅ Conectado |
+
+## 🔐 Autenticación
+
+**Tipo:** JWT Legacy HS512 (24 horas)
+
+**Flow:**
+1. Usuario ingresa credenciales en `/login`
+2. Frontend POST `/api/auth/login` → recibe JWT
+3. JWT guardado en localStorage (clave: `token`)
+4. HttpInterceptor agrega `Authorization: Bearer <token>` en todas las peticiones
+5. Backend valida token en cada request protegido
+6. Si expira o es inválido → 401 → Interceptor hace logout y redirige a login
+
+## 🛠️ Requisitos Previos
+
+- **Node.js** 18+ ([descargar](https://nodejs.org))
+- **Angular CLI** 17+ (`npm install -g @angular/cli`)
+- **Backend corriendo:**
+  - API Gateway: `http://localhost:8081`
+  - usuario-service: `http://localhost:8084`
+  - proveedor-service: `http://localhost:8082`
+
+## 📦 Dependencias Principales
+
+```json
+{
+  "@angular/core": "^17.0.0",
+  "@angular/material": "^17.0.0",
+  "@angular/common/http": "^17.0.0",
+  "rxjs": "^7.8.0"
+}
+```
+
+## 🧪 Testing
+
+Abre DevTools (F12) y verifica:
+
+**Network Tab:**
+```
+✅ POST /api/auth/login              → 200
+✅ GET /api/auth/users               → 200
+✅ GET /api/proveedores              → 200
+✅ Authorization: Bearer <token>     → En headers
+```
+
+**Application Tab:**
+```
+✅ localStorage.token                → JWT (eyJ...)
+✅ localStorage.user                 → {id, username, role, ...}
+```
+
+## 📚 Documentación
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Guía rápida (5 minutos)
+- **[INTEGRACION_FRONTEND_BACKEND.md](INTEGRACION_FRONTEND_BACKEND.md)** - Documentación completa
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Solución de problemas
+
+## 🐛 Troubleshooting
+
+**❌ "No se pude conectar al servidor"**
+- Verifica: `curl http://localhost:8081/actuator/health`
+
+**❌ "Credenciales inválidas" en login**
+- Usuario: `admin`, Contraseña: `Admin@123`
+
+**❌ "Cannot read property 'content'"**
+- Ver: [TROUBLESHOOTING.md](TROUBLESHOOTING.md#problema-listar-proveedores-muestra-error)
+
+## 📞 Servicio al Cliente
+
+1. **Documentación:** Ver archivos `.md` en esta carpeta
+2. **Debugging:** DevTools (F12) → Network/Console
+3. **Logs:** Angular dev console
+4. **Backend logs:** Revisa terminal de cada microservicio
+
+## ✅ Checklist Pre-Producción
+
+- [ ] Backend corriendo en todos los puertos (8081, 8084, 8082)
+- [ ] `npm install` ejecutado
+- [ ] Login funciona con credenciales admin
+- [ ] Listar usuarios funciona
+- [ ] Listar proveedores funciona
+- [ ] DevTools Network muestra authorization headers
+- [ ] No hay errores en console
+- [ ] Token se guarda en localStorage
+
+## 📝 Notas Importantes
+
+1. **API Gateway:** Todos los requests van a `http://localhost:8081`
+2. **CORS:** Backend debe tener CORS habilitado
+3. **Token HS512:** Válido por 24 horas
+4. **Roles:** ADMINISTRADOR, FUNCIONARIO, AUDITOR
+5. **ProveedorService:** Usa `/api/proveedores` (NO `/api/suppliers`)
+
+## 🔄 Próximos Pasos
+
+- [ ] Testear completo end-to-end
+- [ ] Ajustar estructuras de datos si backend retorna diferente
+- [ ] Agregar validaciones adicionales
+- [ ] Implementar caché si es necesario
+- [ ] Deploy a producción
+
+---
+
+**Última actualización:** May 19, 2026  
+**Versión:** 1.0  
+**Estado:** ✅ Listo para testing
 │   │   │   │   ├── user.model.ts
 │   │   │   │   └── response.model.ts
 │   │   │   ├── app.routes.ts

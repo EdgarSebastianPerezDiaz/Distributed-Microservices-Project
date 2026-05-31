@@ -6,6 +6,9 @@ export interface Supplier {
   phone?: string;
   personType: PersonType;
   status: SupplierStatus;
+  // UI-only flag used to mark a newly created supplier that hasn't
+  // been confirmed by the server (shown as a "Pendiente" badge).
+  __pending?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

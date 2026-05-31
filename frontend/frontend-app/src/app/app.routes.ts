@@ -49,10 +49,17 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./components/users/user-list/user-list').then((m) => m.UserListComponent),
+          import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'users',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.ADMINISTRADOR] },
+        loadChildren: () =>
+          import('./routes/users.routes').then((m) => m.usersRoutes),
+      },
+      {
+        path: 'usuarios',
         canActivate: [roleGuard],
         data: { roles: [UserRole.ADMINISTRADOR] },
         loadChildren: () =>

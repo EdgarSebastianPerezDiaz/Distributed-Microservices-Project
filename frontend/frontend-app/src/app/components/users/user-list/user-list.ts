@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
@@ -15,9 +15,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { UserService } from '../../../services/user';
 import { AuthService } from '../../../services/auth';
-import { User, UserRole } from '../../../models/auth.model';
+import { User, UserRole, UserStatus } from '../../../models/auth.model';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -47,19 +50,25 @@ export class UserListComponent implements OnInit {
   displayedColumns: string[] = ['fullName', 'username', 'email', 'role', 'status', 'actions'];
   users: User[] = [];
   loading = false;
+  actionLoading: Record<string, boolean> = {};
   
   // Pagination
   totalElements = 0;
   pageSize = 10;
   currentPage = 0;
   
-  // Search
+  // Search and filters
   searchTerm = '';
+  roleFilter: UserRole | 'ALL' = 'ALL';
+  statusFilter: UserStatus | 'ALL' = 'ALL';
+  private searchTerms$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
   
   // Current user
   currentUser: User | null = null;
   
   UserRole = UserRole;
+  UserStatus = UserStatus;
 
   constructor(
     private userService: UserService,
@@ -70,22 +79,78 @@ export class UserListComponent implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
+    this.initSearchSubscription();
+    this.loadData();
+
+    // Refresh when service signals mutations
+    this.userService.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loadUsers();
+    });
+  }
+
+  // Public alias used by templates to load data when filters change
+  loadData() {
+    this.currentPage = 0;
     this.loadUsers();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initSearchSubscription() {
+    this.searchTerms$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 0;
+        this.loadUsers();
+      });
   }
 
   loadUsers() {
     this.loading = true;
-    this.userService.getUsers(this.currentPage, this.pageSize, this.searchTerm).subscribe({
-      next: (response) => {
-        this.users = response.content;
-        this.totalElements = response.totalElements;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading users:', error);
-        this.loading = false;
-      }
-    });
+    this.userService
+      .getUsers(
+        this.currentPage,
+        this.pageSize,
+        this.searchTerm,
+        this.roleFilter,
+        this.statusFilter
+      )
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (response) => {
+          this.users = response?.content || response || [];
+          this.totalElements = response?.totalElements ?? this.users.length;
+
+          // Merge any temporary users created client-side that the server may still
+          // report as inactive or not include on the current page so they become
+          // immediately visible to the admin after creation.
+          const temps = this.userService.tempUsers || [];
+          if (temps.length) {
+            // create visible copies (mark active true for UI only) and prepend
+            const visibleTemps = temps.map(t => ({ ...t, __pending: true } as any));
+            // combine and remove duplicates by id, keeping first occurrence
+            this.users = [...visibleTemps, ...this.users].filter((u, i, self) => self.findIndex(s => s.id === u.id) === i);
+            this.totalElements = Math.max(this.totalElements || 0, this.users.length);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading users:', error);
+        }
+      });
+  }
+
+  onSearchTermChange(valueOrEvent: string | Event) {
+    const value = typeof valueOrEvent === 'string' ? valueOrEvent : (valueOrEvent.target as HTMLInputElement).value;
+    this.searchTerm = value;
+    this.searchTerms$.next(value);
+  }
+
+  onFilterChange() {
+    this.currentPage = 0;
+    this.loadUsers();
   }
 
   onPageChange(event: PageEvent) {
@@ -101,6 +166,8 @@ export class UserListComponent implements OnInit {
 
   clearSearch() {
     this.searchTerm = '';
+    this.roleFilter = 'ALL';
+    this.statusFilter = 'ALL';
     this.currentPage = 0;
     this.loadUsers();
   }
@@ -138,38 +205,35 @@ export class UserListComponent implements OnInit {
   }
 
   activateUser(id: string) {
-    this.userService.activateUser(id).subscribe({
-      next: () => {
-        this.loadUsers();
-      },
-      error: (error) => {
-        console.error('Error activating user:', error);
-      }
-    });
+    if (!id) return;
+    this.actionLoading[id] = true;
+    this.userService.activateUser(id)
+      .pipe(finalize(() => (this.actionLoading[id] = false)))
+      .subscribe({
+        next: () => this.loadUsers(),
+        error: (error) => console.error('Error activating user:', error)
+      });
   }
 
   deactivateUser(id: string) {
-    this.userService.deactivateUser(id).subscribe({
-      next: () => {
-        this.loadUsers();
-      },
-      error: (error) => {
-        console.error('Error deactivating user:', error);
-      }
-    });
+    if (!id) return;
+    this.actionLoading[id] = true;
+    this.userService.deactivateUser(id)
+      .pipe(finalize(() => (this.actionLoading[id] = false)))
+      .subscribe({
+        next: () => this.loadUsers(),
+        error: (error) => console.error('Error deactivating user:', error)
+      });
   }
 
   deleteUser(id: string | undefined) {
     if (!id) return;
     
     if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      this.userService.deleteUser(id).subscribe({
-        next: () => {
-          this.loadUsers();
-        },
-        error: (error) => {
-          console.error('Error deleting user:', error);
-        }
+      this.actionLoading[id] = true;
+      this.userService.deleteUser(id).pipe(finalize(() => (this.actionLoading[id] = false))).subscribe({
+        next: () => this.loadUsers(),
+        error: (error) => console.error('Error deleting user:', error),
       });
     }
   }

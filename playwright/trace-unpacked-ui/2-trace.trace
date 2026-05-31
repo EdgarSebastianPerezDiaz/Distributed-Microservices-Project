@@ -1,0 +1,21 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","playwrightVersion":"1.60.0","options":{},"platform":"win32","wallTime":1779807510815,"monotonicTime":5142.436,"sdkLanguage":"javascript","contextId":"request-context@97e55280f3a37c9802960b234b69a1e1","title":"playwright\\tests\\frontend-completo.spec.ts:196 › Frontend + API smoke: Users & Suppliers › UI: Login admin, users page loads, create user via UI and visibility, role segregation"}
+{"type":"before","callId":"call@95","startTime":20121.513,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/auth/register","method":"POST","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTEwLCJleHAiOjE3Nzk4OTM5MTB9._RiX4RI5IT3IubfV_OUQNc6F60cdHG6Jp_swK6GCi8fozBz7KoYzidcOiEDFhdKa8MqQU_9aW59xmqA8MPGioQ"}],"jsonData":"{\"username\":\"func_user_525788\",\"email\":\"func_user_525788@example.com\",\"password\":\"Passw0rd!\",\"fullName\":\"Func Test\",\"role\":\"FUNCIONARIO\"}","timeout":0},"stepId":"pw:api@134"}
+{"type":"log","callId":"call@95","time":20129.263,"message":"→ POST http://localhost:8081/api/auth/register"}
+{"type":"log","callId":"call@95","time":20129.32,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@95","time":20129.33,"message":"  accept: */*"}
+{"type":"log","callId":"call@95","time":20129.336,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@95","time":20129.342,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTEwLCJleHAiOjE3Nzk4OTM5MTB9._RiX4RI5IT3IubfV_OUQNc6F60cdHG6Jp_swK6GCi8fozBz7KoYzidcOiEDFhdKa8MqQU_9aW59xmqA8MPGioQ"}
+{"type":"log","callId":"call@95","time":20129.349,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@95","time":20129.356,"message":"  content-length: 137"}
+{"type":"log","callId":"call@95","time":20201.908,"message":"← 201 Created"}
+{"type":"log","callId":"call@95","time":20201.927,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@95","time":20201.93,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@95","time":20201.933,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@95","time":20201.935,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@95","time":20201.938,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@95","time":20201.94,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@95","time":20201.942,"message":"  expires: 0"}
+{"type":"log","callId":"call@95","time":20201.944,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@95","time":20201.946,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@95","time":20201.949,"message":"  date: Tue, 26 May 2026 14:58:45 GMT"}
+{"type":"after","callId":"call@95","endTime":20203.806,"result":{"response":{"url":"http://localhost:8081/api/auth/register","status":201,"statusText":"Created","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:45 GMT"}],"body":"<Buffer>","fetchUid":"4bfa44509674f4951dcce9539d1b77c2"}}}

@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.Map;
 
 /**
  * Controlador de Autenticación y Usuarios
@@ -46,6 +47,38 @@ public class AuthController {
         UserResponse user = userService.createUser(request, false);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
+
+    /**
+     * Validar disponibilidad de username
+     * GET /api/auth/users/validate/username?username=xxx
+     */
+    @GetMapping("/users/validate/username")
+    public ResponseEntity<Map<String, Boolean>> validateUsername(@RequestParam String username) {
+        boolean available = userService.isUsernameAvailable(username);
+        return ResponseEntity.ok(Map.of("available", available));
+    }
+
+    /**
+     * Validar disponibilidad de email
+     * GET /api/auth/users/validate/email?email=xxx
+     */
+    @GetMapping("/users/validate/email")
+    public ResponseEntity<Map<String, Boolean>> validateEmail(@RequestParam String email) {
+        boolean available = userService.isEmailAvailable(email);
+        return ResponseEntity.ok(Map.of("available", available));
+    }
+
+    /**
+     * Eliminar (baja lógica) de usuario - SOLO ADMIN
+     */
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        UUID adminId = jwtService.extractUserId(token);
+        userService.deleteUser(id, adminId);
+        return ResponseEntity.noContent().build();
+    }
     
     /**
      * OBTENER USUARIO ACTUAL
@@ -77,11 +110,28 @@ public class AuthController {
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
-    
+
+    /**
+     * ACTUALIZAR USUARIO - SOLO ADMIN
+     */
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody UserUpdateRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        
+        // Extraer adminId del token para auditoría
+        String token = authHeader.replace("Bearer ", "");
+        UUID adminId = jwtService.extractUserId(token);
+        
+        return ResponseEntity.ok(userService.updateUser(id, request, adminId));
+    }
+
     /**
      * CAMBIAR ESTADO (ACTIVAR/DESACTIVAR) - SOLO ADMIN
      */
-    @PatchMapping("/users/{id}/status")
+    @PatchMapping("/users/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> toggleStatus(
             @PathVariable UUID id,

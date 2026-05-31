@@ -68,9 +68,9 @@ public class UserController {
     
     /**
      * CAMBIAR ESTADO (ACTIVAR/DESACTIVAR) - SOLO ADMIN
-     * PATCH /api/users/{id}/status
+     * PATCH /api/users/{id}/estado
      */
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> toggleStatus(
             @PathVariable UUID id,

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../../services/auth';
 import { LoginRequest } from '../../../models/auth.model';
 
@@ -25,6 +26,18 @@ import { LoginRequest } from '../../../models/auth.model';
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
+  animations: [
+    trigger('fadeInOut', [
+      state('in', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('300ms ease-in')
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
@@ -32,6 +45,7 @@ export class LoginComponent implements OnInit {
   submitted = false;
   error: string | null = null;
   returnUrl: string | null = null;
+  hidePassword = true;
   private requestedReturnUrl: string | null = null;
 
   constructor(
@@ -79,8 +93,7 @@ export class LoginComponent implements OnInit {
         const role = response.user.role;
         let redirectUrl = this.returnUrl || '/dashboard';
         
-        // Si el usuario venía con un returnUrl explícito (ej. venir de "Registrar usuario"),
-        // lo respetamos. Si no, aplicamos la redirección por rol.
+        // Si el usuario venía con un returnUrl explícito, lo respetamos
         const shouldHonorReturnUrl = !!this.requestedReturnUrl && this.requestedReturnUrl !== '/dashboard';
         if (!shouldHonorReturnUrl) {
           if (role === 'ADMINISTRADOR') {
@@ -109,11 +122,5 @@ export class LoginComponent implements OnInit {
         }
       }
     });
-  }
-
-  goToRegister() {
-    // Ruta protegida (solo ADMINISTRADOR), pero si no estás autenticado el guard te enviará al login
-    // con returnUrl para volver aquí.
-    this.router.navigate(['/users/new']);
   }
 }

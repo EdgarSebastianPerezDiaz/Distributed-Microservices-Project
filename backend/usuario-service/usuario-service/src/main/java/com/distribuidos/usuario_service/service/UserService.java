@@ -29,6 +29,40 @@ public class UserService {
         this.jwtService = jwtService;
         this.auditService = auditService;
     }
+
+    /**
+     * Verificar si un username está disponible (no existe)
+     */
+    @Transactional(readOnly = true)
+    public boolean isUsernameAvailable(String username) {
+        return !userRepository.existsByUsername(username);
+    }
+
+    /**
+     * Verificar si un email está disponible (no existe)
+     */
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * Borrado lógico de usuario (marca como inactivo)
+     */
+    @Transactional
+    public void deleteUser(UUID id, UUID adminId) {
+        if (id.equals(adminId)) {
+            throw new RuntimeException("No puedes eliminar tu propio usuario");
+        }
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        user.setActive(false);
+        userRepository.save(user);
+
+        auditService.registrarCambioEstadoUsuario(id, "INACTIVO");
+    }
     
     /**
      * AUTENTICACIÓN DE USUARIO (Login)

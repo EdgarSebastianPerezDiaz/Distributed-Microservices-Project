@@ -17,7 +17,7 @@ public class SupplierMapper {
         supplier.setEmail(request.getEmail());
         supplier.setPhone(request.getPhone());
         supplier.setPersonType(request.getPersonType());
-        supplier.setStatus(SupplierStatus.ACTIVO);
+        supplier.setStatus(SupplierStatus.HABILITADO);
         return supplier;
     }
 
