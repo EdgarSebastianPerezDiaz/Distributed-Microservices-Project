@@ -207,8 +207,22 @@ export class SupplierListComponent implements OnInit {
   toggleSupplierStatus(supplier: Supplier) {
     if (!supplier.id) return;
 
-    const nuevoEstado = supplier.status === SupplierStatus.HABILITADO ? SupplierStatus.INHABILITADO : SupplierStatus.HABILITADO;
-    this.changeSupplierStatus(supplier.id, nuevoEstado);
+    if (supplier.status === SupplierStatus.HABILITADO) {
+      this.supplierService.disableSupplier(supplier.id).subscribe({
+        next: () => this.loadSuppliers(),
+        error: (error) => {
+          console.error('Error changing supplier status:', error);
+        }
+      });
+      return;
+    }
+
+    this.supplierService.enableSupplier(supplier.id).subscribe({
+      next: () => this.loadSuppliers(),
+      error: (error) => {
+        console.error('Error changing supplier status:', error);
+      }
+    });
   }
 
   changeSupplierStatus(id: string, status: SupplierStatus) {

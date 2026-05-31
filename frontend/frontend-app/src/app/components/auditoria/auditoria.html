@@ -13,8 +13,8 @@
         Usuario fiscalizador <strong>{{ u.username }}</strong> • {{ u.role }}
       </div>
     </div>
-    <button mat-flat-button color="primary" type="button" disabled>
-      Exportar informe (próximo)
+    <button mat-flat-button color="primary" type="button" (click)="exportReport()" [disabled]="loading">
+      Exportar informe PDF
     </button>
   </header>
 

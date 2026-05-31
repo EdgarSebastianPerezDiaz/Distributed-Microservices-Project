@@ -36,6 +36,7 @@ export class SupplierFormComponent implements OnInit {
   isEditMode = false;
   supplierId: string | null = null;
   error: string | null = null;
+  private loadedSupplier: Supplier | null = null;
   
   PersonType = PersonType;
   personTypes = Object.values(PersonType);
@@ -73,6 +74,7 @@ export class SupplierFormComponent implements OnInit {
     this.loading = true;
     this.supplierService.getSupplierById(id).subscribe({
       next: (supplier) => {
+        this.loadedSupplier = supplier;
         this.form.patchValue({
           nit: supplier.nit,
           businessName: supplier.businessName,
@@ -104,18 +106,21 @@ export class SupplierFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const data: Supplier = {
-      nit: this.form.getRawValue().nit,
-      businessName: this.f['businessName'].value,
-      email: this.f['email'].value,
-      phone: this.f['phone'].value,
-      personType: this.f['personType'].value,
-      status: SupplierStatus.HABILITADO
-    };
-
     const request = this.isEditMode && this.supplierId
-      ? this.supplierService.updateSupplier(this.supplierId, data)
-      : this.supplierService.createSupplier(data);
+      ? this.supplierService.updateSupplier(this.supplierId, {
+          businessName: this.f['businessName'].value,
+          email: this.f['email'].value,
+          phone: this.f['phone'].value,
+          status: this.loadedSupplier?.status ?? SupplierStatus.HABILITADO,
+        } as Supplier)
+      : this.supplierService.createSupplier({
+          nit: this.form.getRawValue().nit,
+          businessName: this.f['businessName'].value,
+          email: this.f['email'].value,
+          phone: this.f['phone'].value,
+          personType: this.f['personType'].value,
+          status: SupplierStatus.HABILITADO,
+        });
 
     request.subscribe({
       next: () => {

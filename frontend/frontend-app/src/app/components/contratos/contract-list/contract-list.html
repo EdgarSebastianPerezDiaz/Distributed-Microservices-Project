@@ -101,7 +101,10 @@
       </div>
 
       <div class="card-actions">
-        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button mat-flat-button color="primary" type="button" class="dual" [routerLink]="['/contratos', element.id]">
+          <mat-icon>visibility</mat-icon>
+          Ver Detalles
+        </button>
         <button
           mat-flat-button
           color="primary"

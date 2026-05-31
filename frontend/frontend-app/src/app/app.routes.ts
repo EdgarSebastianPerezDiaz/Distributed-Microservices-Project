@@ -10,7 +10,6 @@ import { SupplierListComponent } from './components/suppliers/supplier-list/supp
 import { SupplierFormComponent } from './components/suppliers/supplier-form/supplier-form';
 import { SupplierDetailComponent } from './components/suppliers/supplier-detail/supplier-detail';
 import { ContratosComponent } from './components/contratos/contratos';
-import { AdminContratosComponent } from './components/contratos/admin-contratos';
 import { ContractFormComponent } from './components/contratos/contract-form/contract-form';
 import { ContractEditComponent } from './components/contratos/contract-edit/contract-edit';
 import { ContractListComponent } from './components/contratos/contract-list/contract-list';
@@ -77,30 +76,38 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/contratos/contratos').then((m) => m.ContratosComponent),
       },
-  {
-    path: 'admin',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.ADMINISTRADOR] },
-    component: AdminContratosComponent
-  },
-  {
-    path: 'contratos/list',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
-    component: ContractListComponent
-  },
-  {
-    path: 'contratos/new',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.FUNCIONARIO] },
-    component: ContractFormComponent
-  },
-  {
-    path: 'contratos/:id/edit',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.FUNCIONARIO] },
-    component: ContractEditComponent
-  },
+      {
+        path: 'admin',
+        redirectTo: 'users',
+        pathMatch: 'full',
+      },
+      {
+        path: 'contratos/list',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
+        component: ContractListComponent,
+      },
+      {
+        path: 'contratos/new',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [UserRole.FUNCIONARIO] },
+        component: ContractFormComponent,
+      },
+      {
+        path: 'contratos/:id/edit',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [UserRole.FUNCIONARIO] },
+        component: ContractEditComponent,
+      },
+      {
+        path: 'contratos/:id',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [UserRole.ADMINISTRADOR, UserRole.FUNCIONARIO] },
+        loadComponent: () =>
+          import('./components/contratos/contract-detail/contract-detail').then(
+            (m) => m.ContractDetailComponent,
+          ),
+      },
       {
         path: 'auditoria',
         canActivate: [roleGuard],

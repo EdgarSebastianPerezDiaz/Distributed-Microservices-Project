@@ -175,6 +175,86 @@ export class AuditoriaComponent implements OnInit {
     this.loadEvents();
   }
 
+  exportReport(): void {
+    const reportWindow = window.open('', '_blank', 'width=1100,height=800');
+    if (!reportWindow) {
+      this.errorMessage = 'El navegador bloqueó la ventana emergente necesaria para exportar el informe.';
+      return;
+    }
+
+    const filtersSummary = [
+      this.filters.searchTerm ? `Búsqueda: ${this.filters.searchTerm}` : '',
+      this.filters.entityType !== 'ALL' ? `Entidad: ${this.filters.entityType}` : '',
+      this.filters.eventType !== 'ALL' ? `Operación: ${this.filters.eventType}` : '',
+      this.filters.userId ? `Usuario: ${this.filters.userId}` : '',
+      this.filters.startDate ? `Desde: ${this.filters.startDate}` : '',
+      this.filters.endDate ? `Hasta: ${this.filters.endDate}` : '',
+    ].filter(Boolean);
+
+    const rows = this.displayedEvents
+      .map((event) => `
+        <tr>
+          <td>${this.escapeHtml(this.formatDate(event.timestamp))}</td>
+          <td>${this.escapeHtml(event.entityType)}</td>
+          <td>${this.escapeHtml(event.eventType)}</td>
+          <td>${this.escapeHtml(this.buildDescription(event))}</td>
+          <td>${this.escapeHtml(event.performedBy || '-')}</td>
+          <td>${this.escapeHtml(event.statusCode ? String(event.statusCode) : '-')}</td>
+        </tr>
+      `)
+      .join('');
+
+    reportWindow.document.write(`
+      <!doctype html>
+      <html lang="es">
+        <head>
+          <meta charset="utf-8" />
+          <title>Informe de auditoría</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 24px; color: #1f2937; }
+            h1 { margin: 0 0 8px; }
+            .muted { color: #6b7280; }
+            .meta { margin: 16px 0 18px; font-size: 13px; }
+            .meta div { margin-bottom: 4px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #d1d5db; padding: 8px; vertical-align: top; }
+            th { background: #f3f4f6; text-align: left; }
+            .footer { margin-top: 18px; font-size: 11px; color: #6b7280; }
+          </style>
+          <script>
+            window.onload = () => { window.print(); };
+          </script>
+        </head>
+        <body>
+          <h1>Informe de auditoría</h1>
+          <div class="muted">Exportado el ${this.escapeHtml(new Date().toLocaleString('es-CO'))}</div>
+          <div class="meta">
+            ${filtersSummary.length ? `<div><strong>Filtros aplicados:</strong> ${this.escapeHtml(filtersSummary.join(' | '))}</div>` : '<div><strong>Filtros aplicados:</strong> Ninguno</div>'}
+            <div><strong>Total de eventos mostrados:</strong> ${this.displayedEvents.length}</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha/Hora</th>
+                <th>Entidad</th>
+                <th>Operación</th>
+                <th>Descripción</th>
+                <th>Usuario</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="6">No hay eventos para exportar</td></tr>'}
+            </tbody>
+          </table>
+          <div class="footer">Documento generado automáticamente desde el panel de auditoría.</div>
+        </body>
+      </html>
+    `);
+    reportWindow.document.close();
+    reportWindow.focus();
+  }
+
   previousPage(): void {
     if (!this.canGoPrevious()) {
       return;
@@ -281,6 +361,15 @@ export class AuditoriaComponent implements OnInit {
     }
 
     return JSON.stringify(value, null, 2);
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   private extractSummary(payload: Record<string, unknown> | null | undefined): string {
