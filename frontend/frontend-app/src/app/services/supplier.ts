@@ -72,7 +72,7 @@ export class SupplierService {
         if (created) {
           // mark as pending for immediate UI visibility until the server
           // confirms the created resource (keeps __pending flag)
-          this.tempSuppliers.push({ ...created, __pending: true } as Supplier);
+          this.tempSuppliers.push(created);
         }
       }),
       catchError(this.handleError)
