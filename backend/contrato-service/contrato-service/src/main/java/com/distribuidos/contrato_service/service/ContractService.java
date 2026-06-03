@@ -631,10 +631,13 @@ public class ContractService {
         try {
             SupplierResponse supplier = supplierClient.getSupplierById(supplierId);
 
-            if (!"ACTIVO".equals(supplier.getStatus())) {
-                throw new SupplierInactiveException(ERROR_SUPPLIER_INACTIVE,
-                        "Supplier is not active. Cannot create contract.");
-            }
+            if (!("HABILITADO".equals(supplier.getStatus())
+      || "ACTIVO".equals(supplier.getStatus()))) {
+    throw new SupplierInactiveException(
+        ERROR_SUPPLIER_INACTIVE,
+        "Supplier is not active. Cannot create contract."
+    );
+}
 
             return supplier;
 
