@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://32.198.26.236:8081' // Cambiar a la URL de producción real
+  apiUrl: 'http://98.84.238.92:8081' // Cambiar a la URL de producción real
 };
