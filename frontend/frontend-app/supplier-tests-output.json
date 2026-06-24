@@ -1,0 +1,17 @@
+﻿{
+    "list":  {
+                 "error":  "Error en el servidor remoto: (404) No se encontró."
+             },
+    "get":  {
+                "error":  "Error en el servidor remoto: (404) No se encontró."
+            },
+    "put":  {
+                "error":  "Error en el servidor remoto: (404) No se encontró."
+            },
+    "post":  {
+                 "error":  "Error en el servidor remoto: (404) No se encontró."
+             },
+    "patch":  {
+                  "error":  "Error en el servidor remoto: (404) No se encontró."
+              }
+}

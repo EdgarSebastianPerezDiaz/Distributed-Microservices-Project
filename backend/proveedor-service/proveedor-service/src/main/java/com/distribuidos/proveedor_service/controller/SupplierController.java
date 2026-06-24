@@ -2,6 +2,7 @@ package com.distribuidos.proveedor_service.controller;
 
 import com.distribuidos.proveedor_service.dto.SupplierRequest;
 import com.distribuidos.proveedor_service.dto.SupplierResponse;
+import com.distribuidos.proveedor_service.dto.SupplierStatusChangeRequest;
 import com.distribuidos.proveedor_service.dto.SupplierUpdateRequest;
 import com.distribuidos.proveedor_service.model.PersonType;
 import com.distribuidos.proveedor_service.model.SupplierStatus;
@@ -45,6 +46,28 @@ public class SupplierController {
     }
 
     /**
+     * Validar disponibilidad de NIT
+     * GET /api/suppliers/validate/nit?nit=XXX
+     */
+    @GetMapping("/validate/nit")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FUNCIONARIO','AUDITOR')")
+    public ResponseEntity<java.util.Map<String, Boolean>> validateNit(@RequestParam String nit) {
+        boolean available = supplierService.isNitAvailable(nit);
+        return ResponseEntity.ok(java.util.Map.of("available", available));
+    }
+
+    /**
+     * Validar disponibilidad de email
+     * GET /api/suppliers/validate/email?email=XXX
+     */
+    @GetMapping("/validate/email")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FUNCIONARIO','AUDITOR')")
+    public ResponseEntity<java.util.Map<String, Boolean>> validateEmail(@RequestParam String email) {
+        boolean available = supplierService.isEmailAvailable(email);
+        return ResponseEntity.ok(java.util.Map.of("available", available));
+    }
+
+    /**
      * Actualizar proveedor existente
      * Permisos: ADMINISTRADOR solamente
      * Solo se pueden modificar: razón social, teléfono, estado
@@ -73,11 +96,11 @@ public class SupplierController {
      * Permisos: Solo ADMINISTRADOR
      * Si se inactiva, valida que no tenga contratos activos
      */
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<SupplierResponse> changeSupplierStatus(
             @PathVariable UUID id,
-            @RequestParam SupplierStatus status) {
+            @Valid @RequestBody SupplierStatusChangeRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
@@ -86,9 +109,9 @@ public class SupplierController {
         String userEmail = principal.getEmail();
         String userRole = principal.getRole();
 
-        log.info("PATCH /api/suppliers/{}/status - Changing status to: {} by user: {}", id, status, userId);
+        log.info("PATCH /api/suppliers/{}/estado - Changing status to: {} by user: {}", id, request.getStatus(), userId);
 
-        SupplierResponse response = supplierService.changeSupplierStatus(id, status, userId, userEmail, userRole);
+        SupplierResponse response = supplierService.changeSupplierStatus(id, request.getStatus(), userId, userEmail, userRole);
         return ResponseEntity.ok(response);
     }
 
@@ -120,6 +143,16 @@ public class SupplierController {
 
         SupplierResponse supplier = supplierService.getSupplierById(id);
         return ResponseEntity.ok(supplier);
+    }
+
+    /**
+     * Eliminar proveedor (baja lógica) -> INHABILITADO
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deleteSupplier(@PathVariable UUID id) {
+        supplierService.deleteSupplier(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**

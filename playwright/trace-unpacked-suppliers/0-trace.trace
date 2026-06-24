@@ -1,0 +1,117 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","playwrightVersion":"1.60.0","options":{},"platform":"win32","wallTime":1779807508725,"monotonicTime":3052.688,"sdkLanguage":"javascript","contextId":"request-context@d1e9572fb4496ce143ecf5fdae4303e8","title":"playwright\\tests\\frontend-completo.spec.ts:130 › Frontend + API smoke: Users & Suppliers › API: Suppliers CRUD + unique NIT validation"}
+{"type":"before","callId":"call@33","startTime":3055.982,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers","method":"POST","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"jsonData":"{\"nit\":\"900_508727-9\",\"businessName\":\"Auto Supplier S.A.\",\"email\":\"900_508727-9@supply.test\",\"phone\":\"123456789\",\"personType\":\"JURIDICA\"}","timeout":0},"stepId":"pw:api@27"}
+{"type":"log","callId":"call@33","time":3056.729,"message":"→ POST http://localhost:8081/api/suppliers"}
+{"type":"log","callId":"call@33","time":3056.744,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@33","time":3056.751,"message":"  accept: */*"}
+{"type":"log","callId":"call@33","time":3056.756,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@33","time":3056.761,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@33","time":3056.766,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@33","time":3056.771,"message":"  content-length: 137"}
+{"type":"log","callId":"call@33","time":3667.522,"message":"← 201 Created"}
+{"type":"log","callId":"call@33","time":3667.552,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@33","time":3667.557,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@33","time":3667.561,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@33","time":3667.566,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@33","time":3667.568,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@33","time":3667.571,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@33","time":3667.573,"message":"  expires: 0"}
+{"type":"log","callId":"call@33","time":3667.575,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@33","time":3667.578,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@33","time":3667.58,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@33","endTime":3668.763,"result":{"response":{"url":"http://localhost:8081/api/suppliers","status":201,"statusText":"Created","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"7f23977591cf1ecda042d36559059d11"}}}
+{"type":"before","callId":"call@36","startTime":3671.375,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers","method":"POST","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"jsonData":"{\"nit\":\"900_508727-9\",\"businessName\":\"Auto Supplier S.A.\",\"email\":\"900_508727-9@supply.test\",\"phone\":\"123456789\",\"personType\":\"JURIDICA\"}","timeout":0},"stepId":"pw:api@29"}
+{"type":"log","callId":"call@36","time":3671.955,"message":"→ POST http://localhost:8081/api/suppliers"}
+{"type":"log","callId":"call@36","time":3671.97,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@36","time":3671.973,"message":"  accept: */*"}
+{"type":"log","callId":"call@36","time":3671.975,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@36","time":3671.979,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@36","time":3671.982,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@36","time":3671.984,"message":"  content-length: 137"}
+{"type":"log","callId":"call@36","time":3702.053,"message":"← 409 Conflict"}
+{"type":"log","callId":"call@36","time":3702.083,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@36","time":3702.088,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@36","time":3702.096,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@36","time":3702.144,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@36","time":3702.149,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@36","time":3702.153,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@36","time":3702.157,"message":"  expires: 0"}
+{"type":"log","callId":"call@36","time":3702.16,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@36","time":3702.164,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@36","time":3702.167,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@36","endTime":3702.884,"result":{"response":{"url":"http://localhost:8081/api/suppliers","status":409,"statusText":"Conflict","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"671df77308e572c795225d1006de2b49"}}}
+{"type":"before","callId":"call@38","startTime":3704.625,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers","method":"GET","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"timeout":0},"stepId":"pw:api@31"}
+{"type":"log","callId":"call@38","time":3704.889,"message":"→ GET http://localhost:8081/api/suppliers"}
+{"type":"log","callId":"call@38","time":3704.901,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@38","time":3704.904,"message":"  accept: */*"}
+{"type":"log","callId":"call@38","time":3704.905,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@38","time":3704.907,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@38","time":3742.568,"message":"← 200 OK"}
+{"type":"log","callId":"call@38","time":3742.6,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@38","time":3742.606,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@38","time":3742.614,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@38","time":3742.617,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@38","time":3742.621,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@38","time":3742.627,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@38","time":3742.631,"message":"  expires: 0"}
+{"type":"log","callId":"call@38","time":3742.636,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@38","time":3742.64,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@38","time":3742.646,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@38","endTime":3743.486,"result":{"response":{"url":"http://localhost:8081/api/suppliers","status":200,"statusText":"OK","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"a1b6b299e0e13f2ee42f6dbdaaa39e1e"}}}
+{"type":"before","callId":"call@41","startTime":3750.13,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5","method":"GET","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"timeout":0},"stepId":"pw:api@33"}
+{"type":"log","callId":"call@41","time":3750.677,"message":"→ GET http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5"}
+{"type":"log","callId":"call@41","time":3750.694,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@41","time":3750.699,"message":"  accept: */*"}
+{"type":"log","callId":"call@41","time":3750.703,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@41","time":3750.708,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@41","time":3793.802,"message":"← 200 OK"}
+{"type":"log","callId":"call@41","time":3793.83,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@41","time":3793.836,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@41","time":3793.841,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@41","time":3793.845,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@41","time":3793.881,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@41","time":3793.889,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@41","time":3793.893,"message":"  expires: 0"}
+{"type":"log","callId":"call@41","time":3793.896,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@41","time":3793.901,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@41","time":3793.905,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@41","endTime":3794.952,"result":{"response":{"url":"http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5","status":200,"statusText":"OK","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"0f46c42b3849eb83c6bcd547e6c61e53"}}}
+{"type":"before","callId":"call@44","startTime":3802.014,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5","method":"PUT","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"jsonData":"{\"nit\":\"900_508727-9\",\"businessName\":\"Auto Supplier Updated\",\"email\":\"900_508727-9@supply.test\",\"phone\":\"123456789\",\"personType\":\"JURIDICA\"}","timeout":0},"stepId":"pw:api@36"}
+{"type":"log","callId":"call@44","time":3802.629,"message":"→ PUT http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5"}
+{"type":"log","callId":"call@44","time":3802.644,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@44","time":3802.647,"message":"  accept: */*"}
+{"type":"log","callId":"call@44","time":3802.65,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@44","time":3802.654,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@44","time":3802.657,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@44","time":3802.659,"message":"  content-length: 140"}
+{"type":"log","callId":"call@44","time":3883.86,"message":"← 200 OK"}
+{"type":"log","callId":"call@44","time":3883.893,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@44","time":3883.902,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@44","time":3883.91,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@44","time":3883.916,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@44","time":3883.923,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@44","time":3883.929,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@44","time":3883.935,"message":"  expires: 0"}
+{"type":"log","callId":"call@44","time":3883.941,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@44","time":3883.947,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@44","time":3883.953,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@44","endTime":3884.832,"result":{"response":{"url":"http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5","status":200,"statusText":"OK","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"637bee922cf380af4764aa1c92cf358c"}}}
+{"type":"before","callId":"call@46","startTime":3888.441,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5/estado","method":"PATCH","headers":[{"name":"Authorization","value":"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}],"jsonData":"{\"estado\":\"INHABILITADO\"}","timeout":0},"stepId":"pw:api@38"}
+{"type":"log","callId":"call@46","time":3888.882,"message":"→ PATCH http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5/estado"}
+{"type":"log","callId":"call@46","time":3888.894,"message":"  user-agent: Playwright/1.60.0 (x64; windows 10.0) node/24.11"}
+{"type":"log","callId":"call@46","time":3888.897,"message":"  accept: */*"}
+{"type":"log","callId":"call@46","time":3888.904,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@46","time":3888.906,"message":"  Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Mzg1NGQxNS05OTExLTRhZWQtYmI3NC03M2M2ZjhlYmI1NTIiLCJ1c2VyX2lkIjoiOTM4NTRkMTUtOTkxMS00YWVkLWJiNzQtNzNjNmY4ZWJiNTUyIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBRE1JTklTVFJBRE9SIiwiaWF0IjoxNzc5ODA3NTA4LCJleHAiOjE3Nzk4OTM5MDh9.2MB8akinAMORSb9YRrle5DChifGWgWyF8Jh64MhXJ7zIPnRV-o4HnsBNAl2oCVrJkDPCIJC8VNZmCGy7WCv1_Q"}
+{"type":"log","callId":"call@46","time":3888.909,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@46","time":3888.912,"message":"  content-length: 25"}
+{"type":"log","callId":"call@46","time":3934.128,"message":"← 500 Internal Server Error"}
+{"type":"log","callId":"call@46","time":3934.166,"message":"  transfer-encoding: chunked"}
+{"type":"log","callId":"call@46","time":3934.173,"message":"  vary: Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"}
+{"type":"log","callId":"call@46","time":3934.182,"message":"  x-content-type-options: nosniff"}
+{"type":"log","callId":"call@46","time":3934.188,"message":"  x-xss-protection: 0"}
+{"type":"log","callId":"call@46","time":3934.193,"message":"  cache-control: no-cache, no-store, max-age=0, must-revalidate"}
+{"type":"log","callId":"call@46","time":3934.217,"message":"  pragma: no-cache"}
+{"type":"log","callId":"call@46","time":3934.221,"message":"  expires: 0"}
+{"type":"log","callId":"call@46","time":3934.225,"message":"  x-frame-options: DENY"}
+{"type":"log","callId":"call@46","time":3934.23,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@46","time":3934.235,"message":"  date: Tue, 26 May 2026 14:58:29 GMT"}
+{"type":"after","callId":"call@46","endTime":3935.211,"result":{"response":{"url":"http://localhost:8081/api/suppliers/42f587f1-b9ad-4df6-8ab5-0687208b09d5/estado","status":500,"statusText":"Internal Server Error","headers":[{"name":"transfer-encoding","value":"chunked"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"Vary","value":"Origin"},{"name":"Vary","value":"Access-Control-Request-Method"},{"name":"Vary","value":"Access-Control-Request-Headers"},{"name":"X-Content-Type-Options","value":"nosniff"},{"name":"X-XSS-Protection","value":"0"},{"name":"Cache-Control","value":"no-cache, no-store, max-age=0, must-revalidate"},{"name":"Pragma","value":"no-cache"},{"name":"Expires","value":"0"},{"name":"X-Frame-Options","value":"DENY"},{"name":"Content-Type","value":"application/json"},{"name":"Date","value":"Tue, 26 May 2026 14:58:29 GMT"}],"body":"<Buffer>","fetchUid":"3a58348e1272f42f283340817709ff34"}}}

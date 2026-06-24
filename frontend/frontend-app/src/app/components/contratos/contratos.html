@@ -1,0 +1,117 @@
+<div class="page" *ngIf="!isAdministrador(); else adminListView">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Contratos</span>
+  </nav>
+
+  <header class="heading">
+    <div>
+      <h1>Contratos</h1>
+      <p>Gestión y supervisión de licitaciones activas.</p>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      class="create-btn"
+      routerLink="/contratos/new"
+      *ngIf="isFuncionario()"
+    >
+      <mat-icon>add</mat-icon>
+      Crear contrato
+    </button>
+  </header>
+
+  <div class="search-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar contrato</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Busca por número, proveedor o estado"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="onSearch()"
+        [disabled]="!searchTerm.trim()"
+        aria-label="Buscar"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-stroked-button type="button" class="clear-btn" (click)="clearSearch()" *ngIf="searchTerm">
+      <mat-icon>clear</mat-icon>
+      Limpiar
+    </button>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div class="empty-state empty-state--error" *ngIf="!loading && errorMessage">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Error al cargar contratos</h3>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <section class="list" *ngIf="!loading && !errorMessage && contracts.length > 0">
+    <mat-card class="contract-card elevated-card" *ngFor="let contract of contracts">
+      <div class="card-top">
+        <div>
+          <div class="k">ID CONTRATO</div>
+          <div class="big">{{ contract.contractNumber }}</div>
+        </div>
+        <span class="status-badge" [ngClass]="statusTone(contract.status)">
+          {{ statusLabel(contract.status) }}
+        </span>
+      </div>
+
+      <div class="card-mid">
+        <div class="half">
+          <div class="k">PROVEEDOR</div>
+          <div class="v">{{ contract.supplierBusinessName || 'Sin nombre' }}</div>
+          <div class="meta">{{ contract.supplierNit || contract.supplierId }}</div>
+        </div>
+
+        <div class="half half--budget">
+          <div class="k">PRESUPUESTO</div>
+          <div class="money">{{ formatCurrency(contract.budget) }}</div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          class="dual"
+          *ngIf="isFuncionario()"
+          [routerLink]="['/contratos', contract.id, 'edit']"
+        >
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="!isFuncionario()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+  </section>
+
+  <div class="empty-state" *ngIf="!loading && !errorMessage && contracts.length === 0">
+    <mat-icon>description</mat-icon>
+    <h3>No hay contratos</h3>
+    <p *ngIf="searchTerm">No se encontraron contratos que coincidan con tu búsqueda</p>
+    <p *ngIf="!searchTerm">Comienza creando un nuevo contrato</p>
+  </div>
+</div>
+
+<ng-template #adminListView>
+  <app-contract-list></app-contract-list>
+</ng-template>

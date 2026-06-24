@@ -1,21 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { UserService } from '../../../services/user';
-import { User, UserRole, UserStatus } from '../../../models/auth.model';
+import { User, UserRole } from '../../../models/auth.model';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-user-form',
   imports: [
     CommonModule,
+    RouterModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -23,7 +32,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatRadioModule,
+    MatIconModule,
   ],
   templateUrl: './user-form.html',
   styleUrl: './user-form.scss',
@@ -35,37 +45,73 @@ export class UserFormComponent implements OnInit {
   isEditMode = false;
   userId: string | null = null;
   error: string | null = null;
-  
+
   UserRole = UserRole;
-  roles = Object.values(UserRole);
+
+  readonly roleLabels: { value: UserRole; label: string }[] = [
+    { value: UserRole.ADMINISTRADOR, label: 'Administrador' },
+    { value: UserRole.FUNCIONARIO, label: 'Funcionario' },
+    { value: UserRole.AUDITOR, label: 'Auditor' },
+  ];
 
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
-    this.initializeForm();
-    
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.isEditMode = true;
-        this.userId = params['id'];
-        this.loadUser(params['id']);
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      this.isEditMode = !!id;
+      this.userId = id;
+
+      if (this.isEditMode && id) {
+        this.initializeForm(true);
+        this.loadUser(id);
+      } else {
+        this.initializeForm(false);
       }
     });
   }
 
-  initializeForm() {
-    this.form = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(6)]],
-      fullName: ['', [Validators.required]],
-      role: [UserRole.FUNCIONARIO, [Validators.required]]
-    });
+  private static passwordsMatch(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password');
+    const confirm = control.get('confirmPassword');
+    if (!password || !confirm) {
+      return null;
+    }
+    if (!password.value && !confirm.value) {
+      return null;
+    }
+    return password.value === confirm.value ? null : { passwordMismatch: true };
+  }
+
+  initializeForm(editMode: boolean) {
+    if (editMode) {
+      this.form = this.formBuilder.group({
+        username: ['', [Validators.required, Validators.minLength(3)]],
+        email: ['', [Validators.required, Validators.email]],
+        fullName: ['', [Validators.required]],
+        role: [UserRole.FUNCIONARIO, [Validators.required]],
+        active: [true, [Validators.required]],
+      });
+      return;
+    }
+
+    this.form = this.formBuilder.group(
+      {
+        username: ['', [Validators.required, Validators.minLength(3)]],
+        email: ['', [Validators.required, Validators.email]],
+        fullName: ['', [Validators.required]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', [Validators.required]],
+        role: [UserRole.FUNCIONARIO, [Validators.required]],
+        active: [true, [Validators.required]],
+      },
+      { validators: [UserFormComponent.passwordsMatch] },
+    );
   }
 
   loadUser(id: string) {
@@ -76,7 +122,8 @@ export class UserFormComponent implements OnInit {
           username: user.username,
           email: user.email,
           fullName: user.fullName,
-          role: user.role
+          role: user.role,
+          active: user.active !== false,
         });
         this.loading = false;
       },
@@ -84,7 +131,7 @@ export class UserFormComponent implements OnInit {
         console.error('Error loading user:', error);
         this.error = 'Error al cargar el usuario';
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -101,22 +148,60 @@ export class UserFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const data: User = {
+    const base: User = {
       username: this.f['username'].value,
       email: this.f['email'].value,
       fullName: this.f['fullName'].value,
       role: this.f['role'].value,
-      status: UserStatus.ACTIVO
+      active: !!this.f['active'].value,
     };
 
     if (!this.isEditMode) {
-      data.password = this.f['password'].value;
+      base.password = this.f['password'].value;
     }
 
-    const request = this.isEditMode && this.userId
-      ? this.userService.updateUser(this.userId, data)
-      : this.userService.createUser(data);
+    const request =
+      this.isEditMode && this.userId
+        ? this.userService.updateUser(this.userId, base)
+        : this.userService.createUser(base);
 
+    // If creating a new user, after successful creation activate it so it appears in lists
+    if (!this.isEditMode) {
+      request.subscribe({
+        next: (created: User) => {
+          // If backend returned the created user id, call activate endpoint
+          const id = (created as any)?.id;
+          if (id) {
+            this.userService.activateUser(id).subscribe({
+              next: () => {
+                this.loading = false;
+                // remove temporary placeholder if present
+                this.userService.tempUsers = (this.userService.tempUsers || []).filter(u => u.id !== id);
+                try { alert('Usuario creado y activado correctamente'); } catch (e) {}
+                this.router.navigate(['/users']);
+              },
+              error: (err) => {
+                this.loading = false;
+                console.error('Error al activar usuario:', err);
+                // still navigate back to list so user can see created record if backend made it active later
+                this.router.navigate(['/users']);
+              }
+            });
+          } else {
+            this.loading = false;
+            this.router.navigate(['/users']);
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('Error creating user:', error);
+          this.error = error.error?.message || 'Error al guardar el usuario';
+        }
+      });
+      return;
+    }
+
+    // Update existing user flow
     request.subscribe({
       next: () => {
         this.loading = false;
@@ -126,7 +211,7 @@ export class UserFormComponent implements OnInit {
         this.loading = false;
         console.error('Error saving user:', error);
         this.error = error.error?.message || 'Error al guardar el usuario';
-      }
+      },
     });
   }
 

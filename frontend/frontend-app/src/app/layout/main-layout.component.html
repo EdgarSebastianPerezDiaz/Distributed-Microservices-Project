@@ -1,0 +1,116 @@
+<mat-sidenav-container class="shell" hasBackdrop="false">
+  <mat-sidenav
+    #drawer
+    class="shell__sidenav"
+    [mode]="'side'"
+    [opened]="true"
+    [fixedInViewport]="true"
+    fixedTopGap="0"
+  >
+    <div class="shell__brand">
+      <div class="shell__brand-title">ProcureAdmin</div>
+      <div class="shell__brand-sub">GOVERNMENT PORTAL</div>
+    </div>
+
+    <div class="shell__profile" *ngIf="currentUser">
+      <div class="shell__avatar ring">
+        {{ (currentUser.fullName || currentUser.username || '?').charAt(0) | uppercase }}
+      </div>
+      <div class="shell__profile-text">
+        <div class="shell__profile-name">{{ currentUser.fullName || currentUser.username }}</div>
+        <div class="shell__profile-role">{{ currentUser.role | titlecase }}</div>
+      </div>
+    </div>
+
+    <mat-nav-list class="shell__nav">
+      <a
+        mat-list-item
+        routerLink="/users"
+        routerLinkActive="is-active"
+        *ngIf="isAdmin()"
+      >
+        <mat-icon matListItemIcon class="shell__nav-icon">manage_accounts</mat-icon>
+        <span matListItemTitle>Gestión de Usuarios</span>
+      </a>
+      <a
+        mat-list-item
+        routerLink="/suppliers"
+        routerLinkActive="is-active"
+        *ngIf="isAdmin() || isFuncionario()"
+      >
+        <mat-icon matListItemIcon class="shell__nav-icon">apartment</mat-icon>
+        <span matListItemTitle>Proveedores</span>
+      </a>
+      <a
+        mat-list-item
+        routerLink="/contratos"
+        routerLinkActive="is-active"
+        *ngIf="isAdmin() || isFuncionario()"
+      >
+        <mat-icon matListItemIcon class="shell__nav-icon">description</mat-icon>
+        <span matListItemTitle>Contratos</span>
+      </a>
+      <a
+        mat-list-item
+        routerLink="/auditoria"
+        routerLinkActive="is-active"
+        *ngIf="isAdmin() || isAuditor()"
+      >
+        <mat-icon matListItemIcon class="shell__nav-icon">gavel</mat-icon>
+        <span matListItemTitle>Auditoría</span>
+      </a>
+    </mat-nav-list>
+
+    <div class="shell__footer">
+      <button mat-button type="button" class="shell__footer-link" disabled>
+        <mat-icon>tune</mat-icon>
+        <span>Configuración</span>
+      </button>
+      <button mat-button type="button" class="shell__footer-link" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <mat-toolbar class="shell__toolbar">
+      <button mat-icon-button type="button" class="shell__menu-btn" (click)="drawer.toggle()" aria-label="Menú">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <div class="shell__toolbar-leading">
+        <span class="shell__toolbar-title">{{ shellToolbarLabel }}</span>
+      </div>
+      <span class="shell__spacer"></span>
+      <div class="shell__search faux-search" aria-hidden="true">
+        <mat-icon>search</mat-icon>
+        <span>Buscar trámites o expedientes...</span>
+      </div>
+      <span class="shell__spacer shell__spacer--wide"></span>
+      <button mat-icon-button type="button" aria-label="Notificaciones">
+        <mat-icon>notifications_outlined</mat-icon>
+      </button>
+      <button mat-icon-button type="button" aria-label="Ayuda">
+        <mat-icon>help_outline</mat-icon>
+      </button>
+      <button mat-icon-button type="button" [matMenuTriggerFor]="profileMenu" aria-label="Usuario">
+        <span class="shell__toolbar-avatar">{{ (currentUser?.fullName || currentUser?.username || '?').charAt(0) | uppercase }}</span>
+      </button>
+      <mat-menu #profileMenu="matMenu" xPosition="before">
+        <div class="shell__menu-heading" mat-menu-item disabled>
+          <strong>{{ currentUser?.fullName || currentUser?.username }}</strong>
+          <small>{{ currentUser?.role }}</small>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="shell__main">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

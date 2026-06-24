@@ -9,6 +9,14 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  email: string;
+  fullName: string;
+  role: string;
+}
+
 export interface User {
   id?: string;
   username: string;
@@ -16,9 +24,9 @@ export interface User {
   fullName?: string;
   password?: string;
   role: UserRole;
-  status: UserStatus;
+  active: boolean;
   createdAt?: string;
-  updatedAt?: string;
+  lastLogin?: string;
 }
 
 export enum UserRole {

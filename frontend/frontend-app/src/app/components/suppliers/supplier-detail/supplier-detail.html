@@ -1,68 +1,76 @@
-<div class="detail-container">
-  <div class="detail-header">
-    <button mat-icon-button (click)="goBack()">
+<div class="page page--narrow">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <a routerLink="/suppliers">Proveedores</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Detalle</span>
+  </nav>
+
+  <header class="page__toolbar">
+    <button mat-button type="button" class="back" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
+      Volver
     </button>
-    <h2>Detalles del Proveedor</h2>
-    <button mat-raised-button color="primary" (click)="editSupplier()" *ngIf="isAdmin()">
+    <button mat-flat-button color="primary" class="cta" (click)="editSupplier()" *ngIf="isAdmin()">
       <mat-icon>edit</mat-icon>
-      <span>Editar</span>
+      Editar
     </button>
+  </header>
+
+  <mat-card class="elevated-card" *ngIf="!loading && supplier">
+    <div class="head">
+      <div class="icon-tile">
+        <mat-icon>apartment</mat-icon>
+      </div>
+      <div>
+        <div class="kicker">Proveedor seleccionado</div>
+        <h1>{{ supplier.businessName }}</h1>
+        <div class="sub muted">
+          NIT: <span class="mono">{{ supplier.nit }}</span>
+        </div>
+      </div>
+      <span
+        class="chip"
+        [class.is-on]="supplier.status === SupplierStatus.HABILITADO"
+        [class.is-off]="supplier.status !== SupplierStatus.HABILITADO"
+      >
+        {{ supplier.status }}
+      </span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content class="content">
+      <div class="grid">
+        <div class="field">
+          <div class="label">Tipo de persona</div>
+          <div class="value-box">{{ supplier.personType === PersonType.JURIDICA ? 'Jurídica' : 'Natural' }}</div>
+        </div>
+        <div class="field">
+          <div class="label">Teléfono</div>
+          <div class="value-box">{{ supplier.phone || '-' }}</div>
+        </div>
+        <div class="field span-2">
+          <div class="label">Correo electrónico</div>
+          <div class="value-box">{{ supplier.email }}</div>
+        </div>
+      </div>
+
+      <div class="banner warn" *ngIf="supplier.status === SupplierStatus.INHABILITADO">
+        <mat-icon>warning</mat-icon>
+        <span>
+          Este proveedor está inhabilitado: no debe usarse en nuevos contratos hasta regularizar el estado institucional.
+        </span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="center" *ngIf="loading">
+    <mat-spinner diameter="46"></mat-spinner>
   </div>
 
-  <div class="detail-content" *ngIf="!loading && supplier">
-    <mat-card>
-      <mat-card-content>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>NIT</label>
-            <p>{{ supplier.nit }}</p>
-          </div>
-          <div class="info-item">
-            <label>Razón Social</label>
-            <p>{{ supplier.businessName }}</p>
-          </div>
-          <div class="info-item">
-            <label>Email</label>
-            <p>{{ supplier.email }}</p>
-          </div>
-          <div class="info-item">
-            <label>Teléfono</label>
-            <p>{{ supplier.phone || '-' }}</p>
-          </div>
-          <div class="info-item">
-            <label>Tipo de Persona</label>
-            <p>
-              <mat-chip-set aria-label="Type">
-                <mat-chip>{{ supplier.personType }}</mat-chip>
-              </mat-chip-set>
-            </p>
-          </div>
-          <div class="info-item">
-            <label>Estado</label>
-            <p>
-              <mat-chip-set aria-label="Status">
-                <mat-chip [highlighted]="supplier.status === SupplierStatus.HABILITADO">
-                  {{ supplier.status }}
-                </mat-chip>
-              </mat-chip-set>
-            </p>
-          </div>
-        </div>
-        
-        <mat-divider class="divider"></mat-divider>
-        
-        <div class="status-warning" *ngIf="supplier.status === SupplierStatus.INHABILITADO">
-          <mat-icon>warning</mat-icon>
-          <span>Este proveedor está INHABILITADO y no puede usarse en nuevos contratos</span>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <mat-spinner *ngIf="loading" diameter="40"></mat-spinner>
-
-  <div class="error-message" *ngIf="error">
+  <div class="banner error" *ngIf="error">
     <mat-icon>error</mat-icon>
     <span>{{ error }}</span>
   </div>

@@ -1,0 +1,135 @@
+<div class="contract-list-container">
+  <nav class="crumbs crumbs--muted" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="crumbs__sep">›</span>
+    <span class="crumbs__strong">Contratos</span>
+  </nav>
+
+  <header class="list-header">
+    <div>
+      <h2>Contratos</h2>
+      <p>Gestión y supervisión de licitaciones activas.</p>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="create-btn"
+      *ngIf="isFuncionario()"
+      (click)="createContract()"
+      type="button"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Crear contrato</span>
+    </button>
+  </header>
+
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar contrato</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Busca por número, proveedor o estado"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="onSearch()" [disabled]="!searchTerm.trim()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-stroked-button type="button" (click)="clearSearch()" *ngIf="searchTerm">
+      <mat-icon>clear</mat-icon>
+      <span>Limpiar</span>
+    </button>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div class="empty-state empty-state--error" *ngIf="!loading && errorMessage">
+    <mat-icon class="empty-icon">error_outline</mat-icon>
+    <h3>Error al cargar contratos</h3>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div class="cards" *ngIf="!loading && !errorMessage && contracts.length > 0">
+    <mat-card class="contract-card elevated-card" *ngFor="let element of contracts">
+      <div class="card-top">
+        <div class="card-top__title">
+          <div class="k">ID CONTRATO</div>
+          <div class="big">{{ element.contractNumber }}</div>
+        </div>
+
+        <span class="status-badge" [ngClass]="getStatusTone(element.status)">
+          {{ getStatusLabel(element.status) }}
+        </span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card-grid__main">
+          <div class="section-block">
+            <div class="k">PROVEEDOR</div>
+            <div class="v">{{ element.supplierBusinessName || 'Sin nombre' }}</div>
+            <div class="meta">{{ element.supplierNit || element.supplierId }}</div>
+          </div>
+
+          <div class="section-block">
+            <div class="k">OBJETO</div>
+            <p class="object-preview">{{ getObjectPreview(element.object) }}</p>
+          </div>
+        </div>
+
+        <div class="card-grid__side">
+          <div class="section-block">
+            <div class="k">PRESUPUESTO</div>
+            <div class="money">{{ formatCurrency(element.budget) }}</div>
+          </div>
+
+          <div class="section-block dates-block">
+            <div class="k">FECHAS</div>
+            <p><strong>Inicio:</strong> {{ element.startDate }}</p>
+            <p><strong>Fin:</strong> {{ element.endDate }}</p>
+          </div>
+
+          <div class="section-block created-at">
+            <div class="k">CREADO</div>
+            <p>{{ element.createdAt ? (element.createdAt | date:'short') : '-' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button mat-flat-button color="primary" type="button" class="dual">Ver Detalles</button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          class="dual"
+          *ngIf="isFuncionario()"
+          [routerLink]="['/contratos', element.id, 'edit']"
+        >
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-stroked-button type="button" class="dual" *ngIf="isAdministrador()" disabled>Solo lectura</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !errorMessage && contracts.length === 0">
+    <mat-icon class="empty-icon">description</mat-icon>
+    <h3>No hay contratos</h3>
+    <p *ngIf="searchTerm">No se encontraron contratos que coincidan con tu búsqueda</p>
+    <p *ngIf="!searchTerm">Comienza creando un nuevo contrato</p>
+  </div>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  ></mat-paginator>
+</div>

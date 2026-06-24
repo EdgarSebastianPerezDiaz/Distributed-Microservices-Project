@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -136,6 +138,25 @@ public class ContractController {
         
         ContractResponse contract = contractService.getContractById(id, userId, userRole);
         return ResponseEntity.ok(contract);
+    }
+
+    @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'FUNCIONARIO', 'AUDITOR')")
+    public ResponseEntity<byte[]> downloadContractPdf(@PathVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+
+        UUID userId = UUID.fromString(principal.getUserId());
+        String userRole = principal.getRole();
+
+        log.info("GET /api/contracts/{}/pdf - Generating contract PDF", id);
+
+        byte[] pdfContent = contractService.generateContractPdf(id, userId, userRole);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contrato-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfContent);
     }
     
     @GetMapping("/{id}/history")

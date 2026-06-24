@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,6 +16,7 @@ import { Supplier, PersonType, SupplierStatus } from '../../../models/supplier.m
   selector: 'app-supplier-form',
   imports: [
     CommonModule,
+    RouterModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,

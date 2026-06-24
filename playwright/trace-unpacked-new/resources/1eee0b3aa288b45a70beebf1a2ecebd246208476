@@ -1,0 +1,76 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: frontend-completo.spec.ts >> Frontend + API smoke: Users & Suppliers >> UI: Login admin, users page loads, create user via UI and visibility, role segregation
+- Location: frontend-completo.spec.ts:218:7
+
+# Error details
+
+```
+Test timeout of 300000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e6]:
+  - generic [ref=e7]:
+    - img [ref=e9]: business
+    - heading "Portal de Compras" [level=1] [ref=e10]
+    - paragraph [ref=e11]: Sistema de Gestión de Microservicios
+  - generic [ref=e12]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]: login
+        - text: Iniciar Sesión
+      - generic [ref=e17]: Ingresa tus credenciales para continuar
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - text: Usuario o Email
+            - generic [ref=e25]: "*"
+          - img [ref=e27]: person
+          - textbox "Usuario o Email" [ref=e29]:
+            - /placeholder: admin@example.com
+            - text: func_user_905841
+        - paragraph [ref=e31]:
+          - img [ref=e32]: info
+          - text: "Ejemplo: admin, usuario@example.com"
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - text: Contraseña
+          - generic [ref=e38]: "*"
+        - img [ref=e40]: lock
+        - textbox "Contraseña" [ref=e42]:
+          - /placeholder: ••••••••
+          - text: Passw0rd!
+        - generic [ref=e43]:
+          - button [disabled]:
+            - img: visibility_off
+      - button "Iniciando sesión..." [disabled]:
+        - generic:
+          - progressbar:
+            - generic:
+              - img
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - img
+                - generic:
+                  - img
+          - text: Iniciando sesión...
+      - paragraph [ref=e46]:
+        - img [ref=e47]: info
+        - generic [ref=e48]: ¿Necesitas ayuda? Contacta al administrador del sistema
+  - paragraph [ref=e50]:
+    - generic [ref=e51]: v1.0
+    - text: Sistema de Gestión de Compras © 2026
+```

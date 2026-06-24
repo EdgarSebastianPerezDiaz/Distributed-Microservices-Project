@@ -1,66 +1,127 @@
-<div class="form-container">
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</mat-card-title>
-    </mat-card-header>
+<div class="page page--narrow">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">INICIO</a>
+    <span class="crumbs__sep">&gt;</span>
+    <a routerLink="/users">GESTIÓN DE USUARIOS</a>
+    <span class="crumbs__sep">&gt;</span>
+    <span class="crumbs__current">{{ isEditMode ? 'EDITAR USUARIO' : 'CREAR USUARIO' }}</span>
+  </nav>
+
+  <header class="page__intro">
+    <h1>{{ isEditMode ? 'Editar Usuario' : 'Crear Usuario' }}</h1>
+    <p *ngIf="!isEditMode">
+      Complete los campos requeridos para registrar un nuevo operador en el sistema.
+    </p>
+    <p *ngIf="isEditMode">
+      Actualice los datos del usuario y conserve la trazabilidad del sistema.
+    </p>
+    <div class="pill pill--muted" *ngIf="isEditMode && userId">
+      ID de Usuario: <strong>{{ userId }}</strong>
+    </div>
+  </header>
+
+  <mat-card class="elevated-card form-card">
+    <div class="form-card__head" *ngIf="isEditMode">
+      <div class="big-avatar" aria-hidden="true">
+        {{ (f['fullName'].value || f['username'].value || 'U').toString().trim().substring(0, 2) | uppercase }}
+      </div>
+      <div>
+        <h2 class="form-card__profile-title">Perfil de Usuario</h2>
+        <div class="form-card__profile-sub muted">Los cambios aplican sobre el registro institucional</div>
+      </div>
+    </div>
 
     <mat-card-content>
-      <div class="error-message" *ngIf="error">
+      <div class="banner banner--error" *ngIf="error">
         <mat-icon>error</mat-icon>
         <span>{{ error }}</span>
       </div>
 
+      <div class="section-title" *ngIf="!isEditMode">
+        Información del Usuario
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Usuario</mat-label>
-          <input matInput formControlName="username" placeholder="ej. juan_perez">
-          <mat-error *ngIf="f['username'].hasError('required')">El usuario es obligatorio</mat-error>
-          <mat-error *ngIf="f['username'].hasError('minlength')">Mínimo 3 caracteres</mat-error>
-        </mat-form-field>
+        <div class="stack">
+          <div class="field-block">
+            <div class="field-label">Nombre completo</div>
+            <mat-form-field class="airy" appearance="outline">
+              <input matInput formControlName="fullName" placeholder="Ej: Juan Pérez">
+              <mat-error *ngIf="f['fullName'].hasError('required')">El nombre es obligatorio</mat-error>
+            </mat-form-field>
+          </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com">
-          <mat-error *ngIf="f['email'].hasError('required')">El email es obligatorio</mat-error>
-          <mat-error *ngIf="f['email'].hasError('email')">Email inválido</mat-error>
-        </mat-form-field>
+          <div class="field-block">
+            <div class="field-label">Nombre de usuario</div>
+            <mat-form-field class="airy" appearance="outline">
+              <input matInput formControlName="username" placeholder="juan.perez2024">
+              <mat-error *ngIf="f['username'].hasError('required')">El usuario es obligatorio</mat-error>
+              <mat-error *ngIf="f['username'].hasError('minlength')">Mínimo 3 caracteres</mat-error>
+            </mat-form-field>
+          </div>
 
-        <mat-form-field appearance="outline" class="full-width" *ngIf="!isEditMode">
-          <mat-label>Contraseña</mat-label>
-          <input matInput type="password" formControlName="password" placeholder="Mínimo 6 caracteres">
-          <mat-error *ngIf="f['password'].hasError('required')">La contraseña es obligatoria</mat-error>
-          <mat-error *ngIf="f['password'].hasError('minlength')">Mínimo 6 caracteres</mat-error>
-        </mat-form-field>
+          <div class="field-block">
+            <div class="field-label">Correo electrónico</div>
+            <mat-form-field class="airy" appearance="outline">
+              <input matInput type="email" formControlName="email" placeholder="jperez@sistema.gob">
+              <mat-error *ngIf="f['email'].hasError('required')">El email es obligatorio</mat-error>
+              <mat-error *ngIf="f['email'].hasError('email')">Email inválido</mat-error>
+            </mat-form-field>
+          </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nombre Completo</mat-label>
-          <input matInput formControlName="fullName" placeholder="Ej. Juan Pérez García">
-          <mat-error *ngIf="f['fullName'].hasError('required')">El nombre es obligatorio</mat-error>
-        </mat-form-field>
+          <ng-container *ngIf="!isEditMode">
+            <div class="field-block">
+              <div class="field-label">Contraseña</div>
+              <mat-form-field class="airy" appearance="outline">
+                <input matInput type="password" formControlName="password">
+                <mat-error *ngIf="f['password'].hasError('required')">La contraseña es obligatoria</mat-error>
+                <mat-error *ngIf="f['password'].hasError('minlength')">Mínimo 6 caracteres</mat-error>
+              </mat-form-field>
+            </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Rol</mat-label>
-          <mat-select formControlName="role">
-            <mat-option *ngFor="let role of roles" [value]="role">
-              {{ role }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="f['role'].hasError('required')">El rol es obligatorio</mat-error>
-        </mat-form-field>
+            <div class="field-block">
+              <div class="field-label">Confirmar contraseña</div>
+              <mat-form-field class="airy" appearance="outline">
+                <input matInput type="password" formControlName="confirmPassword">
+                <mat-error *ngIf="f['confirmPassword'].hasError('required')">Confirma la contraseña</mat-error>
+                <mat-error *ngIf="form.hasError('passwordMismatch') && (f['confirmPassword'].dirty || submitted)">
+                  Las contraseñas no coinciden
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </ng-container>
 
-        <div class="button-group">
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-            <mat-icon>save</mat-icon>
-            <span>{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
-          </button>
-          <button mat-stroked-button type="button" (click)="onCancel()">
-            <mat-icon>cancel</mat-icon>
-            <span>Cancelar</span>
-          </button>
+          <div class="field-block">
+            <div class="field-label">Selección de rol</div>
+            <mat-form-field class="airy" appearance="outline">
+              <mat-select formControlName="role" placeholder="Seleccione un rol...">
+                <mat-option *ngFor="let r of roleLabels" [value]="r.value">{{ r.label }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="f['role'].hasError('required')">El rol es obligatorio</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="field-block">
+            <div class="field-label">Estado</div>
+            <mat-radio-group class="radio-row" formControlName="active">
+              <mat-radio-button class="golden-radio" [value]="true">Activo</mat-radio-button>
+              <mat-radio-button class="golden-radio" [value]="false">Inactivo</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+
+        <button mat-flat-button color="primary" class="cta" type="submit" [disabled]="form.invalid">
+          {{ isEditMode ? 'Guardar Cambios' : 'Guardar Usuario' }}
+        </button>
+
+        <div class="center">
+          <button mat-button type="button" class="ghost-link" (click)="onCancel()">Cancelar</button>
         </div>
       </form>
 
-      <mat-spinner *ngIf="loading" diameter="40"></mat-spinner>
+      <div class="center pad" *ngIf="loading">
+        <mat-spinner diameter="44"></mat-spinner>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

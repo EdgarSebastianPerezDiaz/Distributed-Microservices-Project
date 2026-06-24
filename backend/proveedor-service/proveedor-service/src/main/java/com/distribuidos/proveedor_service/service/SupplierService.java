@@ -73,7 +73,7 @@ public class SupplierService {
         }
 
         Supplier supplier = supplierMapper.toEntity(request);
-        supplier.setStatus(SupplierStatus.ACTIVO); // Estado inicial HABILITADO
+        supplier.setStatus(SupplierStatus.HABILITADO); // Estado inicial HABILITADO
         Supplier savedSupplier = supplierRepository.save(supplier);
 
          Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -170,7 +170,7 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
     }
 
     /**
-     * Cambiar estado de proveedor (ACTIVO/INACTIVO)
+     * Cambiar estado de proveedor (HABILITADO/INHABILITADO)
      * Si se inactiva, validar que no tenga contratos activos
      * Cada cambio genera evento de auditoría
      */
@@ -194,8 +194,8 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
             return supplierMapper.toResponse(supplier);
         }
 
-        // Si se quiere desactivar (INACTIVO), validar que no tenga contratos activos
-        if (newStatus == SupplierStatus.INACTIVO) {
+        // Si se quiere desactivar (INHABILITADO), validar que no tenga contratos activos
+        if (newStatus == SupplierStatus.INHABILITADO) {
             try {
                 List<ContractSummaryDTO> activeContracts = contractClient.getActiveContractsBySupplier(id.toString());
                 if (activeContracts != null && !activeContracts.isEmpty()) {
@@ -283,6 +283,34 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
     }
 
     /**
+     * Verificar si un NIT está disponible
+     */
+    @Transactional(readOnly = true)
+    public boolean isNitAvailable(String nit) {
+        return !supplierRepository.existsByNit(nit);
+    }
+
+    /**
+     * Verificar si un email está disponible
+     */
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !supplierRepository.existsByEmail(email);
+    }
+
+    /**
+     * Borrado lógico de proveedor: cambia a INHABILITADO (usa la misma validación que changeSupplierStatus)
+     */
+    @Transactional
+    public void deleteSupplier(UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+
+        // Reutilizar la lógica de cambio de estado para respetar validaciones
+        changeSupplierStatus(id, SupplierStatus.INHABILITADO, principal.getUserId(), principal.getEmail(), principal.getRole());
+    }
+
+    /**
      * Obtener proveedor como entidad (para comunicación interna)
      */
     @Transactional(readOnly = true)
@@ -293,12 +321,12 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
     }
 
     /**
-     * Verificar si un proveedor existe y está ACTIVO
+     * Verificar si un proveedor existe y está HABILITADO
      */
     @Transactional(readOnly = true)
     public boolean isSupplierActive(UUID id) {
         return supplierRepository.findById(id)
-                .map(supplier -> supplier.getStatus() == SupplierStatus.ACTIVO)
+                .map(supplier -> supplier.getStatus() == SupplierStatus.HABILITADO)
                 .orElse(false);
     }
 
